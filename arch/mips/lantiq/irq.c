@@ -13,6 +13,7 @@
 #include <linux/of_platform.h>
 #include <linux/of_address.h>
 #include <linux/of_irq.h>
+#include <linux/module.h>
 
 #include <asm/bootinfo.h>
 #include <asm/irq_cpu.h>
@@ -92,6 +93,7 @@ void ltq_disable_irq(struct irq_data *d)
 	}
 	raw_spin_unlock_irqrestore(&ltq_icu_lock, flags);
 }
+EXPORT_SYMBOL(ltq_mask_and_ack_irq);
 
 void ltq_mask_and_ack_irq(struct irq_data *d)
 {
