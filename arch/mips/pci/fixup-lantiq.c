@@ -6,12 +6,19 @@
 
 #include <linux/of_irq.h>
 #include <linux/of_pci.h>
+#include <linux/pci.h>
+#include "ifxmips_pci_common.h"
 
 int (*ltq_pci_plat_arch_init)(struct pci_dev *dev) = NULL;
 int (*ltq_pci_plat_dev_init)(struct pci_dev *dev) = NULL;
 
 int pcibios_plat_dev_init(struct pci_dev *dev)
 {
+#ifdef CONFIG_PCIE_LANTIQ
+	if (pci_find_capability(dev, PCI_CAP_ID_EXP))
+		ifx_pcie_bios_plat_dev_init(dev);
+#endif
+
 	if (ltq_pci_plat_arch_init)
 		return ltq_pci_plat_arch_init(dev);
 
@@ -23,5 +30,10 @@ int pcibios_plat_dev_init(struct pci_dev *dev)
 
 int pcibios_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
 {
+#ifdef CONFIG_PCIE_LANTIQ
+	if (pci_find_capability((struct pci_dev *)dev, PCI_CAP_ID_EXP))
+		return ifx_pcie_bios_map_irq(dev, slot, pin);
+#endif
+
 	return of_irq_parse_and_map_pci(dev, slot, pin);
 }
