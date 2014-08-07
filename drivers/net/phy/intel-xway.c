@@ -229,6 +229,51 @@ static int xway_gphy_rgmii_init(struct phy_device *phydev)
 			  XWAY_MDIO_MIICTRL_TXSKEW_MASK, val);
 }
 
+#if IS_ENABLED(CONFIG_OF_MDIO)
+static int vr9_gphy_of_reg_init(struct phy_device *phydev)
+{
+	u32 tmp;
+
+	/* store the led values if one was passed by the devicetree */
+	if (!of_property_read_u32(phydev->mdio.dev.of_node, "lantiq,ledch", &tmp))
+		phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LEDCH, tmp);
+
+	if (!of_property_read_u32(phydev->mdio.dev.of_node, "lantiq,ledcl", &tmp))
+		phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LEDCL, tmp);
+
+	if (!of_property_read_u32(phydev->mdio.dev.of_node, "lantiq,led0h", &tmp))
+		phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LED0H, tmp);
+
+	if (!of_property_read_u32(phydev->mdio.dev.of_node, "lantiq,led0l", &tmp))
+		phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LED0L, tmp);
+
+	if (!of_property_read_u32(phydev->mdio.dev.of_node, "lantiq,led1h", &tmp))
+		phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LED1H, tmp);
+
+	if (!of_property_read_u32(phydev->mdio.dev.of_node, "lantiq,led1l", &tmp))
+		phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LED1L, tmp);
+
+	if (!of_property_read_u32(phydev->mdio.dev.of_node, "lantiq,led2h", &tmp))
+		phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LED2H,  tmp);
+
+	if (!of_property_read_u32(phydev->mdio.dev.of_node, "lantiq,led2l", &tmp))
+		phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LED2L, tmp);
+
+	if (!of_property_read_u32(phydev->mdio.dev.of_node, "lantiq,led3h", &tmp))
+		phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LED3H, tmp);
+
+	if (!of_property_read_u32(phydev->mdio.dev.of_node, "lantiq,led3l", &tmp))
+		phy_write_mmd(phydev, MDIO_MMD_VEND2, XWAY_MMD_LED3L, tmp);
+
+	return 0;
+}
+#else
+static int vr9_gphy_of_reg_init(struct phy_device *phydev)
+{
+	return 0;
+}
+#endif /* CONFIG_OF_MDIO */
+
 static int xway_gphy_config_init(struct phy_device *phydev)
 {
 	int err;
@@ -280,6 +325,7 @@ static int xway_gphy_config_init(struct phy_device *phydev)
 	if (err)
 		return err;
 
+	vr9_gphy_of_reg_init(phydev);
 	return 0;
 }
 
