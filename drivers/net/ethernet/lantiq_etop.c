@@ -766,7 +766,11 @@ ltq_etop_init(struct net_device *dev)
 	if (err)
 		goto err_hw;
 
-	memcpy(&mac, &priv->pldata->mac, sizeof(struct sockaddr));
+	memcpy(&mac.sa_data, ltq_get_eth_mac(), ETH_ALEN);
+
+	if (!is_valid_ether_addr(mac.sa_data))
+		memcpy(&mac.sa_data, priv->mac, ETH_ALEN);
+
 	if (!is_valid_ether_addr(mac.sa_data)) {
 		pr_warn("etop: invalid MAC, using random\n");
 		eth_random_addr(mac.sa_data);
