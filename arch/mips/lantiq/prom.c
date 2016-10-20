@@ -34,10 +34,14 @@ unsigned long physical_memsize = 0L;
  */
 static struct ltq_soc_info soc_info;
 
+/* for Multithreading (APRP), vpe.c will use it */
+unsigned long cp0_memsize;
+
 const char *get_system_type(void)
 {
 	return soc_info.sys_type;
 }
+EXPORT_SYMBOL(ltq_soc_type);
 
 int ltq_soc_type(void)
 {
