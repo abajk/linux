@@ -9,7 +9,9 @@
 #include <linux/phy.h>
 #include <linux/of.h>
 #include <linux/bitfield.h>
+#include <linux/ethtool_netlink.h>
 
+#define XWAY_MDIO_PHYPERF		0x10	/* Physical layer performance status */
 #define XWAY_MDIO_MIICTRL		0x17	/* mii control */
 #define XWAY_MDIO_IMASK			0x19	/* interrupt mask */
 #define XWAY_MDIO_ISTAT			0x1A	/* interrupt status */
@@ -17,6 +19,10 @@
 
 #define XWAY_MDIO_MIICTRL_RXSKEW_MASK	GENMASK(14, 12)
 #define XWAY_MDIO_MIICTRL_TXSKEW_MASK	GENMASK(10, 8)
+
+#define XWAY_GCTRL_TM_CDIAG		0xC000
+
+#define XWAY_MDIO_PHYPERF_LEN		0x000F	/* Estimated loop lengtg */
 
 /* bit 15:12 are reserved */
 #define XWAY_MDIO_LED_LED3_EN		BIT(11)	/* Enable the integrated function of LED3 */
@@ -532,6 +538,33 @@ static int xway_gphy_led_polarity_set(struct phy_device *phydev, int index,
 	return -EINVAL;
 }
 
+static int xway_gphy_cable_test_start(struct phy_device *phydev)
+{
+	int val;
+
+	val = phy_read(phydev, MII_CTRL1000);
+
+	val |= XWAY_GCTRL_TM_CDIAG;
+
+	phy_write(phydev, MII_CTRL1000, val);
+
+	return 0;
+}
+
+static int xway_gphy_cable_test_get_status(struct phy_device *phydev,
+					   bool *finished)
+{
+	int val;
+
+	val = phy_read(phydev, XWAY_MDIO_PHYPERF);
+
+	ethnl_cable_test_fault_length(phydev, ETHTOOL_A_CABLE_PAIR_A, (val & XWAY_MDIO_PHYPERF_LEN) * 1000);
+
+	*finished = true;
+
+	return 0;
+}
+
 static struct phy_driver xway_gphy[] = {
 	{
 		.phy_id		= PHY_ID_PHY11G_1_3,
@@ -612,6 +645,8 @@ static struct phy_driver xway_gphy[] = {
 		.led_hw_control_get = xway_gphy_led_hw_control_get,
 		.led_hw_control_set = xway_gphy_led_hw_control_set,
 		.led_polarity_set = xway_gphy_led_polarity_set,
+		.cable_test_start = xway_gphy_cable_test_start,
+		.cable_test_get_status = xway_gphy_cable_test_get_status,
 	}, {
 		.phy_id		= PHY_ID_PHY22F_1_5,
 		.phy_id_mask	= 0xffffffff,
@@ -627,6 +662,8 @@ static struct phy_driver xway_gphy[] = {
 		.led_hw_control_get = xway_gphy_led_hw_control_get,
 		.led_hw_control_set = xway_gphy_led_hw_control_set,
 		.led_polarity_set = xway_gphy_led_polarity_set,
+		.cable_test_start = xway_gphy_cable_test_start,
+		.cable_test_get_status = xway_gphy_cable_test_get_status,
 	}, {
 		.phy_id		= PHY_ID_PHY11G_VR9_1_1,
 		.phy_id_mask	= 0xffffffff,
@@ -672,6 +709,8 @@ static struct phy_driver xway_gphy[] = {
 		.led_hw_control_get = xway_gphy_led_hw_control_get,
 		.led_hw_control_set = xway_gphy_led_hw_control_set,
 		.led_polarity_set = xway_gphy_led_polarity_set,
+		.cable_test_start = xway_gphy_cable_test_start,
+		.cable_test_get_status = xway_gphy_cable_test_get_status,
 	}, {
 		.phy_id		= PHY_ID_PHY22F_VR9_1_2,
 		.phy_id_mask	= 0xffffffff,
@@ -687,6 +726,8 @@ static struct phy_driver xway_gphy[] = {
 		.led_hw_control_get = xway_gphy_led_hw_control_get,
 		.led_hw_control_set = xway_gphy_led_hw_control_set,
 		.led_polarity_set = xway_gphy_led_polarity_set,
+		.cable_test_start = xway_gphy_cable_test_start,
+		.cable_test_get_status = xway_gphy_cable_test_get_status,
 	},
 };
 module_phy_driver(xway_gphy);
