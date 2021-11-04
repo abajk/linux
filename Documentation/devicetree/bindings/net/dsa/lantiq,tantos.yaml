@@ -1,0 +1,94 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/net/dsa/lantiq,tantos.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Lantiq Tantos Ethernet switches
+
+allOf:
+  - $ref: dsa.yaml#
+
+maintainers:
+  - Aleksander Jan Bajkowski <olek2@wp.pl>
+
+description:
+  Realtek advertises these chips as fast/gigabit switches or unmanaged
+  switches. They can be controlled using different interfaces, like SMI,
+  MDIO or SPI.
+
+properties:
+  compatible:
+    enum:
+      - lantiq,arx100-tantos
+
+  reg:
+    maxItems: 3
+
+  mdio:
+    $ref: /schemas/net/mdio.yaml#
+    unevaluatedProperties: false
+
+required:
+  - compatible
+  - reg
+
+unevaluatedProperties: false
+
+examples:
+  - |
+    switch@e108000 {
+            #address-cells = <1>;
+            #size-cells = <0>;
+            compatible = "lantiq,arx100-tantos";
+            reg = < 0xe108000 0x8c
+                    0xe1080c4 0x08
+                    0xe1080cc 0x08
+                    >;
+
+            dsa,member = <0 0>;
+
+            ports {
+                    #address-cells = <1>;
+                    #size-cells = <0>;
+
+                    port@0 {
+                            reg = <0>;
+                            label = "lan1";
+                            phy-mode = "rgmii";
+                            phy-handle = <&phy0>;
+                    };
+
+                    port@1 {
+                            reg = <1>;
+                            label = "lan2";
+                            phy-mode = "rmii";
+                            phy-handle = <&phy1>;
+                    };
+
+                    port@2 {
+                            reg = <0x2>;
+                            phy-mode = "internal";
+                            ethernet = <&eth0>;
+
+                            fixed-link {
+                                    speed = <1000>;
+                                    full-duplex;
+                            };
+                   };
+            };
+
+            mdio {
+                    #address-cells = <1>;
+                    #size-cells = <0>;
+                    compatible = "lantiq,arx100-mdio";
+
+                    phy0: ethernet-phy@0 {
+                            reg = <0x0>;
+                    };
+
+                    phy1: ethernet-phy@1 {
+                            reg = <0x1>;
+                    };
+            };
+    };

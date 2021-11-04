@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Lantiq / Intel PMAC driver for XRX200 SoCs
+ * Lantiq / Intel Pseudo MAC driver for ARX100 and XRX200 SoCs
  *
  * Copyright (C) 2010 Lantiq Deutschland
  * Copyright (C) 2012 John Crispin <john@phrozen.org>
@@ -13,6 +13,7 @@
 #include <linux/interrupt.h>
 #include <linux/clk.h>
 #include <linux/delay.h>
+#include <linux/reset.h>
 
 #include <linux/if_vlan.h>
 
@@ -31,7 +32,7 @@
 #define XRX200_DMA_PACKET_IN_PROGRESS	1
 
 /* cpu port mac */
-#define PMAC_RX_IPG		0x0024
+#define PMAC_RX_IPG		0x001c
 #define PMAC_RX_IPG_MASK	0xf
 
 #define PMAC_HD_CTL		0x0000
@@ -40,23 +41,15 @@
 /* Add VLAN tag to Packets from DMA to PMAC */
 #define PMAC_HD_CTL_TAG		BIT(1)
 /* Add CRC to packets from DMA to PMAC */
-#define PMAC_HD_CTL_AC		BIT(2)
+#define PMAC_HD_CTL_AC		BIT(18)
 /* Add status header to packets from PMAC to DMA */
-#define PMAC_HD_CTL_AS		BIT(3)
+#define PMAC_HD_CTL_AS		BIT(19)
 /* Remove CRC from packets from PMAC to DMA */
-#define PMAC_HD_CTL_RC		BIT(4)
+#define PMAC_HD_CTL_RC		BIT(20)
 /* Remove Layer-2 header from packets from PMAC to DMA */
-#define PMAC_HD_CTL_RL2		BIT(5)
+#define PMAC_HD_CTL_RL2		BIT(21)
 /* Status header is present from DMA to PMAC */
-#define PMAC_HD_CTL_RXSH	BIT(6)
-/* Add special tag from PMAC to switch */
-#define PMAC_HD_CTL_AST		BIT(7)
-/* Remove specail Tag from PMAC to DMA */
-#define PMAC_HD_CTL_RST		BIT(8)
-/* Check CRC from DMA to PMAC */
-#define PMAC_HD_CTL_CCRC	BIT(9)
-/* Enable reaction to Pause frames in the PMAC */
-#define PMAC_HD_CTL_FC		BIT(10)
+#define PMAC_HD_CTL_RXSH	BIT(22)
 
 struct xrx200_chan {
 	int tx_free;
@@ -77,6 +70,7 @@ struct xrx200_chan {
 
 struct xrx200_priv {
 	struct clk *clk;
+	struct reset_control *switch_reset;
 
 	struct xrx200_chan chan_tx;
 	struct xrx200_chan chan_rx;
@@ -589,6 +583,11 @@ static int xrx200_probe(struct platform_device *pdev)
 	if (priv->chan_tx.dma.irq < 0)
 		return -ENOENT;
 
+	/* get the reset */
+	priv->switch_reset = devm_reset_control_get_exclusive(dev, "switch");
+	if (IS_ERR(priv->switch_reset))
+		return PTR_ERR(priv->switch_reset);
+
 	/* get the clock */
 	priv->clk = devm_clk_get(dev, NULL);
 	if (IS_ERR(priv->clk)) {
@@ -610,14 +609,25 @@ static int xrx200_probe(struct platform_device *pdev)
 	if (err)
 		goto err_uninit_dma;
 
+	err = reset_control_assert(priv->switch_reset);
+	if (err)
+		goto err_uninit_dma;
+
+	udelay(1);
+
+	err = reset_control_deassert(priv->switch_reset);
+	if (err)
+		goto err_uninit_dma;
+
 	/* set IPG to 12 */
 	xrx200_pmac_mask(priv, PMAC_RX_IPG_MASK, 0xb, PMAC_RX_IPG);
 
 	/* enable status header, enable CRC */
 	xrx200_pmac_mask(priv, 0,
-			 PMAC_HD_CTL_RST | PMAC_HD_CTL_AST | PMAC_HD_CTL_RXSH |
 			 PMAC_HD_CTL_AS | PMAC_HD_CTL_AC | PMAC_HD_CTL_RC,
 			 PMAC_HD_CTL);
+
+	// TODO: Set PMAC_HD_CTL_RXSH
 
 	/* setup NAPI */
 	netif_napi_add(net_dev, &priv->chan_rx.napi, xrx200_poll_rx);
@@ -662,6 +672,7 @@ static void xrx200_remove(struct platform_device *pdev)
 }
 
 static const struct of_device_id xrx200_match[] = {
+	{ .compatible = "lantiq,arx100-net" },
 	{ .compatible = "lantiq,xrx200-net" },
 	{},
 };

@@ -172,6 +172,12 @@ config NET_DSA_TAG_SJA1105
 	  is only for link-local traffic) as well as non-native tagging (based
 	  on a custom 802.1Q VLAN header) are available.
 
+config NET_DSA_TAG_TANTOS
+	tristate "Tag driver for Lantiq Tantos switches"
+	help
+	  Say Y or M if you want to enable support for tagging frames for the
+	  Lantiq Tantos switches.
+
 config NET_DSA_TAG_TRAILER
 	tristate "Tag driver for switches using a trailer tag"
 	help
