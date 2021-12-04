@@ -132,20 +132,6 @@ static DEFINE_RWLOCK(pmuint_rwlock);
 			 0 : cpu_vpe_id(&current_cpu_data))
 #endif
 
-/* Copied from op_model_mipsxx.c */
-static unsigned int vpe_shift(void)
-{
-	if (num_possible_cpus() > 1)
-		return 1;
-
-	return 0;
-}
-
-static unsigned int counters_total_to_per_cpu(unsigned int counters)
-{
-	return counters >> vpe_shift();
-}
-
 #else /* !CONFIG_MIPS_PERF_SHARED_TC_COUNTERS */
 #define vpe_id()	0
 
@@ -1899,11 +1885,6 @@ init_hw_perf_events(void)
 		pr_cont("No available PMU.\n");
 		return -ENODEV;
 	}
-
-#ifdef CONFIG_MIPS_PERF_SHARED_TC_COUNTERS
-	if (!cpu_has_mipsmt_pertccounters)
-		counters = counters_total_to_per_cpu(counters);
-#endif
 
 	if (get_c0_perfcount_int)
 		irq = get_c0_perfcount_int();
