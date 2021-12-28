@@ -145,6 +145,8 @@ ltq_etop_hw_receive(struct ltq_etop_chan *ch)
 	skb_put(skb, len);
 	skb->protocol = eth_type_trans(skb, ch->netdev);
 	netif_receive_skb(skb);
+	ch->netdev->stats.rx_packets++;
+	ch->netdev->stats.rx_bytes += len;
 }
 
 static int
@@ -182,6 +184,8 @@ ltq_etop_poll_tx(struct napi_struct *napi, int budget)
 	spin_lock_irqsave(&priv->lock, flags);
 	while ((ch->dma.desc_base[ch->tx_free].ctl &
 			(LTQ_DMA_OWN | LTQ_DMA_C)) == LTQ_DMA_C) {
+		ch->netdev->stats.tx_packets++;
+		ch->netdev->stats.tx_bytes += ch->skb[ch->tx_free]->len;
 		dev_kfree_skb_any(ch->skb[ch->tx_free]);
 		ch->skb[ch->tx_free] = NULL;
 		memset(&ch->dma.desc_base[ch->tx_free], 0,
