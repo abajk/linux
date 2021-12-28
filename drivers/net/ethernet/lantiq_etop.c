@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  *
- *   Copyright (C) 2011 John Crispin <blogic@openwrt.org>
+ *   Copyright (C) 2011-12 John Crispin <blogic@openwrt.org>
  */
 
 #include <linux/kernel.h>
@@ -733,31 +733,22 @@ ltq_etop_remove(struct platform_device *pdev)
 	return 0;
 }
 
+static const struct of_device_id ltq_etop_match[] = {
+	{ .compatible = "lantiq,etop-xway" },
+	{},
+};
+MODULE_DEVICE_TABLE(of, ltq_etop_match);
+
 static struct platform_driver ltq_mii_driver = {
+	.probe = ltq_etop_probe,
 	.remove = ltq_etop_remove,
 	.driver = {
 		.name = "ltq_etop",
+		.of_match_table = ltq_etop_match,
 	},
 };
 
-static int __init
-init_ltq_etop(void)
-{
-	int ret = platform_driver_probe(&ltq_mii_driver, ltq_etop_probe);
-
-	if (ret)
-		pr_err("ltq_etop: Error registering platform driver!");
-	return ret;
-}
-
-static void __exit
-exit_ltq_etop(void)
-{
-	platform_driver_unregister(&ltq_mii_driver);
-}
-
-module_init(init_ltq_etop);
-module_exit(exit_ltq_etop);
+module_platform_driver(ltq_mii_driver);
 
 MODULE_AUTHOR("John Crispin <blogic@openwrt.org>");
 MODULE_DESCRIPTION("Lantiq SoC ETOP");
