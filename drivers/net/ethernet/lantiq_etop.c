@@ -31,7 +31,6 @@
 
 #include <lantiq_soc.h>
 #include <xway_dma.h>
-#include <lantiq_platform.h>
 
 #define LTQ_ETOP_MDIO		0x11804
 #define MDIO_REQUEST		0x80000000
@@ -89,13 +88,15 @@ struct ltq_etop_chan {
 struct ltq_etop_priv {
 	struct net_device *netdev;
 	struct platform_device *pdev;
-	struct ltq_eth_data *pldata;
 	struct resource *res;
 
 	struct mii_bus *mii_bus;
 
 	struct ltq_etop_chan ch[MAX_DMA_CHAN];
 	int tx_free[MAX_DMA_CHAN >> 1];
+
+	unsigned char mac[6];
+	phy_interface_t mii_mode;
 
 	int tx_burst_len;
 	int rx_burst_len;
@@ -240,12 +241,13 @@ static int
 ltq_etop_hw_init(struct net_device *dev)
 {
 	struct ltq_etop_priv *priv = netdev_priv(dev);
+	phy_interface_t mii_mode = priv->mii_mode;
 	int i;
 	int err;
 
 	ltq_pmu_enable(PMU_PPE);
 
-	switch (priv->pldata->mii_mode) {
+	switch (mii_mode) {
 	case PHY_INTERFACE_MODE_RMII:
 		ltq_etop_w32_mask(ETOP_MII_MASK, ETOP_MII_REVERSE,
 				  LTQ_ETOP_CFG);
@@ -257,8 +259,7 @@ ltq_etop_hw_init(struct net_device *dev)
 		break;
 
 	default:
-		netdev_err(dev, "unknown mii mode %d\n",
-			   priv->pldata->mii_mode);
+		netdev_err(dev, "unknown mii mode %d\n", mii_mode);
 		return -ENOTSUPP;
 	}
 
@@ -369,7 +370,7 @@ ltq_etop_mdio_probe(struct net_device *dev)
 	}
 
 	phydev = phy_connect(dev, phydev_name(phydev),
-			     &ltq_etop_mdio_link, priv->pldata->mii_mode);
+			     &ltq_etop_mdio_link, priv->mii_mode);
 
 	if (IS_ERR(phydev)) {
 		netdev_err(dev, "Could not attach to PHY\n");
@@ -577,7 +578,7 @@ ltq_etop_init(struct net_device *dev)
 		goto err_hw;
 	ltq_etop_change_mtu(dev, 1500);
 
-	memcpy(&mac, &priv->pldata->mac, sizeof(struct sockaddr));
+	memcpy(&mac, &priv->mac, sizeof(struct sockaddr));
 	if (!is_valid_ether_addr(mac.sa_data)) {
 		pr_warn("etop: invalid MAC, using random\n");
 		eth_random_addr(mac.sa_data);
@@ -682,8 +683,13 @@ ltq_etop_probe(struct platform_device *pdev)
 	priv = netdev_priv(dev);
 	priv->res = res;
 	priv->pdev = pdev;
-	priv->pldata = dev_get_platdata(&pdev->dev);
 	priv->netdev = dev;
+	err = of_get_phy_mode(pdev->dev.of_node, &priv->mii_mode);
+	if (err)
+		pr_err("Can't find phy-mode for port\n");
+
+	of_get_mac_address(pdev->dev.of_node, priv->mac);
+
 	spin_lock_init(&priv->lock);
 	SET_NETDEV_DEV(dev, &pdev->dev);
 
