@@ -497,8 +497,9 @@ ltq_etop_tx(struct sk_buff *skb, struct net_device *dev)
 	netif_trans_update(dev);
 
 	spin_lock_irqsave(&priv->lock, flags);
-	desc->addr = ((unsigned int)dma_map_single(&priv->pdev->dev, skb->data, len,
-						DMA_TO_DEVICE)) - byte_offset;
+	desc->addr =
+		((unsigned int)dma_map_single(&priv->pdev->dev, skb->data, len,
+					      DMA_TO_DEVICE)) - byte_offset;
 	/* Make sure the address is written before we give it to HW */
 	wmb();
 	desc->ctl = LTQ_DMA_OWN | LTQ_DMA_SOP | LTQ_DMA_EOP |
@@ -667,13 +668,15 @@ ltq_etop_probe(struct platform_device *pdev)
 	spin_lock_init(&priv->lock);
 	SET_NETDEV_DEV(dev, &pdev->dev);
 
-	err = device_property_read_u32(&pdev->dev, "lantiq,tx-burst-length", &priv->tx_burst_len);
+	err = device_property_read_u32(&pdev->dev, "lantiq,tx-burst-length",
+				       &priv->tx_burst_len);
 	if (err < 0) {
 		dev_err(&pdev->dev, "unable to read tx-burst-length property\n");
 		goto err_free;
 	}
 
-	err = device_property_read_u32(&pdev->dev, "lantiq,rx-burst-length", &priv->rx_burst_len);
+	err = device_property_read_u32(&pdev->dev, "lantiq,rx-burst-length",
+				       &priv->rx_burst_len);
 	if (err < 0) {
 		dev_err(&pdev->dev, "unable to read rx-burst-length property\n");
 		goto err_free;
