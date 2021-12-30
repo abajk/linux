@@ -98,7 +98,7 @@ struct ltq_etop_priv {
 	int tx_burst_len;
 	int rx_burst_len;
 
-	spinlock_t lock;
+	spinlock_t lock;	/* */
 };
 
 static int
