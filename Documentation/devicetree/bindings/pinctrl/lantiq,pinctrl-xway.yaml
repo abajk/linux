@@ -1,0 +1,70 @@
+# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pinctrl/lantiq,pinctrl-xway.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Lantiq XWAY pinctrl controller
+
+maintainers:
+  - John Crispin <blogic@openwrt.org>
+
+properties:
+  $nodename:
+    pattern: "^pinctrl(@.*)?"
+
+  compatible:
+    enum:
+      - lantiq,ase-pinctrl
+      - lantiq,danube-pinctrl
+      - lantiq,xrx100-pinctrl
+      - lantiq,xrx200-pinctrl
+      - lantiq,xrx300-pinctrl
+
+  reg:
+    maxItems: 1
+
+  gpio-controller: true
+
+  "#gpio-cells":
+    const: 2
+    description: |
+      Number of cells in GPIO specifier. Since the generic GPIO
+      binding is used, the amount of cells must be specified as 2. See the below
+      mentioned gpio binding representation for description of particular cells.
+
+allOf:
+  - $ref: pinctrl.yaml#
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+examples:
+  - |
+    pinctrl@e100b10 {
+        compatible = "lantiq,danube-pinctrl";
+        pinctrl-names = "default";
+        pinctrl-0 = <&state_default>;
+
+        #gpio-cells = <2>;
+        gpio-controller;
+        reg = <0xE100B10 0xA0>;
+
+        state_default: pinmux {
+            stp {
+                lantiq,groups = "stp";
+                lantiq,function = "stp";
+            };
+            pci {
+                lantiq,groups = "gnt1";
+                lantiq,function = "pci";
+            };
+            conf_out {
+                lantiq,pins = "io4", "io5", "io6"; /* stp */
+                lantiq,open-drain;
+                lantiq,pull = <0>;
+            };
+        };
+    };
