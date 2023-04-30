@@ -3054,7 +3054,149 @@ mt753x_setup(struct dsa_switch *ds)
 			mt7530_free_irq(priv);
 	}
 
+	/* Set max number of LAGs supported */
+	ds->num_lag_ids = MT7530_NUM_LAGS;
+
 	return ret;
+}
+
+static bool mt753x_lag_can_offload(struct dsa_switch *ds,
+				   struct dsa_lag lag,
+				   struct netdev_lag_upper_info *info,
+				   struct netlink_ext_ack *extack)
+{
+	struct dsa_port *dp;
+	int members = 0;
+
+	if (!lag.id)
+		return false;
+
+	dsa_lag_foreach_port(dp, ds->dst, &lag)
+		/* Includes the port joining the LAG */
+		members++;
+
+	if (members > MT7530_NUM_PORTS_FOR_LAG) {
+		NL_SET_ERR_MSG_MOD(extack,
+				   "Cannot offload more than 2 LAG ports");
+		return false;
+	}
+
+	if (info->tx_type != NETDEV_LAG_TX_TYPE_HASH) {
+		NL_SET_ERR_MSG_MOD(extack,
+				   "Can only offload LAG using hash TX type");
+		return false;
+	}
+
+	if (info->hash_type != NETDEV_LAG_HASH_L2 &&
+	    info->hash_type != NETDEV_LAG_HASH_L23 &&
+	    info->hash_type != NETDEV_LAG_HASH_L34) {
+		NL_SET_ERR_MSG_MOD(extack,
+				   "Can only offload L2, L2+L3 or L3+L4 TX hash");
+		return false;
+	}
+
+	return true;
+}
+
+static int mt753x_lag_setup_hash(struct dsa_switch *ds,
+				 struct dsa_lag lag,
+				 struct netdev_lag_upper_info *info)
+{
+	struct net_device *lag_dev = lag.dev;
+	struct mt7530_priv *priv = ds->priv;
+	bool unique_lag = true;
+	unsigned int i;
+	u32 hash = 0;
+
+	switch (info->hash_type) {
+	case NETDEV_LAG_HASH_L34:
+		hash |= INFO_SEL_L4_SPORT;
+		hash |= INFO_SEL_L4_DPORT;
+		hash |= INFO_SEL_L3_SIP;
+		hash |= INFO_SEL_L3_DIP;
+		break;
+	case NETDEV_LAG_HASH_L23:
+		hash |= INFO_SEL_L3_SIP;
+		hash |= INFO_SEL_L3_DIP;
+		fallthrough;
+	case NETDEV_LAG_HASH_L2:
+		hash |= INFO_SEL_L2_SA;
+		hash |= INFO_SEL_L2_DA;
+		break;
+	default: /* We should NEVER reach this */
+		return -EOPNOTSUPP;
+	}
+
+	/* Check if we are the unique configured LAG */
+	dsa_lags_foreach_id(i, ds->dst)
+		if (i != lag.id && dsa_lag_by_id(ds->dst, i)) {
+			unique_lag = false;
+			break;
+		}
+
+	/* Hash Mode is global. Make sure the same Hash Mode
+	 * is set to all the 3 possible lag.
+	 * If we are the unique LAG we can set whatever hash
+	 * mode we want.
+	 * To change hash mode it's needed to remove all LAG
+	 * and change the mode with the latest.
+	 */
+	if (unique_lag) {
+		priv->lag_hash_mode = hash;
+	} else if (priv->lag_hash_mode != hash) {
+		netdev_err(lag_dev, "Error: Mismatched Hash Mode across different lag is not supported\n");
+		return -EOPNOTSUPP;
+	}
+
+	mt7530_rmw(priv, MT7530_PTC, INFO_SEL_MASK, hash);
+
+	return 0;
+}
+
+static int mt753x_lag_refresh_portmap(struct dsa_switch *ds, int port,
+				      struct dsa_lag lag)
+{
+	struct mt7530_priv *priv = ds->priv;
+	struct dsa_port *dp;
+	int members = 0;
+	u32 val = 0;
+	int id;
+
+	/* DSA LAG IDs are one-based, hardware is zero-based */
+	id = lag.id - 1;
+
+	dsa_lag_foreach_port(dp, ds->dst, &lag)
+		/* Includes the port joining the LAG */
+		val |= GRP_PORT(dp->index, members++);
+
+	if (members > 1)
+		val |= TRUNK_EN;
+
+	mt7530_write(priv, MT7530_PTGC(id), val);
+
+	return 0;
+}
+
+int mt753x_port_lag_join(struct dsa_switch *ds, int port, struct dsa_lag lag,
+			 struct netdev_lag_upper_info *info,
+			 struct netlink_ext_ack *extack)
+{
+	int ret;
+
+	if (!mt753x_lag_can_offload(ds, lag, info, extack))
+		return -EOPNOTSUPP;
+
+	ret = mt753x_lag_setup_hash(ds, lag, info);
+	if (ret)
+		return ret;
+
+	return mt753x_lag_refresh_portmap(ds, port, lag);
+}
+
+int mt753x_port_lag_leave(struct dsa_switch *ds, int port,
+			  struct dsa_lag lag)
+{
+	return mt753x_lag_refresh_portmap(ds, port, lag);
 }
 
 static int mt753x_get_mac_eee(struct dsa_switch *ds, int port,
@@ -3140,6 +3282,8 @@ const struct dsa_switch_ops mt7530_switch_ops = {
 	.phylink_mac_config	= mt753x_phylink_mac_config,
 	.phylink_mac_link_down	= mt753x_phylink_mac_link_down,
 	.phylink_mac_link_up	= mt753x_phylink_mac_link_up,
+	.port_lag_join		= mt753x_port_lag_join,
+	.port_lag_leave		= mt753x_port_lag_leave,
 	.get_mac_eee		= mt753x_get_mac_eee,
 	.set_mac_eee		= mt753x_set_mac_eee,
 };
