@@ -10,6 +10,8 @@
 #define MT7530_NUM_PHYS			5
 #define MT7530_NUM_FDB_RECORDS		2048
 #define MT7530_ALL_MEMBERS		0xff
+#define MT7530_NUM_LAGS			3
+#define MT7530_NUM_PORTS_FOR_LAG	2
 
 #define MTK_HDR_LEN	4
 #define MT7530_MAX_MTU	(15 * 1024 - ETH_HLEN - ETH_FCS_LEN - MTK_HDR_LEN)
@@ -252,6 +254,29 @@ enum mt7530_vlan_egress_attr {
 #define  AGE_UNIT_MASK			GENMASK(11, 0)
 #define  AGE_UNIT_MAX			0xfff
 #define  AGE_UNIT(x)			(AGE_UNIT_MASK & (x))
+
+/* Registers for Link Aggregation / Trunking */
+#define MT7530_PTC			0x100
+#define  INFO_SEL_L4_DPORT		BIT(15)
+#define  INFO_SEL_L4_SPORT		BIT(14)
+#define  INFO_SEL_L3_DIP		BIT(13)
+#define  INFO_SEL_L3_SIP		BIT(12)
+#define  INFO_SEL_L2_DA			BIT(11)
+#define  INFO_SEL_L2_SA			BIT(10)
+#define  INFO_SEL_MASK			GENMASK(15, 9)
+
+#define MT7530_PTGC(x)			(0x108 + ((x) * 0x4))
+#define  GRP_PORT(x, y)			((x) << (4 * (y) + 8))
+#define  SA_LRN_PORT			GENMASK(5, 4)
+#define  SA_LRN_PORT_INGRESS		(0 << 4)
+#define  SA_LRN_PORT_GRP_PORT0		(1 << 4)
+#define  SA_LRN_PORT_GRP_PORT1		(2 << 4)
+#define  LINK_DOWN			BIT(1)
+#define  TRUNK_EN			BIT(0)
+
+#define MT7530_PTGSC(x)			(0x114 + ((x) * 0x4))
+#define  MAX_SA_CNT(x)			((x) << 3)
+#define  SA_CNT_EN			BIT(0)
 
 #define MT753X_ERLCR_P(x)		(0x1040 + ((x) * 0x100))
 #define  ERLCR_CIR_MASK			GENMASK(31, 16)
@@ -892,6 +917,7 @@ struct mt7530_priv {
 	bool			p5_sgmii;
 	u8			mirror_rx;
 	u8			mirror_tx;
+	u8			lag_hash_mode;
 	struct mt7530_port	ports[MT7530_NUM_PORTS];
 	struct mt753x_pcs	pcs[MT7530_NUM_PORTS];
 	/* protect among processes for registers access*/
