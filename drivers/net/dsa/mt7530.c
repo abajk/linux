@@ -3183,6 +3183,8 @@ int mt753x_port_lag_join(struct dsa_switch *ds, int port, struct dsa_lag lag,
 {
 	int ret;
 
+	printk(KERN_ERR "%s: port=%d\n", __func__, port);
+
 	if (!mt753x_lag_can_offload(ds, lag, info, extack))
 		return -EOPNOTSUPP;
 
@@ -3196,7 +3198,18 @@ int mt753x_port_lag_join(struct dsa_switch *ds, int port, struct dsa_lag lag,
 int mt753x_port_lag_leave(struct dsa_switch *ds, int port,
 			  struct dsa_lag lag)
 {
+	printk(KERN_ERR "%s: port=%d\n", __func__, port);
+
 	return mt753x_lag_refresh_portmap(ds, port, lag);
+}
+
+int mt753x_port_lag_change(struct dsa_switch *ds, int port)
+{
+	struct dsa_port *dp = dsa_to_port(ds, port);
+
+	printk(KERN_ERR "%s: port=%d, enabled=%d\n", __func__, port, dp->lag_tx_enabled);
+
+	return 0;
 }
 
 static int mt753x_get_mac_eee(struct dsa_switch *ds, int port,
@@ -3284,6 +3297,7 @@ const struct dsa_switch_ops mt7530_switch_ops = {
 	.phylink_mac_link_up	= mt753x_phylink_mac_link_up,
 	.port_lag_join		= mt753x_port_lag_join,
 	.port_lag_leave		= mt753x_port_lag_leave,
+	.port_lag_change	= mt753x_port_lag_change,
 	.get_mac_eee		= mt753x_get_mac_eee,
 	.set_mac_eee		= mt753x_set_mac_eee,
 };
