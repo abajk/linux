@@ -673,9 +673,17 @@ ltq_etop_tx(struct sk_buff *skb, struct net_device *dev)
 		&priv->txch.dma.desc_base[priv->txch.dma.desc];
 	unsigned long flags;
 	u32 byte_offset;
-	int len;
 
-	len = skb->len < ETH_ZLEN ? ETH_ZLEN : skb->len;
+	if (skb_put_padto(skb, ETH_ZLEN)) {
+		return NETDEV_TX_OK;
+	}
+
+	if (skb->len < ETH_ZLEN) {
+		for (int i = skb->len; i < ETH_ZLEN; i++){
+			if (skb->data[i] != 0x00)
+				printk(KERN_ERR "Invalid padding at:%d val:%d\n", i, skb->data[i]);
+		}
+	}
 
 	if ((desc->ctl & (LTQ_DMA_OWN | LTQ_DMA_C)) ||
 	    priv->txch.skb[priv->txch.dma.desc]) {
@@ -691,12 +699,12 @@ ltq_etop_tx(struct sk_buff *skb, struct net_device *dev)
 	netif_trans_update(dev);
 
 	spin_lock_irqsave(&priv->lock, flags);
-	desc->addr = ((unsigned int)dma_map_single(&priv->pdev->dev, skb->data, len,
+	desc->addr = ((unsigned int)dma_map_single(&priv->pdev->dev, skb->data, skb->len,
 						DMA_TO_DEVICE)) - byte_offset;
 	/* Make sure the address is written before we give it to HW */
 	wmb();
 	desc->ctl = LTQ_DMA_OWN | LTQ_DMA_SOP | LTQ_DMA_EOP |
-		LTQ_DMA_TX_OFFSET(byte_offset) | (len & LTQ_DMA_SIZE_MASK);
+		LTQ_DMA_TX_OFFSET(byte_offset) | (skb->len & LTQ_DMA_SIZE_MASK);
 	priv->txch.dma.desc++;
 	priv->txch.dma.desc %= LTQ_DESC_NUM;
 	spin_unlock_irqrestore(&priv->lock, flags);
@@ -970,8 +978,8 @@ ltq_etop_remove(struct platform_device *pdev)
 
 	if (dev) {
 		netif_tx_stop_all_queues(dev);
-		ltq_etop_hw_exit(dev);
 		ltq_etop_mdio_cleanup(dev);
+		ltq_etop_hw_exit(dev);
 		unregister_netdev(dev);
 	}
 	return 0;
