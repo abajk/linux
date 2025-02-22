@@ -43,6 +43,7 @@
 #define PHY_ISTAT		0x1A	/* interrupt status */
 #define PHY_LED			0x1B	/* LEDs */
 #define PHY_FWV			0x1E	/* firmware version */
+#define PHY_TEST		0x1F	/* Test modes */
 
 #define PHY_MIISTAT_SPD_MASK	GENMASK(2, 0)
 #define PHY_MIISTAT_DPX		BIT(3)
@@ -73,6 +74,11 @@
 #define PHY_FWV_REL_MASK	BIT(15)
 #define PHY_FWV_MAJOR_MASK	GENMASK(11, 8)
 #define PHY_FWV_MINOR_MASK	GENMASK(7, 0)
+
+#define PHY_TEST_TM		GENMASK(15, 13)
+#define PHY_TEST_TM_ABIST	0x7
+#define PHY_TEST_TM_CDIAG	0x6
+#define PHY_TEST_NOP		0x0
 
 #define PHY_PMA_MGBT_POLARITY	0x82
 #define PHY_MDI_MDI_X_MASK	GENMASK(1, 0)
@@ -123,6 +129,9 @@
 #define VPSPEC2_WOL_AD23	0x0E09
 #define VPSPEC2_WOL_AD45	0x0E0A
 #define WOL_EN			BIT(0)
+
+#define VSPEC2_CDIAG(pair, ref)	(0x0400 + 0x08 * pair + 0x1 * ref)
+#define VSPEC2_CDIAG_LEN	GENMASK(7, 0)
 
 /* Internal registers, access via mbox */
 #define REG_GPIO0_OUT		0xd3ce00
@@ -901,6 +910,42 @@ static int gpy115_loopback(struct phy_device *phydev, bool enable, int speed)
 	return genphy_soft_reset(phydev);
 }
 
+
+static int gpy_cable_test_start(struct phy_device *phydev)
+{
+	int ret;
+
+	ret = phy_write(phydev, PHY_TEST, FIELD_PREP(PHY_TEST_TM, PHY_TEST_TM_CDIAG) + 0x1);
+
+	msleep(100);
+
+	return ret;
+}
+
+
+static int gpy_cable_test_get_status(struct phy_device *phydev,
+				     bool *finished)
+{
+	int ret, pair, j;
+
+	for (pair = 0; pair < 4; pair++) {
+		for (j = 0; j < 5; j++) {
+			int val;
+
+			val = phy_read_mmd(phydev, MDIO_MMD_VEND2, VSPEC2_CDIAG(pair, j));
+			printk(KERN_ERR "%s:1: pair=%d ref=%d val=%08x\n", __func__, pair, j, val);
+		}
+	}
+
+//	ethnl_cable_test_fault_length(phydev, ETHTOOL_A_CABLE_PAIR_A, (val & XWAY_MDIO_PHYPERF_LEN) * 1000);
+
+	ret = phy_write(phydev, PHY_TEST, PHY_TEST_NOP);
+
+	*finished = true;
+
+	return ret;
+}
+
 static int gpy_led_brightness_set(struct phy_device *phydev,
 				  u8 index, enum led_brightness value)
 {
@@ -1077,6 +1122,8 @@ static struct phy_driver gpy_drivers[] = {
 		.set_wol	= gpy_set_wol,
 		.get_wol	= gpy_get_wol,
 		.set_loopback	= gpy_loopback,
+		.cable_test_start = gpy_cable_test_start,
+		.cable_test_get_status	= gpy_cable_test_get_status,
 		.led_brightness_set = gpy_led_brightness_set,
 		.led_hw_is_supported = gpy_led_hw_is_supported,
 		.led_hw_control_get = gpy_led_hw_control_get,
@@ -1100,6 +1147,8 @@ static struct phy_driver gpy_drivers[] = {
 		.set_wol	= gpy_set_wol,
 		.get_wol	= gpy_get_wol,
 		.set_loopback	= gpy115_loopback,
+		.cable_test_start = gpy_cable_test_start,
+		.cable_test_get_status	= gpy_cable_test_get_status,
 		.led_brightness_set = gpy_led_brightness_set,
 		.led_hw_is_supported = gpy_led_hw_is_supported,
 		.led_hw_control_get = gpy_led_hw_control_get,
@@ -1122,6 +1171,8 @@ static struct phy_driver gpy_drivers[] = {
 		.set_wol	= gpy_set_wol,
 		.get_wol	= gpy_get_wol,
 		.set_loopback	= gpy115_loopback,
+		.cable_test_start = gpy_cable_test_start,
+		.cable_test_get_status	= gpy_cable_test_get_status,
 		.led_brightness_set = gpy_led_brightness_set,
 		.led_hw_is_supported = gpy_led_hw_is_supported,
 		.led_hw_control_get = gpy_led_hw_control_get,
@@ -1145,6 +1196,8 @@ static struct phy_driver gpy_drivers[] = {
 		.set_wol	= gpy_set_wol,
 		.get_wol	= gpy_get_wol,
 		.set_loopback	= gpy_loopback,
+		.cable_test_start = gpy_cable_test_start,
+		.cable_test_get_status	= gpy_cable_test_get_status,
 		.led_brightness_set = gpy_led_brightness_set,
 		.led_hw_is_supported = gpy_led_hw_is_supported,
 		.led_hw_control_get = gpy_led_hw_control_get,
@@ -1167,6 +1220,8 @@ static struct phy_driver gpy_drivers[] = {
 		.set_wol	= gpy_set_wol,
 		.get_wol	= gpy_get_wol,
 		.set_loopback	= gpy_loopback,
+		.cable_test_start = gpy_cable_test_start,
+		.cable_test_get_status	= gpy_cable_test_get_status,
 		.led_brightness_set = gpy_led_brightness_set,
 		.led_hw_is_supported = gpy_led_hw_is_supported,
 		.led_hw_control_get = gpy_led_hw_control_get,
@@ -1190,6 +1245,8 @@ static struct phy_driver gpy_drivers[] = {
 		.set_wol	= gpy_set_wol,
 		.get_wol	= gpy_get_wol,
 		.set_loopback	= gpy_loopback,
+		.cable_test_start = gpy_cable_test_start,
+		.cable_test_get_status	= gpy_cable_test_get_status,
 		.led_brightness_set = gpy_led_brightness_set,
 		.led_hw_is_supported = gpy_led_hw_is_supported,
 		.led_hw_control_get = gpy_led_hw_control_get,
@@ -1212,6 +1269,8 @@ static struct phy_driver gpy_drivers[] = {
 		.set_wol	= gpy_set_wol,
 		.get_wol	= gpy_get_wol,
 		.set_loopback	= gpy_loopback,
+		.cable_test_start = gpy_cable_test_start,
+		.cable_test_get_status	= gpy_cable_test_get_status,
 		.led_brightness_set = gpy_led_brightness_set,
 		.led_hw_is_supported = gpy_led_hw_is_supported,
 		.led_hw_control_get = gpy_led_hw_control_get,
@@ -1235,6 +1294,8 @@ static struct phy_driver gpy_drivers[] = {
 		.set_wol	= gpy_set_wol,
 		.get_wol	= gpy_get_wol,
 		.set_loopback	= gpy_loopback,
+		.cable_test_start = gpy_cable_test_start,
+		.cable_test_get_status	= gpy_cable_test_get_status,
 		.led_brightness_set = gpy_led_brightness_set,
 		.led_hw_is_supported = gpy_led_hw_is_supported,
 		.led_hw_control_get = gpy_led_hw_control_get,
@@ -1257,6 +1318,8 @@ static struct phy_driver gpy_drivers[] = {
 		.set_wol	= gpy_set_wol,
 		.get_wol	= gpy_get_wol,
 		.set_loopback	= gpy_loopback,
+		.cable_test_start = gpy_cable_test_start,
+		.cable_test_get_status	= gpy_cable_test_get_status,
 		.led_brightness_set = gpy_led_brightness_set,
 		.led_hw_is_supported = gpy_led_hw_is_supported,
 		.led_hw_control_get = gpy_led_hw_control_get,
