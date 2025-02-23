@@ -15,6 +15,7 @@
 #define XWAY_MDIO_IMASK			0x19	/* interrupt mask */
 #define XWAY_MDIO_ISTAT			0x1A	/* interrupt status */
 #define XWAY_MDIO_LED			0x1B	/* led control */
+#define PHY_FWV				0x1E	/* firmware version */
 
 #define XWAY_MDIO_ERRCNT_SEL		GENMASK(11, 8)
 #define XWAY_MDIO_ERRCNT_COUNT		GENMASK(7, 0)
@@ -162,6 +163,10 @@
 #define XWAY_GPHY_LED_DA(idx)		BIT(idx)
 #define XWAY_MMD_LEDxH(idx)		(XWAY_MMD_LED0H + 2 * (idx))
 #define XWAY_MMD_LEDxL(idx)		(XWAY_MMD_LED0L + 2 * (idx))
+
+#define PHY_FWV_REL_MASK		BIT(15)
+#define PHY_FWV_MAJOR_MASK		GENMASK(11, 8)
+#define PHY_FWV_MINOR_MASK		GENMASK(7, 0)
 
 #define PHY_ID_PHY11G_1_3		0x030260D1
 #define PHY_ID_PHY22F_1_3		0x030260E1
@@ -317,11 +322,24 @@ static int xway_gphy_probe(struct phy_device *phydev)
 {
 	struct device *dev = &phydev->mdio.dev;
 	struct xway_gphy_priv *priv;
+	u8 fw_major, fw_minor;
+	int fw_version;
 
 	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
 	if (!priv)
 		return -ENOMEM;
 	phydev->priv = priv;
+
+	fw_version = phy_read(phydev, PHY_FWV);
+	if (fw_version < 0)
+		return fw_version;
+	fw_major = FIELD_GET(PHY_FWV_MAJOR_MASK, fw_version);
+	fw_minor = FIELD_GET(PHY_FWV_MINOR_MASK, fw_version);
+
+	/* Show GPY PHY FW version in dmesg */
+	phydev_info(phydev, "Firmware Version: %d.%d (0x%04X%s)\n",
+		    fw_major, fw_minor, fw_version,
+		    fw_version & PHY_FWV_REL_MASK ? "" : " test version");
 
 	return 0;
 }
