@@ -9,6 +9,7 @@ title: EN7523 Clock
 maintainers:
   - Felix Fietkau <nbd@nbd.name>
   - John Crispin <nbd@nbd.name>
+  - Christian Marangi <ansuelsmth@gmail.com>
 
 description: |
   This node defines the System Control Unit of the EN7523 SoC,
@@ -25,6 +26,23 @@ description: |
   [1]: <include/dt-bindings/clock/en7523-clk.h>.
 
   The clocks are provided inside a system controller node.
+
+  The System Control Unit may also set different mode for the Serdes ports
+  present on the SoC.
+
+  These are toggeled in the System Status Register and are used to
+  toggle Serdes port for USB 3.0 mode or HSGMII, USB 3.0 mode or PCIe2
+  or setup port for PCIe mode or Ethernet mode (HSGMII/USXGMII).
+
+  Modes are mutually exclusive and selecting one mode cause the
+  other feature to not work (example a mode in USB 3.0 cause PCIe
+  port 2 to not work) This depends also on what is physically
+  connected to the Hardware and needs to correctly reflect the
+  System Status Register bits.
+
+  Special care is needed for PCIe port 0 in 2 line mode that
+  requires both WiFi1 and WiFi2 Serdes port set to PCIe0 2 Line
+  mode.
 
 properties:
   compatible:
@@ -49,6 +67,40 @@ properties:
     description: ID of the controller reset line
     const: 1
 
+  airoha,serdes-wifi1:
+    description: Configure the WiFi1 Serdes port
+    $ref: /schemas/types.yaml#/definitions/string
+    enum:
+      - pcie0_x2
+      - pcie0_x1
+      - ethernet
+    default: pcie0_x1
+
+  airoha,serdes-wifi2:
+    description: Configure the WiFi2 Serdes port
+    $ref: /schemas/types.yaml#/definitions/string
+    enum:
+      - pcie0_x2
+      - pcie1_x1
+      - ethernet
+    default: pcie1_x1
+
+  airoha,serdes-usb1:
+    description: Configure the USB1 Serdes port
+    $ref: /schemas/types.yaml#/definitions/string
+    enum:
+      - usb3
+      - ethernet
+    default: usb3
+
+  airoha,serdes-usb2:
+    description: Configure the USB2 Serdes port
+    $ref: /schemas/types.yaml#/definitions/string
+    enum:
+      - usb3
+      - pcie2_x1
+    default: usb3
+
 required:
   - compatible
   - reg
@@ -64,6 +116,12 @@ allOf:
         reg:
           minItems: 2
 
+        airoha,serdes-wifi1: false
+        airoha,serdes-wifi2: false
+
+        airoha,serdes-usb1: false
+        airoha,serdes-usb2: false
+
         '#reset-cells': false
 
   - if:
@@ -74,6 +132,24 @@ allOf:
       properties:
         reg:
           maxItems: 1
+
+  - if:
+      properties:
+        airoha,serdes-wifi1:
+          const: pcie0_x2
+    then:
+      properties:
+        airoha,serdes-wifi2:
+          const: pcie0_x2
+
+  - if:
+      properties:
+        airoha,serdes-wifi2:
+          const: pcie0_x2
+    then:
+      properties:
+        airoha,serdes-wifi1:
+          const: pcie0_x2
 
 additionalProperties: false
 
@@ -87,15 +163,22 @@ examples:
       #clock-cells = <1>;
     };
 
+  # Example SCU node with Serdes set to PCIe0 to x2 mode
+  # and USB2 set to PCIe2 to x1 mode
   - |
     soc {
-      #address-cells = <2>;
-      #size-cells = <2>;
+        #address-cells = <2>;
+        #size-cells = <2>;
 
-      scuclk: clock-controller@1fb00000 {
-        compatible = "airoha,en7581-scu";
-        reg = <0x0 0x1fb00000 0x0 0x970>;
-              #clock-cells = <1>;
-              #reset-cells = <1>;
-      };
+        scuclk: clock-controller@1fb00000 {
+            compatible = "airoha,en7581-scu";
+            reg = <0x0 0x1fb00000 0x0 0x970>;
+
+            airoha,serdes-wifi1 = "pcie0_x2";
+            airoha,serdes-wifi2 = "pcie0_x2";
+            airoha,serdes-usb2 = "pcie2_x1";
+
+            #clock-cells = <1>;
+            #reset-cells = <1>;
+        };
     };
