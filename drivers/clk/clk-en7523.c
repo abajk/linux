@@ -3,14 +3,17 @@
 #include <linux/bitfield.h>
 #include <linux/delay.h>
 #include <linux/clk-provider.h>
+#include <linux/clk/clk-en7523.h>
 #include <linux/io.h>
 #include <linux/mfd/syscon.h>
 #include <linux/platform_device.h>
 #include <linux/property.h>
 #include <linux/regmap.h>
 #include <linux/reset-controller.h>
+#include <linux/soc/airoha/airoha-scu-ssr.h>
 #include <dt-bindings/clock/en7523-clk.h>
 #include <dt-bindings/reset/airoha,en7581-reset.h>
+#include <dt-bindings/soc/airoha,scu-ssr.h>
 
 #define RST_NR_PER_BANK			32
 
@@ -80,6 +83,7 @@ struct en_clk_soc_data {
 	u32 num_clocks;
 	const struct clk_ops pcie_ops;
 	int (*hw_init)(struct platform_device *pdev,
+		       struct en_clk_priv *priv,
 		       struct clk_hw_onecell_data *clk_data);
 };
 
@@ -359,6 +363,51 @@ static const u16 en7581_rst_map[] = {
 	[EN7581_XPON_MAC_RST]		= RST_NR_PER_BANK + 31,
 };
 
+static unsigned int an7581_serdes_wifi1_possible_modes[] = {
+	AIROHA_SCU_SERDES_MODE_PCIE0_X1,
+	AIROHA_SCU_SERDES_MODE_PCIE0_X2,
+	AIROHA_SCU_SERDES_MODE_ETHERNET,
+};
+
+static unsigned int an7581_serdes_wifi2_possible_modes[] = {
+	AIROHA_SCU_SERDES_MODE_PCIE1_X1,
+	AIROHA_SCU_SERDES_MODE_PCIE0_X2,
+	AIROHA_SCU_SERDES_MODE_ETHERNET,
+};
+
+static unsigned int an7581_serdes_usb1_possible_modes[] = {
+	AIROHA_SCU_SERDES_MODE_USB3,
+	AIROHA_SCU_SERDES_MODE_ETHERNET,
+};
+
+static unsigned int an7581_serdes_usb2_possible_modes[] = {
+	AIROHA_SCU_SERDES_MODE_PCIE2_X1,
+	AIROHA_SCU_SERDES_MODE_ETHERNET,
+};
+
+static const struct airoha_scu_ssr_serdes_info an7581_ports_info[] = {
+	[AIROHA_SCU_SERDES_WIFI1] = {
+		.possible_modes = an7581_serdes_wifi1_possible_modes,
+		.num_modes = ARRAY_SIZE(an7581_serdes_wifi1_possible_modes),
+	},
+	[AIROHA_SCU_SERDES_WIFI2] = {
+		.possible_modes = an7581_serdes_wifi2_possible_modes,
+		.num_modes = ARRAY_SIZE(an7581_serdes_wifi2_possible_modes),
+	},
+	[AIROHA_SCU_SERDES_USB1] = {
+		.possible_modes = an7581_serdes_usb1_possible_modes,
+		.num_modes = ARRAY_SIZE(an7581_serdes_usb1_possible_modes),
+	},
+	[AIROHA_SCU_SERDES_USB2] = {
+		.possible_modes = an7581_serdes_usb2_possible_modes,
+		.num_modes = ARRAY_SIZE(an7581_serdes_usb2_possible_modes),
+	},
+};
+
+static const struct airoha_scu_ssr_data an7581_scu_ssr_data = {
+	.ports_info = an7581_ports_info,
+};
+
 static u32 en7523_get_base_rate(const struct en_clk_desc *desc, u32 val)
 {
 	if (!desc->base_bits)
@@ -543,6 +592,7 @@ static const struct regmap_config en7523_clk_regmap_config = {
 };
 
 static int en7523_clk_hw_init(struct platform_device *pdev,
+			      struct en_clk_priv *priv,
 			      struct clk_hw_onecell_data *clk_data)
 {
 	void __iomem *base, *np_base;
@@ -688,11 +738,37 @@ static int en7581_reset_register(struct device *dev, struct regmap *map)
 	return devm_reset_controller_register(dev, &rst_data->rcdev);
 }
 
+static void en7581_clk_register_ssr(struct platform_device *pdev,
+				    struct en_clk_priv *priv)
+{
+	struct platform_device_info pinfo = { };
+	struct platform_device *ssr_pdev;
+
+	pinfo.name = "airoha-scu-ssr";
+	pinfo.parent = &pdev->dev;
+	pinfo.id = PLATFORM_DEVID_AUTO;
+	pinfo.fwnode = of_fwnode_handle(pdev->dev.of_node);
+	pinfo.of_node_reused = true;
+	pinfo.data = &an7581_scu_ssr_data;
+	pinfo.size_data = sizeof(an7581_scu_ssr_data);
+
+	ssr_pdev = platform_device_register_data(&pdev->dev, "airoha-scu-ssr",
+						 PLATFORM_DEVID_AUTO,
+						 &an7581_scu_ssr_data,
+						 sizeof(an7581_scu_ssr_data));
+	if (IS_ERR(ssr_pdev))
+		dev_warn_probe(&pdev->dev, PTR_ERR(ssr_pdev), "failed to register SCU SSR driver.\n");
+
+	priv->ssr_pdev = ssr_pdev;
+}
+
 static int en7581_clk_hw_init(struct platform_device *pdev,
+			      struct en_clk_priv *priv,
 			      struct clk_hw_onecell_data *clk_data)
 {
 	struct regmap *map, *clk_map;
 	void __iomem *base;
+	int ret;
 
 	map = syscon_regmap_lookup_by_compatible("airoha,en7581-chip-scu");
 	if (IS_ERR(map))
@@ -713,7 +789,13 @@ static int en7581_clk_hw_init(struct platform_device *pdev,
 	regmap_update_bits(clk_map, REG_NP_SCU_PCIC, REG_PCIE_CTRL,
 			   FIELD_PREP(REG_PCIE_CTRL, 3));
 
-	return en7581_reset_register(&pdev->dev, clk_map);
+	ret = en7581_reset_register(&pdev->dev, clk_map);
+	if (ret)
+		return ret;
+
+	en7581_clk_register_ssr(pdev, priv);
+
+	return 0;
 }
 
 static int en7523_clk_probe(struct platform_device *pdev)
@@ -721,9 +803,14 @@ static int en7523_clk_probe(struct platform_device *pdev)
 	struct device_node *node = pdev->dev.of_node;
 	const struct en_clk_soc_data *soc_data;
 	struct clk_hw_onecell_data *clk_data;
+	struct en_clk_priv *priv;
 	int r;
 
 	soc_data = device_get_match_data(&pdev->dev);
+
+	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+	if (!priv)
+		return -ENOMEM;
 
 	clk_data = devm_kzalloc(&pdev->dev,
 				struct_size(clk_data, hws, soc_data->num_clocks),
@@ -732,11 +819,17 @@ static int en7523_clk_probe(struct platform_device *pdev)
 		return -ENOMEM;
 
 	clk_data->num = soc_data->num_clocks;
-	r = soc_data->hw_init(pdev, clk_data);
+	r = soc_data->hw_init(pdev, priv, clk_data);
 	if (r)
 		return r;
 
-	return of_clk_add_hw_provider(node, of_clk_hw_onecell_get, clk_data);
+	r = of_clk_add_hw_provider(node, of_clk_hw_onecell_get, clk_data);
+	if (r)
+		return r;
+
+	platform_set_drvdata(pdev, priv);
+
+	return 0;
 }
 
 static const struct en_clk_soc_data en7523_data = {
