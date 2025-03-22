@@ -2048,6 +2048,89 @@ mt7530_setup_gpio(struct mt7530_priv *priv)
 
 	return devm_gpiochip_add_data(dev, gc, priv);
 }
+
+static int
+mt7531_gpio_get(struct gpio_chip *gc, unsigned int offset)
+{
+	struct mt7530_priv *priv = gpiochip_get_data(gc);
+	u32 bit = BIT(offset);
+
+	return !!(mt7530_read(priv, MT7531_GPIO_DIN) & bit);
+}
+
+static void
+mt7531_gpio_set(struct gpio_chip *gc, unsigned int offset, int value)
+{
+	struct mt7530_priv *priv = gpiochip_get_data(gc);
+	u32 bit = BIT(offset);
+
+	if (value)
+		mt7530_set(priv, MT7531_GPIO_DOUT, bit);
+	else
+		mt7530_clear(priv, MT7531_GPIO_DOUT, bit);
+}
+
+static int
+mt7531_gpio_get_direction(struct gpio_chip *gc, unsigned int offset)
+{
+	struct mt7530_priv *priv = gpiochip_get_data(gc);
+	u32 bit = BIT(offset);
+
+	return (mt7530_read(priv, MT7531_GPIO_DIR) & bit) ?
+		GPIO_LINE_DIRECTION_OUT : GPIO_LINE_DIRECTION_IN;
+}
+
+static int
+mt7531_gpio_direction_input(struct gpio_chip *gc, unsigned int offset)
+{
+	struct mt7530_priv *priv = gpiochip_get_data(gc);
+	u32 bit = BIT(offset);
+
+	mt7530_clear(priv, MT7531_GPIO_DIR, bit);
+
+	return 0;
+}
+
+static int
+mt7531_gpio_direction_output(struct gpio_chip *gc, unsigned int offset, int value)
+{
+	struct mt7530_priv *priv = gpiochip_get_data(gc);
+	u32 bit = BIT(offset);
+
+	mt7530_set(priv, MT7531_GPIO_DIR, bit);
+
+	if (value)
+		mt7530_set(priv, MT7531_GPIO_DOUT, bit);
+	else
+		mt7530_clear(priv, MT7531_GPIO_DOUT, bit);
+
+	return 0;
+}
+
+static int
+mt7531_setup_gpio(struct mt7530_priv *priv)
+{
+	struct device *dev = priv->dev;
+	struct gpio_chip *gc;
+
+	gc = devm_kzalloc(dev, sizeof(*gc), GFP_KERNEL);
+	if (!gc)
+		return -ENOMEM;
+
+	gc->label = "mt7531";
+	gc->parent = dev;
+	gc->owner = THIS_MODULE;
+	gc->get_direction = mt7531_gpio_get_direction;
+	gc->direction_input = mt7531_gpio_direction_input;
+	gc->direction_output = mt7531_gpio_direction_output;
+	gc->get = mt7531_gpio_get;
+	gc->set = mt7531_gpio_set;
+	gc->base = -1;
+	gc->ngpio = 27;
+	gc->can_sleep = true;
+
+	return devm_gpiochip_add_data(dev, gc, priv);
+}
 #endif /* CONFIG_GPIOLIB */
 
 static irqreturn_t
@@ -2687,6 +2770,14 @@ mt7531_setup(struct dsa_switch *ds)
 	ret = mt7531_setup_common(ds);
 	if (ret)
 		return ret;
+
+#ifdef CONFIG_GPIOLIB
+	if (of_property_read_bool(priv->dev->of_node, "gpio-controller")) {
+		ret = mt7531_setup_gpio(priv);
+		if (ret)
+			return ret;
+	}
+#endif /* CONFIG_GPIOLIB */
 
 	ds->assisted_learning_on_cpu_port = true;
 	ds->mtu_enforcement_ingress = true;

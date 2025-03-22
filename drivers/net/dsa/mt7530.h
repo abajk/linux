@@ -616,6 +616,12 @@ enum mt7531_xtal_fsel {
 #define MT7530_P5RGMIITXCR		0x7b04
 #define  CSR_RGMII_TXC_CFG(x)		((x) & 0x1f)
 
+/* GPIO direction, 0: Input, 1: Output */
+#define MT7531_GPIO_DIR			0x7c00
+/* GPIO output value, 0: Low, 1: High */
+#define MT7531_GPIO_DOUT		0x7c04
+/* GPIO input value, 0: Low, 1: High */
+#define MT7531_GPIO_DIN			0x7c08
 /* Registers for GPIO mode */
 #define MT7531_GPIO_MODE0		0x7c0c
 #define  MT7531_GPIO0_MASK		GENMASK(3, 0)
