@@ -41,7 +41,7 @@
 /*
  * Need slab memory for testing (size in number of pages).
  */
-#define TVMEMSIZE	4
+#define TVMEMSIZE	5
 
 /*
 * Used by test_cipher_speed()
@@ -69,8 +69,8 @@ static u32 num_mb = 8;
 static unsigned int klen;
 static char *tvmem[TVMEMSIZE];
 
-static const int block_sizes[] = { 16, 64, 128, 256, 1024, 1420, 4096, 0 };
-static const int aead_sizes[] = { 16, 64, 256, 512, 1024, 1420, 4096, 8192, 0 };
+static const int block_sizes[] = { 16, 64, 128, 256, 1024, 1420, 4096, 8192, 16384, 0 };
+static const int aead_sizes[] = { 16, 64, 256, 512, 1024, 1420, 4096, 8192, 16384, 0 };
 
 #define XBUFSIZE 8
 #define MAX_IVLEN 32
