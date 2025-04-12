@@ -483,7 +483,6 @@ static struct net_device *corkscrew_scan(int unit)
 		return ERR_PTR(-ENOMEM);
 
 	if (unit >= 0) {
-		sprintf(dev->name, "eth%d", unit);
 		netdev_boot_setup_check(dev);
 	}
 
