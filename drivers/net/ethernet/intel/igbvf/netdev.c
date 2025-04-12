@@ -2860,7 +2860,6 @@ static int igbvf_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	if (adapter->hw.mac.type == e1000_vfadapt_i350)
 		adapter->flags |= IGBVF_FLAG_RX_LB_VLAN_BSWAP;
 
-	strcpy(netdev->name, "eth%d");
 	err = register_netdev(netdev);
 	if (err)
 		goto err_hw_init;
