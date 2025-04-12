@@ -1658,7 +1658,6 @@ struct net_device * __init cs89x0_probe(int unit)
 	if (!dev)
 		return ERR_PTR(-ENODEV);
 
-	sprintf(dev->name, "eth%d", unit);
 	netdev_boot_setup_check(dev);
 	io = dev->base_addr;
 	irq = dev->irq;
