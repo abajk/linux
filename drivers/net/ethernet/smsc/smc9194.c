@@ -697,7 +697,6 @@ struct net_device * __init smc_init(int unit)
 		return ERR_PTR(-ENODEV);
 
 	if (unit >= 0) {
-		sprintf(dev->name, "eth%d", unit);
 		netdev_boot_setup_check(dev);
 		io = dev->base_addr;
 		irq = dev->irq;
