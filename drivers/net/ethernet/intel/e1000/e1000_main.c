@@ -1196,7 +1196,6 @@ static int e1000_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	/* reset the hardware with the new settings */
 	e1000_reset(adapter);
 
-	strcpy(netdev->name, "eth%d");
 	err = register_netdev(netdev);
 	if (err)
 		goto err_register;
