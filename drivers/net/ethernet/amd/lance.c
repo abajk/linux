@@ -445,7 +445,6 @@ struct net_device * __init lance_probe(int unit)
 	if (!dev)
 		return ERR_PTR(-ENODEV);
 
-	sprintf(dev->name, "eth%d", unit);
 	netdev_boot_setup_check(dev);
 
 	err = do_lance_probe(dev);
