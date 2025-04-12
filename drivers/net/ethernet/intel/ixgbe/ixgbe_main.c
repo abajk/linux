@@ -11615,7 +11615,6 @@ skip_sriov:
 			   "representative who provided you with this "
 			   "hardware.\n");
 	}
-	strcpy(netdev->name, "eth%d");
 	pci_set_drvdata(pdev, adapter);
 	err = register_netdev(netdev);
 	if (err)
