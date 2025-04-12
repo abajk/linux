@@ -2941,7 +2941,6 @@ static int e100_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	/* ack any pending wake events, disable PME */
 	pci_pme_active(pdev, false);
 
-	strcpy(netdev->name, "eth%d");
 	if ((err = register_netdev(netdev))) {
 		netif_err(nic, probe, nic->netdev, "Cannot register net device, aborting\n");
 		goto err_out_free;
