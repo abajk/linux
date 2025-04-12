@@ -3510,7 +3510,6 @@ static int igb_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 	 */
 	igb_get_hw_control(adapter);
 
-	strcpy(netdev->name, "eth%d");
 	err = register_netdev(netdev);
 	if (err)
 		goto err_register;
