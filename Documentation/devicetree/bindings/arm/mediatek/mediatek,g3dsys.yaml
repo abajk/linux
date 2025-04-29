@@ -1,0 +1,40 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 MediaTek
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/arm/mediatek/mediatek,g3dsys.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: MediaTek G3DSYS Controller
+
+maintainers:
+  - Sean Wang <sean.wang@mediatek.com>
+
+description: |
+  MediaTek g3dsys controller provides various clocks and reset controller to
+  the GPU.
+
+  The g3dsys controller uses the common clk binding from
+  Documentation/devicetree/bindings/clock/clock-bindings.txt.
+  The available clocks are defined in dt-bindings/clock/mt*-clk.h.
+
+properties:
+  compatible:
+    oneOf:
+      - items:
+          - const: mediatek,mt2701-g3dsys
+          - const: syscon
+      - items:
+          - const: mediatek,mt7623-g3dsys
+          - const: mediatek,mt2701-g3dsys
+          - const: syscon
+  reg:
+    description: Register base address and size for the controller.
+  "#clock-cells":
+    description: Number of clock specifier cells.
+    const: 1
+  "#reset-cells":
+    description: Number of reset specifier cells.
+    const: 1
+
+additionalProperties: false
