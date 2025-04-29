@@ -1,0 +1,60 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Texas Instruments
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/arm/omap/ti,omap4-l3-noc.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI OMAP L3 NoC
+maintainers:
+  - Afzal Mohammed <afzal@ti.com>
+  - Benoit Cousson <b-cousson@ti.com>
+  - Rajendra Nayak <rnayak@ti.com>
+  - Santosh Shilimkar <santosh.shilimkar@ti.com>
+  - Suman Anna <s-anna@ti.com>
+
+description: |
+  * TI - L3 Network On Chip (NoC)
+
+  This version is an implementation of the generic NoC IP provided by Arteris.
+
+properties:
+  compatible:
+    description: Device compatible string for OMAP and AM43 SoC families.
+    items:
+      - enum:
+          - ti,omap3-l3-smx
+          - ti,omap4-l3-noc
+          - ti,omap5-l3-noc
+          - ti,dra7-l3-noc
+          - ti,am4372-l3-noc
+
+  ranges: true
+
+  ti,hwmods:
+    description: One hardware module for each NoC domain.
+    $ref: /schemas/types.yaml#/definitions/string-array
+    items:
+      - enum: [l3_main_1]
+        description: Hardware module domain 1.
+      - enum: [l3_main_2]
+        description: Hardware module domain 2.
+      - enum: [l3_main_3]
+        description: Hardware module domain 3.
+
+required:
+  - compatible
+  - ranges
+  - ti,hwmods
+
+additionalProperties: false
+
+examples:
+  - |
+    ocp {
+        compatible = "ti,omap4-l3-noc", "simple-bus";
+        #address-cells = <1>;
+        #size-cells = <1>;
+        ranges;
+        ti,hwmods = "l3_main_1", "l3_main_2", "l3_main_3";
+    };
