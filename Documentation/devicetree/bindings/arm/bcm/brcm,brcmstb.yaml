@@ -1,0 +1,235 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/brcm,brcmstb.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Broadcom STB platforms
+maintainers:
+  - Brian Norris <computersforpeace@gmail.com>
+  - Doug Berger <opendmb@gmail.com>
+  - Florian Fainelli <f.fainelli@gmail.com>
+  - Scott Branden <sbranden@broadcom.com>
+
+description: |
+  ARM Broadcom STB platforms Device Tree Bindings
+  -----------------------------------------------
+  Boards with Broadcom Brahma15 ARM-based BCMxxxx (generally BCM7xxx variants)
+  SoC shall have the following DT organization:
+
+  cpu-biu-ctrl node
+  -------------------
+  SoCs with Broadcom Brahma15 ARM-based and Brahma53 ARM64-based CPUs have a
+  specific Bus Interface Unit (BIU) block which controls and interfaces the CPU
+  complex to the different Memory Controller Ports (MCP), one per memory
+  controller (MEMC). This BIU block offers a feature called Write Pairing which
+  consists in collapsing two adjacent cache lines into a single (bursted) write
+  transaction towards the memory controller (MEMC) to maximize write bandwidth.
+
+  Nodes that allow for support of SMP initialization and reboot are required:
+
+  Power management
+  ----------------
+  For power management (particularly, S2/S3/S5 system suspend), the following SoC
+  components are needed:
+
+  Always-On control block (AON CTRL)
+  This hardware provides control registers for the "always-on" (even in low-power
+  modes) hardware, such as the Power Management State Machine (PMSM).
+
+  Memory controllers
+  ------------------
+  A Broadcom STB SoC typically has a number of independent memory controllers,
+  each of which may have several associated hardware blocks, which are versioned
+  independently (control registers, DDR PHYs, etc.). One might consider
+  describing these controllers as a parent "memory controllers" block, which
+  contains N sub-nodes (one for each controller in the system), each of which is
+  associated with a number of hardware register resources (e.g., its PHY).
+
+properties:
+  compatible:
+    description: SoC and platform compatible strings
+    oneOf:
+      - items:
+          - pattern: '^brcm,bcm[0-9]+$'
+          - const: 'brcm,brcmstb'
+      - items:
+          - const: 'brcm,brcmstb'
+
+  smpboot:
+    $ref: '#/definitions/smpboot'
+  reboot:
+    $ref: '#/definitions/reboot'
+  memory_controllers:
+    $ref: '#/definitions/memory-controllers'
+
+patternProperties:
+  '^.*-ctrl@.*':
+    anyOf:
+      - $ref: '#/definitions/syscon-sun-top-ctrl'
+      - $ref: '#/definitions/syscon-cpu-biu-ctrl'
+      - $ref: '#/definitions/syscon-hif-continuation'
+  '^aon-ctrl@.*':
+    $ref: '#/definitions/aon-ctrl'
+
+required:
+  - compatible
+
+additionalProperties: false
+
+definitions:
+  syscon-sun-top-ctrl:
+    description: System-on-chip SUN_TOP control registers
+    type: object
+    properties:
+      compatible:
+        description: Compatibility for SUN_TOP control
+        items:
+          - pattern: '^brcm,bcm[0-9]+-sun-top-ctrl$'
+          - const: syscon
+      reg:
+        description: Register address and size for SUN_TOP control
+        $ref: /schemas/types.yaml#/definitions/reg
+
+  syscon-cpu-biu-ctrl:
+    description: CPU BIU control registers
+    type: object
+    properties:
+      compatible:
+        description: Compatibility for CPU BIU control
+        items:
+          - pattern: '^brcm,bcm[0-9]+-cpu-biu-ctrl$'
+          - const: 'brcm,brcmstb-cpu-biu-ctrl'
+          - const: syscon
+      reg:
+        description: Register address and size for CPU BIU control
+        $ref: /schemas/types.yaml#/definitions/reg
+      brcm,write-pairing:
+        description: Indicates support for write-pairing feature
+        type: boolean
+
+  syscon-hif-continuation:
+    description: CPU boot continuation registers
+    type: object
+    properties:
+      compatible:
+        description: Compatibility for CPU boot continuation
+        items:
+          - pattern: '^brcm,bcm[0-9]+-hif-continuation$'
+          - const: syscon
+      reg:
+        description: Register address and size for HIF continuation
+        $ref: /schemas/types.yaml#/definitions/reg
+
+  smpboot:
+    description: SMP initialization and boot continuation
+    type: object
+    properties:
+      compatible:
+        description: smpboot compatible string
+        const: brcm,brcmstb-smpboot
+      syscon-cpu:
+        description: CPU power-on and reset register phandle and offsets
+        $ref: /schemas/types.yaml#/definitions/phandle-array
+        items:
+          - items:
+              - description: phandle to ?
+              - description: offset of ?
+              - description: offset of ?
+      syscon-cont:
+        description: CPU boot continuation syscon phandle
+        $ref: /schemas/types.yaml#/definitions/phandle
+
+  reboot:
+    description: System reboot control
+    type: object
+    properties:
+      compatible:
+        description: Reboot compatible string
+        oneOf:
+          - const: brcm,brcmstb-reboot
+          - const: brcm,bcm7038-reboot
+      syscon:
+        description: System reset register phandle and offsets
+        $ref: /schemas/types.yaml#/definitions/phandle-array
+        items:
+          - items:
+              - description: phandle to ?
+              - description: offset of ?
+              - description: offset of ?
+
+  aon-ctrl:
+    description: Always-on control registers
+    type: object
+    properties:
+      compatible:
+        description: AON control compatible string
+        const: brcm,brcmstb-aon-ctrl
+      reg:
+        description: Register address and size for AON control
+        $ref: /schemas/types.yaml#/definitions/reg
+
+  memory-controllers:
+    description: Memory controller bus
+    type: object
+    properties:
+      ranges:
+        description: Address translation ranges
+        $ref: /schemas/types.yaml#/definitions/ranges
+      compatible:
+        items:
+          - const: simple-bus
+    additionalProperties:
+      $ref: '#/definitions/memc'
+
+  memc:
+    description: Single memory controller
+    type: object
+    properties:
+      ranges:
+        description: Sub-bus ranges
+        $ref: /schemas/types.yaml#/definitions/ranges
+      compatible:
+        items:
+          - const: brcm,brcmstb-memc
+          - const: simple-bus
+    additionalProperties:
+      anyOf:
+        - $ref: '#/definitions/ddr-phy'
+        - $ref: '#/definitions/shimphy'
+        - $ref: '#/definitions/memc-ddr'
+
+  ddr-phy:
+    description: DDR PHY control registers
+    type: object
+    properties:
+      compatible:
+        enum:
+          - brcm,brcmstb-ddr-phy-v71.1
+          - brcm,brcmstb-ddr-phy-v72.0
+          - brcm,brcmstb-ddr-phy-v225.1
+          - brcm,brcmstb-ddr-phy-v240.1
+          - brcm,brcmstb-ddr-phy-v240.2
+      reg:
+        description: DDR PHY register address and size
+        maxItems: 1
+
+  shimphy:
+    description: DDR SHIMPHY control registers
+    type: object
+    properties:
+      compatible:
+        const: brcm,brcmstb-ddr-shimphy-v1.0
+      reg:
+        description: DDR SHIMPHY register address and size
+        maxItems: 1
+
+  memc-ddr:
+    description: Memory controller DDR sequencer registers
+    type: object
+    properties:
+      compatible:
+        const: brcm,brcmstb-memc-ddr
+      reg:
+        description: Memory controller DDR registers address and size
+        maxItems: 1
