@@ -1,0 +1,51 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Texas Instruments Inc.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/ti,omap-counter32k.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI OMAP Counter-32K
+
+maintainers:
+  - Jon Hunter <jon-hunter@ti.com>
+
+description: |
+  OMAP Counter-32K bindings.
+
+  Required properties:
+  - compatible: Must be "ti,omap-counter32k" for OMAP controllers
+  - reg: Contains timer register address range (base address and length)
+  - ti,hwmods: Name of the hwmod associated to the counter, which is typically
+    "counter_32k"
+
+  Example:
+
+    counter32k: counter@4a304000 {
+      compatible = "ti,omap-counter32k";
+      reg = <0x4a304000 0x20>;
+      ti,hwmods = "counter_32k";
+    };
+
+properties:
+  compatible:
+    const: ti,omap-counter32k
+
+  reg:
+    description: Timer register address range (base address and length)
+    items:
+      - description: base address
+      - description: length
+
+  ti,hwmods:
+    description: Name of the hwmod associated to the counter
+    $ref: /schemas/types.yaml#/definitions/string-array
+    items:
+      - enum: [counter_32k]
+
+additionalProperties: false
+
+required:
+  - compatible
+  - reg
+  - ti,hwmods
