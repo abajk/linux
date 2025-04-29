@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Texas Instruments
+---
+$id: http://devicetree.org/schemas/ti,iva.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI IVA (Imaging and Video Accelerator)
+
+maintainers:
+  - Benoit Cousson <b-cousson@ti.com>
+
+description: |
+  * TI - IVA (Imaging and Video Accelerator) subsystem
+
+  The IVA contain various audio, video or imaging HW accelerator
+  depending of the version.
+
+properties:
+  compatible:
+    description: List of hardware compatible strings for different IVA versions.
+    items:
+      - enum:
+          - ti,ivahd
+          - ti,iva2.2
+          - ti,iva2.1
+          - ti,iva1
+          - ti,iva
+
+  ti,hwmods:
+    description: Hardware modules to enable for IVA.
+    $ref: /schemas/types.yaml#/definitions/string
+    enum:
+      - iva
+
+required:
+  - compatible
+  - ti,hwmods
+
+additionalProperties: false
