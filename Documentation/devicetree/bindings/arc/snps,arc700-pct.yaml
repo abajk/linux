@@ -1,0 +1,40 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Eric Engestrom
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/snps,arc700-pct.yaml#
+# $schema is the meta-schema this schema should be validated with.
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: SNPS ARC700 Performance Counters
+
+maintainers:
+  - Eric Engestrom <eric@engestrom.ch>
+
+description: |
+  * ARC Performance Counters
+
+  The ARC700 can be configured with a pipeline performance monitor for counting
+  CPU and cache events like cache misses and hits. Like conventional PCT there
+  are 100+ hardware conditions dynamically mapped to up to 32 counters
+
+  Note that:
+   * The ARC 700 PCT does not support interrupts; although HW events may be
+     counted, the HW events themselves cannot serve as a trigger for a sample.
+
+properties:
+  compatible:
+    description: Supported compatible string identifying this ARC700 performance counter
+    items:
+      - const: snps,arc700-pct
+
+required:
+  - compatible
+
+additionalProperties: false
+
+examples:
+  - |
+    pmu {
+        compatible = "snps,arc700-pct";
+    };
