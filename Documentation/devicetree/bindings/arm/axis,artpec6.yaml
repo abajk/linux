@@ -1,0 +1,34 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Axis Communications AB
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/arm/axis,artpec6.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Axis ARTPEC-6 SoC
+
+maintainers:
+  - Lars Persson <lars.persson@axis.com>
+  - Rob Herring (Arm) <robh@kernel.org>
+
+description: |
+  Axis Communications AB
+  ARTPEC series SoC Device Tree Bindings
+
+  ARTPEC-6 ARM SoC
+
+  ARTPEC-6 Development board:
+
+properties:
+  compatible:
+    oneOf:
+      - items:
+          - const: axis,artpec6-dev-board
+          - const: axis,artpec6
+      - items:
+          - const: axis,artpec6
+
+required:
+  - compatible
+
+additionalProperties: false
