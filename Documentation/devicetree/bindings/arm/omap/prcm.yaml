@@ -1,0 +1,78 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/arm/omap/prcm.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI Power Reset and Clock Manager (PRCM)
+
+maintainers:
+  - Tero Kristo <t-kristo@ti.com>
+  - Tony Lindgren <tony@atomide.com>
+
+description: |
+  Power Reset and Clock Manager lists the device clocks and clockdomains under
+  a DT hierarchy. Each TI SoC can have multiple PRCM entities listed for it,
+  each describing one module and the clock hierarchy under it. see [1] for
+  documentation about the individual clock/clockdomain nodes.
+
+  [1] Documentation/devicetree/bindings/clock/ti/*
+
+  Required properties:
+  - compatible: Must be one of the listed PRCM-compatible strings.
+  - reg: Contains PRCM module register address range (base address and length).
+  - clocks: Clocks provided by this PRCM module.
+  - clockdomains: Clock domains provided by this PRCM module.
+  - #clock-cells: Number of clock specifier cells (always 0).
+  - clock-output-names: Names assigned to clocks in this module.
+
+properties:
+  compatible:
+    description: Accepted PRCM-compatible strings.
+    items:
+      - enum:
+          - ti,am3-prcm
+          - ti,am4-prcm
+          - ti,omap2-prcm
+          - ti,omap3-prm
+          - ti,omap3-cm
+          - ti,omap4-cm1
+          - ti,omap4-prm
+          - ti,omap4-cm2
+          - ti,omap4-scrm
+          - ti,omap5-prm
+          - ti,omap5-cm-core-aon
+          - ti,omap5-scrm
+          - ti,omap5-cm-core
+          - ti,dra7-prm
+          - ti,dra7-cm-core-aon
+          - ti,dra7-cm-core
+          - ti,dm814-prcm
+          - ti,dm816-prcm
+
+  reg:
+    maxItems: 1
+    description: PRCM module register address range
+
+  clocks:
+    maxItems: 1
+    description: PRCM module clocks
+
+  clockdomains:
+    description: PRCM module clockdomains
+
+  '#clock-cells':
+    const: 0
+    description: Number of clock specifier cells (always 0)
+
+  clock-output-names:
+    description: Names for the PRCM clocks
+
+required:
+  - compatible
+  - reg
+  - clocks
+  - clockdomains
+  - clock-output-names
+
+additionalProperties: false
