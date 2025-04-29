@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/ezchip,arc-nps.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+maintainers:
+  - linux-dt@vger.kernel.org
+
+title: EZchip NPS Network Processor Platforms
+
+description: |
+  EZchip NPS Network Processor Platforms Device Tree Bindings
+
+  Appliance main board with NPS400 ASIC.
+
+properties:
+  compatible:
+    description: Device compatible with EZchip NPS Network Processor Platforms.
+    items:
+      - const: ezchip,arc-nps
+
+required:
+  - compatible
+
+additionalProperties: false
