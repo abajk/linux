@@ -39,6 +39,7 @@ properties:
     $ref: /schemas/types.yaml#/definitions/uint32
   ti,reg-size:
     description: Size of each crossbar register in bytes (valid values are 1, 2, or 4)
+    $ref: /schemas/types.yaml#/definitions/uint32
     enum: [1, 2, 4]
 #  "ti,irqs-reserved":
 #    description: List of reserved IRQ lines not muxed by the crossbar
