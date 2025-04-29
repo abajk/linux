@@ -1,0 +1,29 @@
+---
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+$id: http://devicetree.org/schemas/snps,arc-sdp.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Synopsys DesignWare ARC SDP Main Board
+
+description:
+  SDP Main Board with an AXC001 CPU Card hoisting ARC700 core in silicon or
+  AXC003 FPGA Card.
+
+maintainers:
+  - Synopsys DesignWare ARC SoC Team <soc-team@synopsys.com>
+
+properties:
+  $nodename:
+    const: '/'
+
+  compatible:
+    items:
+      - enum:
+          - snps,axs101
+          - snps,axs103
+      - const: snps,arc-sdp
+
+required:
+  - compatible
+
+additionalProperties: true
