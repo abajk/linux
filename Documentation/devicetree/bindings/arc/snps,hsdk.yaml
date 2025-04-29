@@ -1,0 +1,23 @@
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/snps,hsdk.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Synopsys DesignWare ARC HS Development Kit
+maintainers:
+  - Alexey Brodkin <abrodkin@synopsys.com>
+
+description: |
+  Synopsys DesignWare ARC HS Development Kit Device Tree Bindings
+  ---------------------------------------------------------------------------
+  ARC HSDK Board with quad-core ARC HS38x4 in silicon.
+
+properties:
+  compatible:
+    items:
+      - const: snps,hsdk
+
+required:
+  - compatible
+
+additionalProperties: false
