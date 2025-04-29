@@ -1,0 +1,34 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/arm/marvell/marvell-armada-370-cpu-reset.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Marvell Armada CPU reset controller
+
+maintainers:
+  - Gregory CLEMENT <gregory.clement@bootlin.com>
+
+description: |
+  Marvell Armada CPU reset controller
+
+properties:
+  compatible:
+    items:
+      - const: marvell,armada-370-cpu-reset
+
+  reg:
+    maxItems: 1
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    cpurst: cpurst@20800 {
+        compatible = "marvell,armada-370-cpu-reset";
+        reg = <0x20800 0x20>;
+    };
