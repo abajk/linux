@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Cavium
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/arm/cavium-thunder-88xx.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Cavium Thunder platform device
+maintainers:
+  - Radha Mohan Chintakuntla <rchintakuntla@cavium.com>
+
+description: |
+  Cavium Thunder platform device tree bindings
+
+  Boards with Cavium's Thunder SoC shall have following properties.
+
+  Root Node
+  ---------
+
+properties:
+  compatible:
+    items:
+      - const: cavium,thunder-88xx
+
+required:
+  - compatible
+
+additionalProperties: false
