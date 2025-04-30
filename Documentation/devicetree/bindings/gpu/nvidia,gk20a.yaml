@@ -1,0 +1,192 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2018 Linaro Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/nvidia,gk20a.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: NVIDIA Tegra Graphics Processing Units
+
+maintainers:
+  - Alexandre Courbot <acourbot@nvidia.com>
+  - Jon Hunter <jonathanh@nvidia.com>
+  - Rob Herring <robh@kernel.org>
+  - Thierry Reding <treding@nvidia.com>
+
+description: |
+  NVIDIA Tegra Graphics Processing Units
+
+properties:
+  compatible:
+    oneOf:
+      - items:
+          - const: nvidia,gk20a
+          - const: nvidia,gm20b
+          - const: nvidia,gp10b
+          - const: nvidia,gv11b
+    description: >
+      Compatible string for Tegra GPU; must be one of the recognized variants.
+  reg:
+    items:
+      - description: Bar0 register window
+      - description: Bar1 register window
+    description: >
+      Physical base address and length of GPU controller registers.
+  interrupts:
+    items:
+      - description: Stall interrupt
+      - description: Nonstall interrupt
+    description: >
+      Interrupt number and type for each GPU interrupt.
+  interrupt-names:
+    items:
+      - const: stall
+      - const: nonstall
+  vdd-supply:
+    description: >
+      Regulator for GPU supply voltage; required unless power-domains is used.
+  clocks:
+    items:
+      - description: GPU clock
+      - description: Power clock
+    description: >
+      Clocks required for GPU operation.
+  clock-names:
+    items:
+      - const: gpu
+      - const: pwr
+  resets:
+    items:
+      - description: GPU reset
+    description: >
+      Reset control for the GPU.
+  reset-names:
+    items:
+      - const: gpu
+  power-domains:
+    maxItems: 1
+    description: >
+      Power domain references for GPUs using power domains.
+  iommus:
+    maxItems: 1
+    description: >
+      References to the IOMMU.
+  dma-coherent:
+    type: boolean
+    description: >
+      Enable DMA coherent mode (gv11b only).
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - interrupt-names
+  - clocks
+  - clock-names
+  - resets
+  - reset-names
+
+allOf:
+  - if:
+      properties:
+        compatible:
+          contains:
+            const: nvidia,gm20b
+    then:
+      properties:
+        clock-names:
+          contains:
+            const: ref
+  - if:
+      properties:
+        compatible:
+          contains:
+            const: nvidia,gv11b
+    then:
+      properties:
+        clock-names:
+          contains:
+            const: fuse
+        dma-coherent:
+          type: boolean
+  - if:
+      properties:
+        compatible:
+          contains:
+            const: nvidia,gp10b
+    then:
+      required:
+        - power-domains
+    else:
+      required:
+        - vdd-supply
+
+additionalProperties: false
+
+examples:
+  - |
+    gpu@57000000 {
+        compatible = "nvidia,gk20a";
+        reg = <0x0 0x57000000 0x0 0x01000000>,
+              <0x0 0x58000000 0x0 0x01000000>;
+        interrupts = <GIC_SPI 157 IRQ_TYPE_LEVEL_HIGH>,
+                     <GIC_SPI 158 IRQ_TYPE_LEVEL_HIGH>;
+        interrupt-names = "stall", "nonstall";
+        vdd-supply = <&vdd_gpu>;
+        clocks = <&tegra_car TEGRA124_CLK_GPU>,
+                 <&tegra_car TEGRA124_CLK_PLL_P_OUT5>;
+        clock-names = "gpu", "pwr";
+        resets = <&tegra_car 184>;
+        reset-names = "gpu";
+        iommus = <&mc TEGRA_SWGROUP_GPU>;
+    };
+  - |
+    gpu@57000000 {
+        compatible = "nvidia,gm20b";
+        reg = <0x0 0x57000000 0x0 0x01000000>,
+              <0x0 0x58000000 0x0 0x01000000>;
+        interrupts = <GIC_SPI 157 IRQ_TYPE_LEVEL_HIGH>,
+                     <GIC_SPI 158 IRQ_TYPE_LEVEL_HIGH>;
+        interrupt-names = "stall", "nonstall";
+        clocks = <&tegra_car TEGRA210_CLK_GPU>,
+                 <&tegra_car TEGRA210_CLK_PLL_P_OUT5>,
+                 <&tegra_car TEGRA210_CLK_PLL_G_REF>;
+        clock-names = "gpu", "pwr", "ref";
+        resets = <&tegra_car 184>;
+        reset-names = "gpu";
+        iommus = <&mc TEGRA_SWGROUP_GPU>;
+    };
+  - |
+    gpu@17000000 {
+        compatible = "nvidia,gp10b";
+        reg = <0x0 0x17000000 0x0 0x1000000>,
+              <0x0 0x18000000 0x0 0x1000000>;
+        interrupts = <GIC_SPI 70 IRQ_TYPE_LEVEL_HIGH>,
+                     <GIC_SPI 71 IRQ_TYPE_LEVEL_HIGH>;
+        interrupt-names = "stall", "nonstall";
+        clocks = <&bpmp TEGRA186_CLK_GPCCLK>,
+                 <&bpmp TEGRA186_CLK_GPU>;
+        clock-names = "gpu", "pwr";
+        resets = <&bpmp TEGRA186_RESET_GPU>;
+        reset-names = "gpu";
+        power-domains = <&bpmp TEGRA186_POWER_DOMAIN_GPU>;
+        iommus = <&smmu TEGRA186_SID_GPU>;
+    };
+  - |
+    gpu@17000000 {
+        compatible = "nvidia,gv11b";
+        reg = <0x17000000 0x1000000>,
+              <0x18000000 0x1000000>;
+        interrupts = <GIC_SPI 70 IRQ_TYPE_LEVEL_HIGH>,
+                     <GIC_SPI 71 IRQ_TYPE_LEVEL_HIGH>;
+        interrupt-names = "stall", "nonstall";
+        clocks = <&bpmp TEGRA194_CLK_GPCCLK>,
+                 <&bpmp TEGRA194_CLK_GPU_PWR>,
+                 <&bpmp TEGRA194_CLK_FUSE>;
+        clock-names = "gpu", "pwr", "fuse";
+        resets = <&bpmp TEGRA194_RESET_GPU>;
+        reset-names = "gpu";
+        dma-coherent;
+        power-domains = <&bpmp TEGRA194_POWER_DOMAIN_GPU>;
+        iommus = <&smmu TEGRA194_SID_GPU>;
+    };
