@@ -1,0 +1,92 @@
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/stericsson,nomadik,src.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: ST-Ericsson Nomadik System and Reset Controller
+
+maintainers:
+  - Linus Walleij <linus.walleij@linaro.org>
+
+description: |
+  ST-Ericsson Nomadik Device Tree Bindings
+
+  For various board the "board" node may contain specific properties
+  that pertain to this particular board, such as board-specific GPIOs.
+
+  Required root node property: src
+  - Nomadik System and reset controller used for basic chip control, clock
+    and reset line control.
+  - compatible: must be "stericsson,nomadik,src"
+
+  Boards with the Nomadik SoC include:
+
+  Nomadik NHK-15 board manufactured by ST Microelectronics:
+
+  Required root node property:
+
+  compatible="st,nomadik-nhk-15";
+
+  S8815 "MiniKit" manufactured by Calao Systems:
+
+  Required root node property:
+
+  compatible="calaosystems,usb-s8815";
+
+  Required node: usb-s8815
+
+properties:
+  compatible:
+    description: Identify the SoC or board variant
+    items:
+      - enum: [stericsson, nomadik, src]
+      - enum: [st, nomadik-nhk-15]
+      - enum: [calaosystems, usb-s8815]
+
+  usb-s8815:
+    description: USB-S8815 child node on Calao MiniKit
+    type: object
+    additionalProperties: false
+    properties:
+      ethernet-gpio-node:
+        description: Ethernet GPIO child node
+        type: object
+        additionalProperties: false
+        properties:
+          gpios:
+            description: GPIO specifier for ethernet
+            maxItems: 1
+          interrupts:
+            description: Interrupt specifier for ethernet
+            maxItems: 1
+        required:
+          - gpios
+          - interrupts
+      mmcsd-gpio-node:
+        description: MMC/SD GPIO child node
+        type: object
+        additionalProperties: false
+        properties:
+          gpios:
+            description: GPIO specifier for MMC/SD
+            maxItems: 1
+        required:
+          - gpios
+
+required:
+  - compatible
+
+allOf:
+  - if:
+      properties:
+        compatible:
+          contains:
+            const: calao­systems,usb-s8815
+    then:
+      required:
+        - usb-s8815
+    else:
+      properties:
+        usb-s8815: false
+
+additionalProperties: false
