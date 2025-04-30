@@ -1,0 +1,98 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/hsi/nokia,n900-modem.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: nokia,n900-modem
+
+maintainers:
+  - Sebastian Reichel <sre@kernel.org>
+
+description: |
+  Each HSI port is supposed to have one child node, which
+  symbols the remote device connected to the HSI port. The
+  following properties are standardized for HSI clients:
+
+properties:
+  compatible:
+    # Only the nokia,n900-modem compatible is allowed
+    items:
+      - const: nokia,n900-modem
+
+  hsi-channel-ids:
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+    description: List of channel IDs for the HSI client.
+
+  hsi-channel-names:
+    $ref: /schemas/types.yaml#/definitions/string-array
+    description: List of channel names corresponding to hsi-channel-ids.
+
+  hsi-rx-mode:
+    enum:
+      - stream
+      - frame
+    description: Receiver bit transmission mode.
+
+  hsi-tx-mode:
+    enum:
+      - stream
+      - frame
+    description: Transmitter bit transmission mode.
+
+  hsi-mode:
+    enum:
+      - stream
+      - frame
+    description: Transmission mode for both receiver and transmitter.
+
+  hsi-speed-kbps:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Maximum bit transmission speed in kbit/s.
+
+  hsi-flow:
+    enum:
+      - synchronized
+      - pipeline
+    description: Receiver flow type.
+
+  hsi-arb-mode:
+    enum:
+      - round-robin
+      - priority
+    description: Arbitration mode for TX frame.
+
+required:
+  - compatible
+  - hsi-channel-ids
+  - hsi-speed-kbps
+  - hsi-flow
+  - hsi-arb-mode
+
+oneOf:
+  - required:
+      - hsi-rx-mode
+      - hsi-tx-mode
+  - required:
+      - hsi-mode
+
+additionalProperties: false
+
+examples:
+  - |
+    hsi-controller {
+        hsi-port {
+            modem: hsi-client {
+                compatible = "nokia,n900-modem";
+                hsi-channel-ids = <0>, <1>, <2>, <3>;
+                hsi-channel-names = "mcsaab-control",
+                                    "speech-control",
+                                    "speech-data",
+                                    "mcsaab-data";
+                hsi-speed-kbps = <55000>;
+                hsi-mode = "frame";
+                hsi-flow = "synchronized";
+                hsi-arb-mode = "round-robin";
+            };
+        };
+    };
