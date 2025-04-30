@@ -1,0 +1,141 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/clock/st/st,flexgen.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: ST Flexgen Clock
+maintainers:
+  - Alain Volmat <avolmat@me.com>
+  - Gabriel Fernandez <gabriel.fernandez@st.com>
+  - Gabriel FERNANDEZ <gabriel.fernandez@st.com>
+  - Geert Uytterhoeven <geert+renesas@glider.be>
+  - Randy Dunlap <rdunlap@infradead.org>
+
+description: |
+  Binding for a type of flexgen structure found on certain
+  STMicroelectronics consumer electronics SoC devices
+
+  This structure includes:
+  - a clock cross bar (represented by a mux element)
+  - a pre and final dividers (represented by a divider and gate elements)
+
+  Flexgen structure is a part of Clockgen[1].
+
+  Please find an example below:
+
+      Clockgen block diagram
+      -------------------------------------------------------------------
+     |                     Flexgen structure                             |
+     |                  ---------------------------------------------    |
+     |                 |    -------       --------       --------    |   |
+  clk_sysin            |   |       |     |        |     |        |   |   |
+  ---|-----------------|-->|       |     |        |     |        |   |   |
+     | |               |   |       |     |        |     |        |   |   |
+     | |   -------     |   |       |     |        |     |        |   |   |
+     | |  |PLL0   |    |   |       |     |Pre     |     |Final   |   |   |
+     | |->|       |    |   |       |     |Dividers|     |Dividers|   |   |
+     | |  |  odf_0|----|-->|       |     |  x32   |     |  x32   |   |   |
+     | |  |       |    |   |       |     |        |     |        |   |   |
+     | |  |       |    |   |       |     |        |     |        |   |   |
+     | |  |       |    |   |       |     |        |     |        |   |   |
+     | |  |       |    |   |       |     |        |     |        |   |   |
+     | |   -------     |   |       |     |        |     |        |   |   |
+     | |               |   |       |     |        |     |        |   |   |
+     | |   -------     |   | Clock |     |        |     |        |   |   |
+     | |  |PLL1   |    |   |       |     |        |     |        |   |   |
+     | |->|       |    |   | Cross |     |        |     |        |   |   |
+     | |  |  odf_0|----|-->|       |     |        |     |        |   |   |
+     | |  |       |    |   | Bar   |====>|        |====>|        |   |   |
+     | |  |       |    |   |       |     |        |     |        |   |   |
+     | |  |       |    |   |       |     |        |     |        |   |   |
+     | |   -------     |   |       |     |        |     |        |   |   |
+     | |               |   |       |     |        |     |        |   |   |
+     | |   -------     |   |       |     |        |     |        |   |   |
+     | |  |QUADFS |    |   |       |     |        |     |        |   |   |
+     | |->|    ch0|----|-->|       |     |        |     |        |   |   |
+     |    |       |    |   |       |     |        |     |        |   |   |
+     |    |    ch1|----|-->|       |     |        |     |        |   |   |
+     |    |       |    |   |       |     |        |     |        |   |   |
+     |    |    ch2|----|-->|       |     | DIV    |     | DIV    |   |   |
+     |    |       |    |   |       |     |  1 to  |     |  1 to  |   |   |
+     |    |    ch3|----|-->|       |     |   1024 |     |     64 |   |   |
+     |     -------     |   |       |     |        |     |        |   |   |
+     |                 |    -------       --------       --------    |   |
+     |                   --------------------------------------------    |
+     |                                                                   |
+      -------------------------------------------------------------------
+
+  This binding uses the common clock binding[2].
+
+properties:
+  compatible:
+    items:
+      - const: st,flexgen
+      - const: st,flexgen-audio
+      - const: st,flexgen-video
+      - const: st,flexgen-stih407-a0
+      - const: st,flexgen-stih410-a0
+      - const: st,flexgen-stih407-c0
+      - const: st,flexgen-stih410-c0
+      - const: st,flexgen-stih418-c0
+      - const: st,flexgen-stih407-d0
+      - const: st,flexgen-stih410-d0
+      - const: st,flexgen-stih407-d2
+      - const: st,flexgen-stih418-d2
+      - const: st,flexgen-stih407-d3
+  "#clock-cells":
+    const: 1
+  clocks:
+    description: Output clocks phandles from PLLs, QUADFS channels or clk_sysin
+    items:
+      - description: PLL0 output clock phandle
+      - description: PLL1 output clock phandle
+      - description: QUADFS channel 0 clock phandle
+      - description: QUADFS channel 1 clock phandle
+      - description: QUADFS channel 2 clock phandle
+      - description: QUADFS channel 3 clock phandle
+      - description: System input clock phandle (clk_sysin)
+  clock-output-names:
+    description: Names of the clock outputs provided by the flexgen structure
+    items:
+      - const: clk-icn-gpu
+      - const: clk-fdma
+      - const: clk-nand
+      - const: clk-hva
+      - const: clk-proc-stfe
+      - const: clk-proc-tp
+      - const: clk-rx-icn-dmu
+      - const: clk-rx-icn-hva
+      - const: clk-icn-cpu
+      - const: clk-tx-icn-dmu
+      - const: clk-mmc-0
+      - const: clk-mmc-1
+      - const: clk-jpegdec
+      - const: clk-ext2fa9
+      - const: clk-ic-bdisp-0
+      - const: clk-ic-bdisp-1
+      - const: clk-pp-dmu
+      - const: clk-vid-dmu
+      - const: clk-dss-lpc
+      - const: clk-st231-aud-0
+      - const: clk-st231-gp-1
+      - const: clk-st231-dmu
+      - const: clk-icn-lmi
+      - const: clk-tx-icn-disp-1
+      - const: clk-icn-sbc
+      - const: clk-stfe-frc2
+      - const: clk-eth-phy
+      - const: clk-eth-ref-phyclk
+      - const: clk-flash-promip
+      - const: clk-main-disp
+      - const: clk-aux-disp
+      - const: clk-compo-dvp
+
+required:
+  - compatible
+  - "#clock-cells"
+  - clocks
+  - clock-output-names
+
+additionalProperties: false
