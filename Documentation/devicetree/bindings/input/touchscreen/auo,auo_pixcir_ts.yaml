@@ -1,0 +1,74 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/input/touchscreen/auo,auo_pixcir_ts.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: AUO In-Cell Touchscreen Controller using Pixcir Sensors
+
+maintainers:
+  - Dmitry Torokhov <dmitry.torokhov@gmail.com>
+  - Heiko Stübner <heiko@sntech.de>
+
+description: |
+  AUO in-cell touchscreen controller using Pixcir sensors
+
+properties:
+  compatible:
+    items:
+      - const: "auo,auo_pixcir_ts"
+  reg:
+    items:
+      - description: I2C address of the chip
+    description: |
+      I2C address of the chip.
+  interrupts:
+    items:
+      - description: Interrupt to which the chip is connected
+    description: |
+      Interrupt used by the touchscreen controller.
+  gpios:
+    items:
+      - description: Interrupt GPIO, active high trigger
+      - description: Reset GPIO, active low reset
+    description: |
+      GPIOs used by the touchscreen controller.
+      The first entry is the interrupt GPIO and the second is the reset GPIO.
+  x-size:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |
+      Horizontal resolution of the touchscreen.
+  y-size:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |
+      Vertical resolution of the touchscreen.
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - gpios
+  - x-size
+  - y-size
+
+additionalProperties: false
+
+examples:
+  - |
+    i2c@00000000 {
+        /* ... */
+
+        auo_pixcir_ts@5c {
+            compatible = "auo,auo_pixcir_ts";
+            reg = <0x5c>;
+            interrupts = <2 IRQ_TYPE_LEVEL_HIGH>;
+
+            gpios = <&gpf 2 0 GPIO_LEVEL_HIGH>, /* INT */
+                <&gpf 5 1 GPIO_LEVEL_LOW>; /* RST */
+
+            x-size = <800>;
+            y-size = <600>;
+        };
+
+        /* ... */
+    };
