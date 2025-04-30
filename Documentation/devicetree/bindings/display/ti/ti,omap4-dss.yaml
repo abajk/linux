@@ -1,0 +1,58 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Texas Instruments
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/display/ti/ti,omap4-dss.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Texas Instruments OMAP4 Display Subsystem
+
+maintainers:
+  - Peter Ujfalusi <peter.ujfalusi@ti.com>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  Texas Instruments OMAP4 Display Subsystem
+
+  See Documentation/devicetree/bindings/display/ti/ti,omap-dss.txt for generic
+  description about OMAP Display Subsystem bindings.
+
+properties:
+  compatible:
+    description:
+      Must be "ti,omap4-dss".
+    oneOf:
+      - items:
+          - const: ti,omap4-dss
+
+  reg:
+    items:
+      - description: DSS core register space.
+
+  ti,hwmods:
+    description:
+      Module identifiers for DSS core hardware modules.
+    $ref: /schemas/types.yaml#/definitions/string-array
+    items:
+      - const: dss_core
+
+  clocks:
+    description:
+      Functional clock for the DSS core.
+    items:
+      - description: fck
+
+  clock-names:
+    description:
+      Name of the functional clock.
+    items:
+      - const: fck
+
+required:
+  - compatible
+  - reg
+  - ti,hwmods
+  - clocks
+  - clock-names
+
+additionalProperties: false
