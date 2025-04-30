@@ -1,0 +1,71 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Benjamin Herrenschmidt <benh@kernel.crashing.org>
+# Copyright 2025 Christopher Bostic <cbostic@linux.vnet.ibm.com>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/fsi-master-gpio.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: fsi-master-gpio
+
+maintainers:
+  - Benjamin Herrenschmidt <benh@kernel.crashing.org>
+  - Christopher Bostic <cbostic@linux.vnet.ibm.com>
+
+description: |
+  Device-tree bindings for gpio-based FSI master driver
+  -----------------------------------------------------
+
+properties:
+  compatible:
+    description: Device compatible string identifying the gpio-based FSI master driver.
+    oneOf:
+      - items:
+          - const: fsi-master-gpio
+          - const: fsi-master
+      - items:
+          - const: fsi-master-gpio
+
+  clock-gpios:
+    description: GPIO for FSI clock
+    $ref: /schemas/types.yaml#/definitions/gpio-array
+
+  data-gpios:
+    description: GPIO for FSI data signal
+    $ref: /schemas/types.yaml#/definitions/gpio-array
+
+  enable-gpios:
+    description: GPIO for enable signal
+    $ref: /schemas/types.yaml#/definitions/gpio-array
+
+  trans-gpios:
+    description: GPIO for voltage translator enable
+    $ref: /schemas/types.yaml#/definitions/gpio-array
+
+  mux-gpios:
+    description: GPIO for pin multiplexing with other functions (eg, external
+      FSI masters)
+    $ref: /schemas/types.yaml#/definitions/gpio-array
+
+  no-gpio-delays:
+    description: Don't add extra delays between GPIO accesses.
+      This is useful when the HW GPIO block is running at a low enough frequency.
+    type: boolean
+
+required:
+  - compatible
+  - clock-gpios
+  - data-gpios
+
+additionalProperties: false
+
+examples:
+  - |
+    fsi-master {
+        compatible = "fsi-master-gpio", "fsi-master";
+        clock-gpios = <&gpio 0>;
+        data-gpios = <&gpio 1>;
+        enable-gpios = <&gpio 2>;
+        trans-gpios = <&gpio 3>;
+        mux-gpios = <&gpio 4>;
+    };
