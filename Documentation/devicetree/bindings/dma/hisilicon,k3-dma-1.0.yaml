@@ -1,0 +1,63 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/hisilicon,k3-dma-1.0.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Hisilicon K3 DMA controller
+
+maintainers:
+  - Youlin Wang <wwx575822@notesmail.huawei.com>
+  - Zhangfei Gao <zhangfei.gao@linaro.org>
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - hisilicon,k3-dma-1.0
+          - hisilicon,hisi-pcm-asp-dma-1.0
+
+  reg:
+    maxItems: 1
+
+  interrupts:
+    description: Interrupt shared by all channels.
+    items:
+      - description: Interrupt parent phandle
+      - description: Interrupt specifier (IRQ number)
+      - description: Interrupt flags
+
+  '#dma-cells':
+    const: 1
+
+  dma-channels:
+    description: Number of physical DMA channels supported.
+
+  dma-requests:
+    description: Number of virtual DMA request lines supported.
+
+  clocks:
+    maxItems: 1
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - '#dma-cells'
+  - dma-channels
+  - dma-requests
+  - clocks
+
+additionalProperties: false
+
+examples:
+  - |
+    dma0: dma@fcd02000 {
+        compatible = "hisilicon,k3-dma-1.0";
+        reg = <0xfcd02000 0x1000>;
+        #dma-cells = <1>;
+        dma-channels = <16>;
+        dma-requests = <27>;
+        interrupts = <0 12 4>;
+        clocks = <&pclk>;
+    };
