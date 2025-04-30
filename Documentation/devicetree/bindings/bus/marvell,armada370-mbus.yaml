@@ -1,0 +1,140 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/marvell,armada370-mbus.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Marvell MBus
+maintainers:
+  - Carlos Garcia <carlos@cgarcia.org>
+  - Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+  - Rob Herring <robh@kernel.org>
+  - Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+
+description: |
+  Marvell MBus
+
+  ** MBus address decoding window specification
+
+  The MBus children address space is comprised of two cells: the first one for
+  the window ID and the second one for the offset within the window. In order
+  to allow to describe valid and non-valid window entries, the following
+  encoding is used:
+
+    0xSIAA0000 0x00oooooo
+
+  Where:
+
+    S = 0x0 for a MBus valid window
+    S = 0xf for a non-valid window
+
+  If S = 0x0, then:
+
+     I = 4-bit window target ID
+    AA = window attribute
+
+  If S = 0xf, then:
+
+     I = don't care
+     AA = 1 for internal register
+
+  Following the above encoding, for each ranges entry for a MBus valid window
+  (S = 0x0), an address decoding window is allocated. Entries for translation
+  that do not correspond to valid windows (S = 0xf) are skipped.
+
+  ** About the window base address
+
+  The MBus controller allows flexibility for choosing the decoding window base
+  address. When planning the device tree layout it's possible to choose any
+  aligned address as the base, provided there's a region large enough available.
+
+  ** Window allocation policy
+
+  The mbus-node ranges property defines a set of mbus windows that are expected
+  to be set by the operating system and that are guaranteed to be free of
+  overlaps with one another or with system memory ranges. Each entry refers to
+  exactly one window. The OS may insert additional windows that do not conflict
+  with the listed ones; the internal register window must be set up by the
+  bootloader at the address listed in ranges.
+
+properties:
+  compatible:
+    enum:
+      - marvell,armada370-mbus
+      - marvell,armadaxp-mbus
+      - marvell,armada375-mbus
+      - marvell,armada380-mbus
+      - marvell,kirkwood-mbus
+      - marvell,dove-mbus
+      - marvell,orion5x-88f5281-mbus
+      - marvell,orion5x-88f5182-mbus
+      - marvell,orion5x-88f5181-mbus
+      - marvell,orion5x-88f6183-mbus
+      - marvell,mv78xx0-mbus
+
+  "#address-cells":
+    description: The first cell is the MBus window ID encoding, the second is the offset within the window.
+    const: 2
+
+  "#size-cells":
+    const: 1
+
+  ranges:
+    description: Translation entries for each child device.
+    items:
+      - description: Encoded window ID and attribute.
+      - description: High 32 bits of child bus address.
+      - description: Low 32 bits of child bus address.
+      - description: High 32 bits of parent bus address.
+      - description: Low 32 bits of parent bus address.
+
+  controller:
+    description: Phandle referring to the MBus controller node.
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  pcie-mem-aperture:
+    description: Aperture for the PCIe memory region, encoding base address and size.
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+    items:
+      - description: Base address
+      - description: Size in bytes
+
+  pcie-io-aperture:
+    description: Aperture for the PCIe I/O region, encoding base address and size.
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+    items:
+      - description: Base address
+      - description: Size in bytes
+
+required:
+  - compatible
+  - "#address-cells"
+  - "#size-cells"
+  - ranges
+  - controller
+
+additionalProperties:
+  type: object
+
+examples:
+  - |
+    soc {
+      compatible = "marvell,armada370-mbus", "simple-bus";
+      #address-cells = <2>;
+      #size-cells = <1>;
+      ranges;
+      controller = <&mbusc>;
+      pcie-mem-aperture = <0xe0000000 0x8000000>;
+      pcie-io-aperture  = <0xe8000000 0x100000>;
+
+      internal-regs {
+        compatible = "simple-bus";
+        #address-cells = <1>;
+        #size-cells = <1>;
+
+        mbusc: mbus-controller@20000 {
+          compatible = "marvell,mbus-controller";
+          reg = <0x20000 0x100>, <0x20180 0x20>, <0x20250 0x8>;
+        };
+      };
+    };
