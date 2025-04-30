@@ -1,0 +1,96 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Guo Ren <guoren@kernel.org>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/csky/csky,610.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: C-SKY CPU nodes
+
+maintainers:
+  - Guo Ren <guoren@kernel.org>
+
+description: |
+  ==================
+  C-SKY CPU Bindings
+  ==================
+
+  The device tree allows to describe the layout of CPUs in a system through
+  the "cpus" node, which in turn contains a number of subnodes (ie "cpu")
+  defining properties for every cpu.
+
+  Only SMP system need to care about the cpus node and single processor
+  needn't define cpus node at all.
+
+  =====================================
+  cpus and cpu node bindings definition
+  =====================================
+
+  - cpus node
+
+      Description: Container of cpu nodes
+
+      The node name must be "cpus".
+
+  - cpu node
+
+      Description: Describes one of SMP cores
+
+properties:
+  '#address-cells':
+    description: Number of address cells for child nodes.
+    const: 1
+
+  '#size-cells':
+    description: Number of size cells for child nodes.
+    const: 0
+
+patternProperties:
+  "^cpu@.*":
+    type: object
+    description: CPU subnode
+    additionalProperties: true
+    properties:
+      device_type:
+        description: Must be "cpu".
+        const: cpu
+      reg:
+        description: CPU index.
+        items:
+          - description: CPU index.
+      compatible:
+        items:
+          - enum:
+              - csky,610
+              - csky,807
+              - csky,810
+              - csky,860
+    required:
+      - device_type
+      - reg
+      - compatible
+
+required:
+  - "#address-cells"
+  - "#size-cells"
+
+additionalProperties: false
+
+examples:
+  - |
+    cpus {
+      #address-cells = <1>;
+      #size-cells = <0>;
+      cpu@0 {
+        device_type = "cpu";
+        reg = <0>;
+        compatible = "csky,610";
+        status = "ok";
+      };
+      cpu@1 {
+        device_type = "cpu";
+        reg = <1>;
+        compatible = "csky,610";
+        status = "ok";
+      };
+    };
