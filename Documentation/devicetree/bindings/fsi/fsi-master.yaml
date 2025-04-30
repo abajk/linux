@@ -1,0 +1,102 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/fsi-master.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Generic FSI bus and engine
+
+maintainers:
+  - Benjamin Herrenschmidt <benh@kernel.crashing.org>
+  - Christopher Bostic <cbostic@linux.vnet.ibm.com>
+  - Jeremy Kerr <jk@ozlabs.org>
+
+description: |
+  FSI bus & engine generic device tree bindings
+
+  The FSI bus is probe-able, so the OS is able to enumerate FSI slaves, and
+  engines within those slaves. However, we have a facility to match devicetree
+  nodes to probed engines. This allows for fsi engines to expose non-probeable
+  busses, which are then exposed by the device tree. For example, an FSI engine
+  that is an I2C master – the I2C bus can be described by the device tree under
+  the engine’s device tree node.
+
+  Since the master nodes describe the top-level of the FSI topology, they also
+  need to declare the FSI-standard addressing scheme. Under the masters’ nodes,
+  we can describe the bus topology using nodes to represent the FSI slaves and
+  their slave engines. As a basic outline:
+
+    fsi-master {
+        fsi-slave@<link,id> {
+            fsi-slave-engine@<addr> { … };
+        };
+    };
+
+  Note that since the bus is probe-able, some (or all) of the topology may
+  not be described; this binding only provides an optional facility for
+  adding subordinate device tree nodes as children of FSI engines.
+
+properties:
+  compatible:
+    items:
+      - const: fsi-master
+    description: >
+      Node compatible with the generic FSI bus master driver.
+
+  "#address-cells":
+    const: 2
+    description: >
+      Two cells are used to encode the FSI bus address: link index and slave ID.
+
+  "#size-cells":
+    const: 0
+    description: >
+      FSI bus nodes do not use size cells.
+
+  no-scan-on-init:
+    type: boolean
+    description: >
+      If true, the master driver will not scan for slaves at initialization.
+
+additionalProperties: false
+
+examples:
+  - |
+    /* The GPIO-based FSI master node, describing the top level of the
+     * FSI bus
+     */
+    gpio-fsi {
+        compatible = "fsi-master-gpio", "fsi-master";
+        #address-cells = <2>;
+        #size-cells = <0>;
+
+        /* A FSI slave (aka. CFAM) at link 0, ID 0. */
+        cfam@0,0 {
+            reg = <0 0>;
+            #address-cells = <1>;
+            #size-cells = <1>;
+            chip-id = <0>;
+
+            /* FSI engine at 0xc00, using a single page. In this example,
+             * it’s an I2C master controller, so subnodes describe the
+             * I2C bus.
+             */
+            i2c-controller@c00 {
+                reg = <0xc00 0x400>;
+
+                /* Engine-specific data. In this case, we’re describing an
+                 * I2C bus, so we’re conforming to the generic I2C binding
+                 */
+                compatible = "some-vendor,fsi-i2c-controller";
+                #address-cells = <1>;
+                #size-cells = <1>;
+
+                /* I2C endpoint device: an Atmel EEPROM */
+                eeprom@50 {
+                    compatible = "atmel,24c256";
+                    reg = <0x50>;
+                    pagesize = <64>;
+                };
+            };
+        };
+    };
