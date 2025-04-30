@@ -1,0 +1,112 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Linaro Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/display/ti/ti,tpd12s015.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TPD12S015 HDMI level shifter and ESD protection chip
+
+maintainers:
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  TPD12S015 HDMI level shifter and ESD protection chip
+
+  Required nodes:
+  - Video port 0 for HDMI input
+  - Video port 1 for HDMI output
+
+properties:
+  compatible:
+    items:
+      - const: ti,tpd12s015
+
+  gpios:
+    items:
+      - description: CT CP HPD
+      - description: LS OE
+      - description: HPD
+
+  ports:
+    description: Container node for HDMI input and output ports
+    type: object
+    additionalProperties: false
+    properties:
+      port@0:
+        description: Video port 0 for HDMI input
+        type: object
+        additionalProperties: false
+        properties:
+          reg:
+            items:
+              - description: Port index
+          endpoint@0:
+            description: HDMI input endpoint
+            type: object
+            additionalProperties: false
+            properties:
+              remote-endpoint:
+                $ref: /schemas/types.yaml#/definitions/phandle
+                description: Remote endpoint for HDMI input
+            required:
+              - remote-endpoint
+        required:
+          - reg
+          - endpoint@0
+
+      port@1:
+        description: Video port 1 for HDMI output
+        type: object
+        additionalProperties: false
+        properties:
+          reg:
+            items:
+              - description: Port index
+          endpoint@0:
+            description: HDMI output endpoint
+            type: object
+            additionalProperties: false
+            properties:
+              remote-endpoint:
+                $ref: /schemas/types.yaml#/definitions/phandle
+                description: Remote endpoint for HDMI output
+            required:
+              - remote-endpoint
+        required:
+          - reg
+          - endpoint@0
+
+required:
+  - compatible
+  - ports
+
+additionalProperties: false
+
+examples:
+  - |
+    / {
+        compatible = "ti,tpd12s015";
+        gpios = <&gpio2 28 GPIO_ACTIVE_HIGH>,
+                <&gpio2 9 GPIO_ACTIVE_HIGH>,
+                <&gpio2 31 GPIO_ACTIVE_HIGH>;
+
+        ports {
+            #address-cells = <1>;
+            #size-cells = <0>;
+
+            port@0 {
+                reg = <0>;
+                endpoint@0: tpd12s015_in {
+                    remote-endpoint = <&hdmi_out>;
+                };
+            };
+
+            port@1 {
+                reg = <1>;
+                endpoint@0: tpd12s015_out {
+                    remote-endpoint = <&hdmi_connector_in>;
+                };
+            };
+        };
+    };
