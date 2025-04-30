@@ -1,0 +1,43 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/cpufreq/nvidia,tegra20-cpufreq.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: NVIDIA Tegra20 CPU frequency scaling
+
+maintainers:
+  - Amit Kucheria <amit.kucheria@linaro.org>
+  - Dmitry Osipenko <digetx@gmail.com>
+
+description: |
+  Binding for NVIDIA Tegra20 CPUFreq
+
+properties:
+  compatible:
+    description: Tegra20 CPUFreq compatible string.
+    items:
+      - const: nvidia,tegra20-cpufreq
+
+  clocks:
+    description: CPU clock source.
+    maxItems: 1
+
+  operating-points-v2:
+    description: Operating performance points table for CPU frequency scaling.
+    $ref: /schemas/opp/opp-v2.yaml
+
+  '#cooling-cells':
+    description: Number of thermal cooling cells.
+    const: 2
+
+  cpu-supply:
+    description: Phandle to the CPU power supply.
+
+required:
+  - compatible
+  - clocks
+  - operating-points-v2
+  - '#cooling-cells'
+
+additionalProperties: false
