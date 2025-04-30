@@ -1,0 +1,59 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/arm/ux500/st-ericsson,u8500.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: ST-Ericsson Ux500 boards
+
+maintainers:
+  - Geert Uytterhoeven <geert+renesas@glider.be>
+  - Jon Hunter <jonathanh@nvidia.com>
+  - Linus Walleij <linus.walleij@linaro.org>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  ST-Ericsson Ux500 boards
+  ------------------------
+
+  Required properties (in root node) one of these:
+
+  Required node (under root node):
+
+  soc: represents the system-on-chip and contains the chip peripherals
+
+  Required property of soc node, one of these:
+
+  Required subnodes under soc node:
+
+  backupram: (used for CPU spin tables and for storing data
+  during retention, system won't boot without this)
+
+  scu:
+      see binding for arm/arm,scu.yaml
+
+  interrupt-controller:
+      see binding for interrupt-controller/arm,gic.yaml
+
+  timer:
+      see binding for timer/arm,twd-timer.yaml
+
+  clocks:
+      see binding for clocks/ux500.yaml
+
+properties:
+  compatible:
+    enum:
+      - stericsson,db8500
+
+required:
+  - compatible
+  - interrupt-parent
+  - ranges
+  - backupram
+  - interrupt-controller
+  - scu
+  - timer
+  - clocks
+
+additionalProperties: true
