@@ -1,0 +1,63 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/display/smi-sm501.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: smi,sm501
+
+maintainers:
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  * SM SM501
+
+  The SM SM501 is a LCD controller, with proper hardware, it can also
+  drive DVI monitors.
+
+properties:
+  compatible:
+    items:
+      - const: smi,sm501
+
+  reg:
+    items:
+      - description: System Configuration register.
+      - description: IO space (Display Controller register).
+
+  interrupts:
+    maxItems: 1
+
+  mode:
+    description: "Video mode string in the format: <xres>x<yres>[-<bpp>][@<refresh>]."
+    $ref: /schemas/types.yaml#/definitions/string
+
+  edid:
+    description: Verbatim EDID data block describing attached display.
+    $ref: /schemas/types.yaml#/definitions/binary
+
+  little-endian:
+    description: Enable little endian on big endian systems.
+    type: boolean
+
+  big-endian:
+    description: Enable big endian on little endian systems.
+    type: boolean
+
+required:
+  - compatible
+  - reg
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    display@1,0 {
+        compatible = "smi,sm501";
+        reg = <1 0x00000000 0x00800000
+               1 0x03e00000 0x00200000>;
+        interrupts = <1 1 3>;
+        mode = "640x480-32@60";
+        edid = [edid-data];
+    };
