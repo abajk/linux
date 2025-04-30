@@ -1,0 +1,87 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/lltc,ltc4306.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Linear Technology / Analog Devices I2C bus switch
+
+maintainers:
+  - Michael Hennerich <michael.hennerich@analog.com>
+  - Rob Herring <robh@kernel.org>
+  - Thierry Reding <treding@nvidia.com>
+
+description: |
+  * Linear Technology / Analog Devices I2C bus switch
+
+properties:
+  compatible:
+    oneOf:
+      - items:
+          - const: "lltc,ltc4305"
+      - items:
+          - const: "lltc,ltc4306"
+
+  reg:
+    description: The I2C address of the device.
+    items:
+      - description: I2C address
+
+  enable-gpios:
+    description: Reference to the GPIO connected to the enable input.
+    maxItems: 1
+
+  i2c-mux-idle-disconnect:
+    description: Forces the mux to disconnect all children in idle state.
+    type: boolean
+
+  gpio-controller: true
+
+  "#gpio-cells":
+    description: "Should be two: first cell is pin number, second cell is flags."
+    const: 2
+
+  ltc,downstream-accelerators-enable:
+    description: Enables the rise time accelerators on the downstream port.
+    type: boolean
+
+  ltc,upstream-accelerators-enable:
+    description: Enables the rise time accelerators on the upstream port.
+    type: boolean
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+      i2c-mux@4a {
+          compatible = "lltc,ltc4306";
+          #address-cells = <1>;
+          #size-cells = <0>;
+          reg = <0x4a>;
+
+          i2c@0 {
+              #address-cells = <1>;
+              #size-cells = <0>;
+              reg = <0>;
+
+              eeprom@50 {
+                  compatible = "atmel,24c02";
+                  reg = <0x50>;
+              };
+          };
+
+          i2c@1 {
+              #address-cells = <1>;
+              #size-cells = <0>;
+              reg = <1>;
+
+              eeprom@50 {
+                  compatible = "atmel,24c02";
+                  reg = <0x50>;
+              };
+          };
+      };
