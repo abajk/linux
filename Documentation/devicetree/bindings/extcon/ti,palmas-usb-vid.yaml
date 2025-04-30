@@ -1,0 +1,59 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/extcon/ti,palmas-usb-vid.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Palmas USB Comparator
+
+maintainers:
+  - Kishon Vijay Abraham I <kishon@kernel.org>
+  - Laxman Dewangan <ldewangan@nvidia.com>
+  - Roger Quadros <rogerq@ti.com>
+
+description: |
+  EXTCON FOR PALMAS/TWL CHIPS
+
+  PALMAS USB COMPARATOR
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - ti,palmas-usb-vid
+          - ti,twl6035-usb-vid
+          - ti,palmas-usb
+          - ti,twl6035-usb
+
+  debounce-delay-ms:
+    description: Debounce delay for GPIO ID pin in milliseconds.
+
+  id-gpio:
+    description: GPIO for ID detection.
+    maxItems: 1
+
+  ti,enable-id-detection:
+    description: |
+      Perform ID detection. If id-gpio is specified it performs
+      ID detection using GPIO else using OTG core.
+    type: boolean
+
+  ti,enable-vbus-detection:
+    description: Perform VBUS detection.
+    type: boolean
+
+  ti,wakeup:
+    description: To enable the wakeup comparator in probe.
+    type: boolean
+
+required:
+  - compatible
+
+additionalProperties: false
+
+examples:
+  - |
+    palmas-usb {
+      compatible = "ti,twl6035-usb", "ti,palmas-usb";
+      ti,wakeup;
+    };
