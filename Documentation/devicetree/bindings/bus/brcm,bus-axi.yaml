@@ -1,0 +1,103 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Broadcom
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/bus/brcm,bus-axi.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Broadcom ARM AXI Bus
+
+maintainers:
+  - Scott Branden <sbranden@broadcom.com>
+
+description: |
+  Driver for ARM AXI Bus with Broadcom Plugins (bcma)
+
+  The cores on the AXI bus are automatically detected by bcma with the
+  memory ranges they are using and they get registered afterwards.
+  Automatic detection of the IRQ number is not working on
+  BCM47xx/BCM53xx ARM SoCs. To assign IRQ numbers to the cores, provide
+  them manually through device tree. Use an interrupt-map to specify the
+  IRQ used by the devices on the bus. The first address is just an index,
+  because we do not have any special register.
+
+  The top-level axi bus may contain children representing attached cores
+  (devices). This is needed since some hardware details can't be auto
+  detected (e.g. IRQ numbers). Also some of the cores may be responsible
+  for extra things, e.g. ChipCommon providing access to the GPIO chip.
+
+properties:
+  compatible:
+    # List of compatible strings
+    items:
+      - const: brcm,bus-axi
+
+  reg:
+    # iomem address range of ChipCommon core
+    items:
+      - description: base and size of ChipCommon registers
+
+  ranges:
+    # Mapping of bus addresses to parent address space
+    items:
+      - description: child bus address
+      - description: parent bus address
+      - description: size
+
+  '#address-cells':
+    # Number of address cells in child nodes
+    const: 1
+
+  '#size-cells':
+    # Number of size cells in child nodes
+    const: 1
+
+  '#interrupt-cells':
+    # Number of interrupt specifier cells in child nodes
+    const: 1
+
+  interrupt-map-mask:
+    # Mask to extract address and interrupt specifier fields
+    items:
+      - description: address mask
+      - description: interrupt specifier mask
+
+  interrupt-map:
+    # <child address> <child interrupt specifier> <parent phandle> <type> <number> <flags>
+    items:
+      - description: child address within mask
+      - description: child interrupt specifier
+      - description: parent interrupt controller phandle
+      - description: interrupt controller type
+      - description: interrupt number
+      - description: interrupt trigger type flags
+
+  chipcommon:
+    description: Child node representing the ChipCommon core.
+    type: object
+    properties:
+      reg:
+        items:
+          - description: base address of ChipCommon registers
+          - description: size of ChipCommon registers
+
+      gpio-controller:
+        description: Enable GPIO controller support
+        type: boolean
+
+      '#gpio-cells':
+        description: Number of GPIO specifier cells
+        const: 2
+
+    required:
+      - reg
+      - gpio-controller
+      - '#gpio-cells'
+
+    additionalProperties: false
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
