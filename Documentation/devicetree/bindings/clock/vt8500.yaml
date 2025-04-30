@@ -1,0 +1,56 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Tony Prisk <linux@prisktech.co.nz>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/clock/vt8500.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: VT8500 Clock Controller
+
+maintainers:
+  - Tony Prisk <linux@prisktech.co.nz>
+
+properties:
+  compatible:
+    description: Binding compatible strings
+    items:
+      - enum:
+          - via,vt8500-pll-clock
+          - wm,wm8650-pll-clock
+          - wm,wm8750-pll-clock
+          - wm,wm8850-pll-clock
+          - via,vt8500-device-clock
+
+  reg:
+    description: Control register offset from PMC base for the PLL clock
+    maxItems: 1
+
+  clocks:
+    maxItems: 1
+
+  '#clock-cells':
+    const: 0
+
+  enable-reg:
+    description: Register offset from PMC base for the enable register
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  enable-bit:
+    description: Bit within enable-reg to enable or disable the clock
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  divisor-reg:
+    description: Register offset from PMC base for the divisor register
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  divisor-mask:
+    description: Mask for the divisor register
+    default: 0x1f
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+required:
+  - compatible
+  - clocks
+  - '#clock-cells'
+
+additionalProperties: false
