@@ -1,0 +1,44 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Synopsys
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/clock/snps,hsdk-pll-clock.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Synopsys HSDK PLL Clock
+
+maintainers:
+  - Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
+
+properties:
+  compatible:
+    enum:
+      - snps,hsdk-core-pll-clock
+      - snps,hsdk-gp-pll-clock
+      - snps,hsdk-hdmi-pll-clock
+
+  reg:
+    maxItems: 1
+
+  clocks:
+    maxItems: 1
+
+  '#clock-cells':
+    const: 0
+
+required:
+  - compatible
+  - reg
+  - clocks
+  - '#clock-cells'
+
+additionalProperties: false
+
+examples:
+  - |
+    clock-controller@0 {
+        compatible = "snps,hsdk-core-pll-clock";
+        reg = <0x00 0x10>;
+        #clock-cells = <0>;
+        clocks = <&input_clk>;
+    };
