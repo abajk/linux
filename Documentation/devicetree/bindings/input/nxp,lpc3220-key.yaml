@@ -1,0 +1,85 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/nxp,lpc3220-key.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: NXP LPC32xx Key Scan Interface
+maintainers:
+  - Roland Stigge <stigge@antcom.de>
+  - Simon Glass <sjg@chromium.org>
+  - Vladimir Zapolskiy <vz@mleia.com>
+
+description: |
+  NXP LPC32xx Key Scan Interface
+
+  This binding is based on the matrix-keymap binding with the following changes:
+
+  Note: keypad,num-rows and keypad,num-columns are required, and must be equal
+    since LPC32xx only supports square matrices
+
+properties:
+  compatible:
+    items:
+      - const: nxp,lpc3220-key
+
+  reg:
+    items:
+      - description: Physical base address of the controller
+      - description: Length of memory mapped region
+
+  clocks:
+    maxItems: 1
+    description: phandle to clock controller plus clock-specifier pair
+
+  interrupts:
+    items:
+      - description: Interrupt number to the CPU
+      - description: Interrupt type flags
+
+  keypad,num-rows:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Number of rows in the keypad. Must equal keypad,num-columns for square matrix support.
+
+  keypad,num-columns:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Number of columns in the keypad. Must equal keypad,num-rows for square matrix support.
+
+  nxp,debounce-delay-ms:
+    description: Debounce delay in ms
+
+  nxp,scan-delay-ms:
+    description: Repeated scan period in ms
+
+  linux,keymap:
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+    maxItems: 1
+    description: The key-code to be reported when the key is pressed and released.
+      see also Documentation/devicetree/bindings/input/matrix-keymap.txt
+
+required:
+  - compatible
+  - reg
+  - clocks
+  - interrupts
+  - keypad,num-rows
+  - keypad,num-columns
+  - nxp,debounce-delay-ms
+  - nxp,scan-delay-ms
+  - linux,keymap
+
+additionalProperties: false
+
+examples:
+  - |
+    key@40050000 {
+        compatible = "nxp,lpc3220-key";
+        reg = <0x40050000 0x1000>;
+        clocks = <&clk LPC32XX_CLK_KEY>;
+        interrupts = <22 IRQ_TYPE_LEVEL_HIGH>;
+        keypad,num-rows = <1>;
+        keypad,num-columns = <1>;
+        nxp,debounce-delay-ms = <3>;
+        nxp,scan-delay-ms = <34>;
+        linux,keymap = <0x00000002>;
+    };
