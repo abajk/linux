@@ -1,0 +1,123 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/marvell,pxa27x-keypad.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Marvell PXA27x Keypad controller
+
+maintainers:
+  - Chao Xie <chao.xie@marvell.com>
+
+description: |
+  * Marvell PXA Keypad controller
+
+properties:
+  compatible:
+    items:
+      - const: marvell,pxa27x-keypad
+    description: Device must be compatible with the Marvell PXA27x keypad controller.
+
+  reg:
+    items:
+      - description: Base address of the keypad controller registers
+      - description: Size of the register region in bytes
+
+  interrupts:
+    items:
+      - description: Interrupt for the keypad controller
+
+  marvell,debounce-interval:
+    description: >
+      Debounce intervals for direct and matrix keys in units of 2ms.
+      Bit[31:16] is debounce interval for direct keys.
+      Bit[15:0] is debounce interval for matrix keys.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  keypad,num-rows:
+    description: Number of rows in the keypad matrix.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  keypad,num-columns:
+    description: Number of columns in the keypad matrix.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  linux,keymap:
+    description: >
+      Array of keymap entries for the keypad matrix.
+      Each entry encodes row, column, and key code.
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+
+  marvell,direct-key-count:
+    description: Number of direct keys in use.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  marvell,direct-key-mask:
+    description: >
+      Mask indicating which direct keys are used.
+      Bit[X] set means direct key X is enabled.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  marvell,direct-key-low-active:
+    description: Direct keys are active when the input pin is low.
+    type: boolean
+
+  marvell,direct-key-map:
+    description: Array of Linux key-codes for each direct key.
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+
+  marvell,rotary0:
+    description: >
+      Linux key-codes for rotary 0; high 16 bits for rotate up,
+      low 16 bits for rotate down.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  marvell,rotary1:
+    description: >
+      Linux key-codes for rotary 1; high 16 bits for rotate up,
+      low 16 bits for rotate down.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  marvell,rotary-rel-key:
+    description: >
+      Linux key-codes for relative rotary axes; high 16 bits for rotary 1,
+      low 16 bits for rotary 0.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+required:
+  - compatible
+  - reg
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    keypad@d4012000 {
+      compatible = "marvell,pxa27x-keypad";
+      reg = <0xd4012000 0x1000>;
+      interrupts = <113>;
+      marvell,debounce-interval = <0x001e001e>;
+      keypad,num-rows = <3>;
+      keypad,num-columns = <5>;
+      linux,keymap = <
+        0x0000000e /* KEY_BACKSPACE */
+        0x0001006b /* KEY_END */
+        0x00020061 /* KEY_RIGHTCTRL */
+        0x0003000b /* KEY_0 */
+        0x00040002 /* KEY_1 */
+        0x0100008b /* KEY_MENU */
+        0x01010066 /* KEY_HOME */
+        0x010200e7 /* KEY_SEND */
+        0x01030009 /* KEY_8 */
+        0x0104000a /* KEY_9 */
+        0x02000160 /* KEY_OK */
+        0x02010003 /* KEY_2 */
+        0x02020004 /* KEY_3 */
+        0x02030005 /* KEY_4 */
+        0x02040006 /* KEY_5 */
+      >;
+      marvell,rotary0 = <0x006c0067>; /* KEY_UP & KEY_DOWN */
+      marvell,direct-key-count = <1>;
+      marvell,direct-key-map = <0x001c>;
+    };
