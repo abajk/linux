@@ -1,0 +1,129 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Dario Binacchi <dariobin@libero.it>
+# Copyright 2025 Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+# Copyright 2025 Nishanth Menon <nm@ti.com>
+# Copyright 2025 Tero Kristo <t-kristo@ti.com>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/clock/ti/ti,omap3-dpll-clock.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Texas Instruments DPLL clock
+
+maintainers:
+  - Dario Binacchi <dariobin@libero.it>
+  - Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+  - Nishanth Menon <nm@ti.com>
+  - Tero Kristo <t-kristo@ti.com>
+
+description: |
+  Binding for Texas Instruments DPLL clock.
+
+  This binding uses the common clock binding[1]. It assumes a
+  register-mapped DPLL with usually two selectable input clocks
+  (reference clock and bypass clock), with digital phase locked
+  loop logic for multiplying the input clock to a desired output
+  clock. This clock also typically supports different operation
+  modes (locked, low power stop etc.) and covers several sub-types
+  with slightly different setup.
+
+  [1] Documentation/devicetree/bindings/clock/clock-bindings.txt
+
+properties:
+  compatible:
+    enum:
+      - ti,omap3-dpll-clock
+      - ti,omap3-dpll-core-clock
+      - ti,omap3-dpll-per-clock
+      - ti,omap3-dpll-per-j-type-clock
+      - ti,omap4-dpll-clock
+      - ti,omap4-dpll-x2-clock
+      - ti,omap4-dpll-core-clock
+      - ti,omap4-dpll-m4xen-clock
+      - ti,omap4-dpll-j-type-clock
+      - ti,omap5-mpu-dpll-clock
+      - ti,am3-dpll-no-gate-clock
+      - ti,am3-dpll-j-type-clock
+      - ti,am3-dpll-no-gate-j-type-clock
+      - ti,am3-dpll-clock
+      - ti,am3-dpll-core-clock
+      - ti,am3-dpll-x2-clock
+      - ti,omap2-dpll-core-clock
+
+  reg:
+    minItems: 4
+    items:
+      - description: Control register base address
+      - description: Idlest status register base address
+      - description: Multiplier/divider register base address
+      - description: Autoidle register base address
+      - description: Spread-spectrum delta M register base address
+      - description: Spread-spectrum modulation frequency register base address
+
+  '#clock-cells':
+    const: 0
+
+  clocks:
+    items:
+      - description: Reference clock phandle
+      - description: Bypass clock phandle
+
+  ti,low-power-stop:
+    description: Enable low power stop mode to gate DPLL output.
+    type: boolean
+
+  ti,low-power-bypass:
+    description: Bypass DPLL, output matches bypass clock rate.
+    type: boolean
+
+  ti,lock:
+    description: Lock DPLL to programmed rate.
+    type: boolean
+
+  ti,min-div:
+    description: Minimum divisor for DPLL rate rounding.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  ti,ssc-deltam:
+    description: Spread spectrum delta M in permille (0.1%).
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  ti,ssc-modfreq-hz:
+    description: Spread spectrum modulation frequency in Hz.
+
+  ti,ssc-downspread:
+    description: Enable downspread feature for spread spectrum clocking.
+    type: boolean
+
+required:
+  - compatible
+  - '#clock-cells'
+  - clocks
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    bus {
+        #address-cells = <1>;
+        #size-cells = <0>;
+        dpll_core_ck@490 {
+            compatible = "ti,omap4-dpll-core-clock";
+            reg = <0x490>, <0x45c>, <0x488>, <0x468>;
+            #clock-cells = <0>;
+            clocks = <&sys_clkin_ck>, <&sys_clkin_ck>;
+        };
+    };
+
+  - |
+    bus {
+        #address-cells = <1>;
+        #size-cells = <0>;
+        dpll_disp_ck@498 {
+            compatible = "ti,am3-dpll-no-gate-clock";
+            reg = <0x0498>, <0x0448>, <0x0454>, <0x044c>, <0x0450>;
+            #clock-cells = <0>;
+            clocks = <&sys_clkin_ck>, <&sys_clkin_ck>;
+        };
+    };
