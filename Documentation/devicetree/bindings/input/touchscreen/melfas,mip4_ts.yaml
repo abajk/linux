@@ -1,0 +1,50 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Melfas
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/input/touchscreen/melfas,mip4_ts.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: MELFAS MIP4 Touchscreen
+
+maintainers:
+  - Rob Herring <robh@kernel.org>
+  - Sangwon Jee <jeesw@melfas.com>
+
+description: |
+  * MELFAS MIP4 Touchscreen
+
+properties:
+  compatible:
+    items:
+      - const: melfas,mip4_ts
+
+  reg:
+    items:
+      - description: I2C slave address of the chip (0x48 or 0x34)
+
+  interrupts:
+    items:
+      - description: Interrupt to which the chip is connected
+
+  ce-gpios:
+    maxItems: 1
+    description: GPIO connected to the CE (chip enable) pin of the chip
+
+required:
+  - compatible
+  - reg
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    i2c@00000000 {
+        touchscreen: melfas_mip4@48 {
+            compatible = "melfas,mip4_ts";
+            reg = <0x48>;
+            interrupts = <0 IRQ_TYPE_EDGE_FALLING>;
+            ce-gpios = <&gpio 0 GPIO_ACTIVE_HIGH>;
+        };
+    };
