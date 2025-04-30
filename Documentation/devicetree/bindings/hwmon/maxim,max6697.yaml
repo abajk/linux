@@ -1,0 +1,90 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Wolfram Sang <wsa@kernel.org>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/hwmon/maxim,max6697.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: MAX6697 temperature sensor
+
+maintainers:
+  - Wolfram Sang <wsa@kernel.org>
+
+description: |
+  max6697 properties
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - maxim,max6581
+          - maxim,max6602
+          - maxim,max6622
+          - maxim,max6636
+          - maxim,max6689
+          - maxim,max6693
+          - maxim,max6694
+          - maxim,max6697
+          - maxim,max6698
+          - maxim,max6699
+    description: Device compatible string for MAX6697 and related sensors.
+
+  reg:
+    items:
+      - description: I2C address for the sensor.
+
+  smbus-timeout-disable:
+    type: boolean
+    description: Disable SMBus timeout.
+
+  extended-range-enable:
+    type: boolean
+    description: Enable extended temperature range. Only valid for MAX6581.
+
+  beta-compensation-enable:
+    type: boolean
+    description: Enable beta compensation on remote temperature channel 1. Only valid for MAX6693 and MAX6694.
+
+  alert-mask:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: >
+      Alert bit mask. Bits set will disable alert. Bit 0 for local temperature,
+      bits 1..7 for remote channels.
+
+  over-temperature-mask:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: >
+      Over-temperature bit mask. Bits set will disable over-temperature
+      reporting. Bit 0 for local temperature, bits 1..7 for remote channels.
+
+  resistance-cancellation:
+    type: boolean
+    description: >
+      Enable resistance cancellation on remote temperature channel 1. For
+      MAX6581, enables cancellation on all channels.
+
+  transistor-ideality:
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+    description: >
+      For MAX6581 only. Two element array: first is bit mask for channels 1..7,
+      second is ideality select value as per MAX6581 data sheet.
+    items:
+      - $ref: /schemas/types.yaml#/definitions/uint32
+      - $ref: /schemas/types.yaml#/definitions/uint32
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    temp-sensor@1a {
+        compatible = "maxim,max6697";
+        reg = <0x1a>;
+        smbus-timeout-disable;
+        resistance-cancellation;
+        alert-mask = <0x72>;
+        over-temperature-mask = <0x7f>;
+    };
