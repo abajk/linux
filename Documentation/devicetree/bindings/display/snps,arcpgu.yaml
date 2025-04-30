@@ -1,0 +1,77 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Synopsys Inc.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/display/snps,arcpgu.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Synopsys ARC PGU
+
+maintainers:
+  - Alexey Brodkin <abrodkin@synopsys.com>
+
+description: |
+  ARC PGU
+
+  This is a display controller found on several development boards produced
+  by Synopsys. The ARC PGU is an RGB streamer that reads the data from a
+  framebuffer and sends it to a single digital encoder (usually HDMI).
+
+properties:
+  compatible:
+    items:
+      - const: snps,arcpgu
+
+  reg:
+    description: Physical base address and length of the controller's registers.
+    items:
+      - description: Controller registers
+
+  clocks:
+    maxItems: 1
+    description: Phandle to pixel clock for the controller.
+
+  clock-names:
+    items:
+      - const: pxlclk
+
+  port:
+    description: PGU connection to an encoder chip.
+    type: object
+    additionalProperties: false
+    properties:
+      endpoint:
+        description: PGU output endpoint.
+        type: object
+        additionalProperties: false
+        properties:
+          remote-endpoint:
+            description: Phandle to the downstream endpoint.
+            $ref: /schemas/types.yaml#/definitions/phandle-array
+        required:
+          - remote-endpoint
+    required:
+      - endpoint
+
+required:
+  - compatible
+  - reg
+  - clocks
+  - clock-names
+  - port
+
+additionalProperties: false
+
+examples:
+  - |
+    pgu@XXXXXXXX {
+        compatible = "snps,arcpgu";
+        reg = <0xXXXXXXXX 0x400>;
+        clocks = <&clock_node>;
+        clock-names = "pxlclk";
+        port {
+            pgu_output: endpoint {
+                remote-endpoint = <&hdmi_enc_input>;
+            };
+        };
+    };
