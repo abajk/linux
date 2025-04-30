@@ -1,0 +1,59 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Jassi Brar <jaswinder.singh@linaro.org>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/dma/socionext,milbeaut-m10v-xdmac.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Milbeaut AXI DMA Controller
+maintainers:
+  - Jassi Brar <jaswinder.singh@linaro.org>
+
+description: |
+  * Milbeaut AXI DMA Controller
+
+  Milbeaut AXI DMA controller has only memory to memory transfer capability.
+
+  * DMA controller
+
+properties:
+  compatible:
+    items:
+      - const: socionext,milbeaut-m10v-xdmac
+
+  reg:
+    description: DMA registers location and length
+    items:
+      - description: DMA register region start address
+      - description: DMA register region length
+
+  interrupts:
+    description: Per-channel DMA interrupts
+    items:
+      description: Interrupt specifier tuple (interrupt-parent, IRQ number, flags)
+    minItems: 2
+    maxItems: 8
+
+  '#dma-cells':
+    description: Number of DMA cells
+    const: 1
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - '#dma-cells'
+
+additionalProperties: false
+
+examples:
+  - |
+    xdmac0: dma-controller@1c250000 {
+        compatible = "socionext,milbeaut-m10v-xdmac";
+        reg = <0x1c250000 0x1000>;
+        interrupts = <0 17 0x4>,
+                     <0 18 0x4>,
+                     <0 19 0x4>,
+                     <0 20 0x4>;
+        #dma-cells = <1>;
+    };
