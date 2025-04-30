@@ -1,0 +1,165 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/display/ti/ti,omap2-dss.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI OMAP2 Display Subsystem
+maintainers:
+  - Peter Ujfalusi <peter.ujfalusi@ti.com>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  Texas Instruments OMAP2 Display Subsystem
+
+  See Documentation/devicetree/bindings/display/ti/ti,omap-dss.txt for generic
+  description about OMAP Display Subsystem bindings.
+
+properties:
+  compatible:
+    description: Must be "ti,omap2-dss" for this binding.
+    const: ti,omap2-dss
+
+  reg:
+    description: Register region for the DSS core.
+    items:
+      - description: DSS core registers
+
+  ti,hwmods:
+    description: Hardware modules used by DSS core.
+    items:
+      - const: dss_core
+
+  port:
+    description: Video port for DPI output.
+    type: object
+    properties:
+      data-lines:
+        description: Number of data lines used for DPI output.
+        $ref: /schemas/types.yaml#/definitions/uint32
+    required:
+      - data-lines
+    additionalProperties: false
+
+  dispc:
+    description: Display controller node.
+    type: object
+    properties:
+      compatible:
+        const: ti,omap2-dispc
+      reg:
+        description: Register region for DISPC.
+        items:
+          - description: DISPC registers
+      ti,hwmods:
+        items:
+          - const: dss_dispc
+      interrupts:
+        description: DISPC interrupt.
+        items:
+          - description: DISPC interrupt
+      max-memory-bandwidth:
+        description: Input memory bandwidth limit in bytes per second.
+        $ref: /schemas/types.yaml#/definitions/uint64
+    required:
+      - compatible
+      - reg
+      - ti,hwmods
+    additionalProperties: false
+
+  rfbi:
+    description: Raster frame buffer interface node.
+    type: object
+    properties:
+      compatible:
+        const: ti,omap2-rfbi
+      reg:
+        description: Register region for RFBI.
+        items:
+          - description: RFBI registers
+      ti,hwmods:
+        items:
+          - const: dss_rfbi
+    required:
+      - compatible
+      - reg
+      - ti,hwmods
+    additionalProperties: false
+
+  venc:
+    description: Video encoder node.
+    type: object
+    properties:
+      compatible:
+        const: ti,omap2-venc
+      reg:
+        description: Register region for VENC.
+        items:
+          - description: VENC registers
+      ti,hwmods:
+        items:
+          - const: dss_venc
+      vdda-supply:
+        description: Power supply for DAC.
+      venc-endpoint:
+        description: Endpoint for video output.
+        type: object
+        properties:
+          ti,invert-polarity:
+            description: Invert the polarity of the video signal.
+            type: boolean
+          ti,channels:
+            description: Number of video channels (1 for composite, 2 for s-video).
+            $ref: /schemas/types.yaml#/definitions/uint32
+            enum:
+              - 1
+              - 2
+        required:
+          - ti,invert-polarity
+          - ti,channels
+        additionalProperties: false
+    required:
+      - compatible
+      - reg
+      - ti,hwmods
+    additionalProperties: false
+
+required:
+  - compatible
+  - reg
+  - ti,hwmods
+
+additionalProperties: false
+
+examples:
+  - |
+    dss@4a000000 {
+      compatible = "ti,omap2-dss";
+      reg = <0x4a000000 0x1000>;
+      ti,hwmods = "dss_core";
+      port@0 {
+        data-lines = <24>;
+      };
+      dispc@4a100000 {
+        compatible = "ti,omap2-dispc";
+        reg = <0x4a100000 0x1000>;
+        ti,hwmods = "dss_dispc";
+        interrupts = <79>;
+        max-memory-bandwidth = <300000000>;
+      };
+      rfbi@4a200000 {
+        compatible = "ti,omap2-rfbi";
+        reg = <0x4a200000 0x1000>;
+        ti,hwmods = "dss_rfbi";
+      };
+      venc@4a300000 {
+        compatible = "ti,omap2-venc";
+        reg = <0x4a300000 0x1000>;
+        ti,hwmods = "dss_venc";
+        vdda-supply = <&vdd_dac>;
+        venc-endpoint {
+          ti,invert-polarity;
+          ti,channels = <2>;
+        };
+      };
+    };
