@@ -1,0 +1,150 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/clock/ti/davinci/ti,da830-cfgchip.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI DA8XX/OMAP-L13X/AM17XX/AM18XX CFGCHIP clocks
+
+maintainers:
+  - David Lechner <david@lechnology.com>
+
+description: |
+  TI DA8XX/OMAP-L13X/AM17XX/AM18XX SoCs contain a general purpose set of
+  registers call CFGCHIPn. Some of these registers function as clock
+  gates. This document describes the bindings for those clocks.
+
+  All of the clock nodes described below must be child nodes of a CFGCHIP node
+  (compatible = "ti,da830-cfgchip").
+
+  USB PHY clocks
+  --------------
+  This node provides two clocks. The clock at index 0 is the USB 2.0 PHY 48MHz
+  clock and the clock at index 1 is the USB 1.1 PHY 48MHz clock.
+
+  eHRPWM Time Base Clock (TBCLK)
+  ------------------------------
+
+  PLL DIV4.5 divider
+  ------------------
+
+  EMIFA clock source (ASYNC1)
+  ---------------------------
+
+  ASYNC3 clock source
+  -------------------
+
+properties:
+  compatible:
+    const: ti,da830-cfgchip
+
+  usb-phy-clocks:
+    description: USB PHY clock gate providing 'fck', 'usb_refclkin', and 'auxclk'.
+    type: object
+    additionalProperties: false
+
+    properties:
+      compatible:
+        const: ti,da830-usb-phy-clocks
+
+      '#clock-cells':
+        const: 1
+
+      clocks:
+        maxItems: 3
+
+      clock-names:
+        items:
+          - const: fck
+          - const: usb_refclkin
+          - const: auxclk
+
+    required: [compatible, '#clock-cells', clocks, clock-names]
+
+  ehrpwm-tbclk:
+    description: eHRPWM time base clock (TBCLK) gate.
+    type: object
+    additionalProperties: false
+
+    properties:
+      compatible:
+        const: ti,da830-tbclksync
+
+      '#clock-cells':
+        const: 0
+
+      clocks:
+        maxItems: 1
+
+      clock-names:
+        items:
+          - const: fck
+
+    required: [compatible, '#clock-cells', clocks, clock-names]
+
+  div4.5:
+    description: PLL DIV4.5 divider output clock gate.
+    type: object
+    additionalProperties: false
+
+    properties:
+      compatible:
+        const: ti,da830-div4p5ena
+
+      '#clock-cells':
+        const: 0
+
+      clocks:
+        maxItems: 1
+
+      clock-names:
+        items:
+          - const: pll0_pllout
+
+    required: [compatible, '#clock-cells', clocks, clock-names]
+
+  async1:
+    description: EMIFA ASYNC1 clock source providing 'pll0_sysclk3' and 'div4.5'.
+    type: object
+    additionalProperties: false
+
+    properties:
+      compatible:
+        const: ti,da850-async1-clksrc
+
+      '#clock-cells':
+        const: 0
+
+      clocks:
+        maxItems: 2
+
+      clock-names:
+        items:
+          - const: pll0_sysclk3
+          - const: div4.5
+
+    required: [compatible, '#clock-cells', clocks, clock-names]
+
+  async3:
+    description: ASYNC3 clock source providing 'pll0_sysclk2' and 'pll1_sysclk2'.
+    type: object
+    additionalProperties: false
+
+    properties:
+      compatible:
+        const: ti,da850-async3-clksrc
+
+      '#clock-cells':
+        const: 0
+
+      clocks:
+        maxItems: 2
+
+      clock-names:
+        items:
+          - const: pll0_sysclk2
+          - const: pll1_sysclk2
+
+    required: [compatible, '#clock-cells', clocks, clock-names]
+
+additionalProperties: false
