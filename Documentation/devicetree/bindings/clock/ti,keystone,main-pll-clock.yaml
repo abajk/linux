@@ -1,0 +1,163 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/clock/ti,keystone,main-pll-clock.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Keystone PLL clocks
+
+maintainers:
+  - Bjorn Helgaas <bhelgaas@google.com>
+  - Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+  - Murali Karicheri <m-karicheri2@ti.com>
+  - Santosh Shilimkar <santosh.shilimkar@ti.com>
+
+description: |
+  Binding for keystone PLLs. The main PLL IP typically has a multiplier,
+  a divider and a post divider. The additional PLL IPs like ARMPLL, DDRPLL
+  and PAPLL are controlled by the memory mapped register whereas the Main
+  PLL is controlled by PLL controller registers along with memory mapped
+  registers.
+
+  This binding uses the common clock binding[1].
+
+  Required properties:
+    - #clock-cells : shall be 0.
+    - compatible : one of "ti,keystone,main-pll-clock",
+      "ti,keystone,pll-clock", "ti,keystone,pll-mux-clock",
+      or "ti,keystone,pll-divider-clock"
+    - clocks : parent clock phandles.
+    - reg : register offsets and sizes.
+    - reg-names : names for each reg entry.
+    - fixed-postdiv : fixed post divider value for main PLL. If absent,
+      clkod register bits are used.
+
+  [1] Documentation/devicetree/bindings/clock/clock-bindings.txt
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - ti,keystone,main-pll-clock
+          - ti,keystone,pll-clock
+          - ti,keystone,pll-mux-clock
+          - ti,keystone,pll-divider-clock
+
+  # Parent clock phandles
+  clocks:
+    maxItems: 1
+    description: Parent clock phandles.
+
+  # Optional output names
+  clock-output-names:
+    items:
+      - description: Output clock name.
+
+  # Number of clock cells; must be zero.
+  '#clock-cells':
+    description: Number of clock-cells; must be zero.
+    const: 0
+
+  # Register definitions
+  reg:
+    items:
+      - description: Control register.
+      - description: Multiplier register.
+      - description: Post divider register.
+
+  # Names for register entries
+  reg-names:
+    items:
+      - const: control
+      - const: multiplier
+      - const: post-divider
+
+  # Fixed post divider for main PLL
+  fixed-postdiv:
+    description: Fixed post divider value.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  # Mux/divider bitfields
+  bit-shift:
+    description: Number of bits to shift the bitmask.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  bit-mask:
+    description: Bitmask for programming the mux or divider.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+additionalProperties: false
+
+oneOf:
+  - description: Main PLL clock
+    properties:
+      compatible:
+        contains:
+          const: ti,keystone,main-pll-clock
+      reg: {}
+      reg-names:
+        items:
+          - const: control
+          - const: multiplier
+          - const: post-divider
+      fixed-postdiv: {}
+    additionalProperties: false
+    required:
+      - compatible
+      - reg
+      - reg-names
+
+  - description: Secondary PLL clocks (ARMPLL, DDRPLL, PAPLL)
+    properties:
+      compatible:
+        contains:
+          const: ti,keystone,pll-clock
+      reg:
+        maxItems: 1
+      reg-names:
+        items:
+          - const: control
+      clock-output-names:
+        items:
+          - description: Output clock name.
+
+      '#clock-cells':
+        description: Number of clock-cells; must be zero.
+        const: 0
+    additionalProperties: false
+    required:
+      - compatible
+      - reg
+      - reg-names
+
+  - description: PLL Mux clock
+    properties:
+      compatible:
+        contains:
+          const: ti,keystone,pll-mux-clock
+      reg:
+        maxItems: 1
+      bit-shift: {}
+      bit-mask: {}
+    additionalProperties: false
+    required:
+      - compatible
+      - reg
+      - bit-shift
+      - bit-mask
+
+  - description: PLL Divider clock
+    properties:
+      compatible:
+        contains:
+          const: ti,keystone,pll-divider-clock
+      reg:
+        maxItems: 1
+      bit-shift: {}
+      bit-mask: {}
+    additionalProperties: false
+    required:
+      - compatible
+      - reg
+      - bit-shift
+      - bit-mask
