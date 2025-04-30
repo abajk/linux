@@ -1,0 +1,85 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/display/mipi-dsi-bus.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: MIPI DSI (Display Serial Interface) bus
+
+maintainers:
+  - Archit Taneja <architt@codeaurora.org>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  MIPI DSI (Display Serial Interface) busses
+  ==========================================
+
+  The MIPI Display Serial Interface specifies a serial bus and a protocol for
+  communication between a host and up to four peripherals. This schema defines
+  the syntax used to represent a DSI bus in a device tree.
+
+  This schema describes DSI bus–specific properties only or defines existing
+  standard properties in the context of the DSI bus.
+
+  Each DSI host provides a DSI bus. The DSI host controller’s node contains a
+  set of properties that characterize the bus. Child nodes describe individual
+  peripherals on that bus.
+
+  The following assumes that only a single peripheral is connected to a DSI
+  host. Experience shows that this is true for the large majority of setups.
+
+properties:
+  compatible:
+    items:
+      - enum: [mipi, dsi-host]
+    description: Must be "mipi,dsi-host" to identify a DSI host node.
+
+  '#address-cells':
+    const: 1
+    description: Number of cells required to represent an address on the bus.
+
+  '#size-cells':
+    const: 0
+    description: Must be 0; DSI peripherals do not use size cells.
+
+  clock-master:
+    type: boolean
+    description: Indicates this host drives the clock for multiple DSI busses.
+
+# Definitions for child nodes (DSI peripherals)
+definitions:
+  peripheral:
+    type: object
+    properties:
+      compatible:
+        items:
+          - type: string
+        description: Compatible string for the DSI peripheral.
+      reg:
+        minItems: 1
+        items:
+          minimum: 0
+          maximum: 3
+        description: Virtual channel number(s) (0-3) of the peripheral.
+    additionalProperties: true
+
+additionalProperties: false
+
+required:
+  - compatible
+  - '#address-cells'
+  - '#size-cells'
+
+examples:
+  - |
+    dsi-host@0 {
+      compatible = "mipi,dsi-host";
+      #address-cells = <1>;
+      #size-cells = <0>;
+
+      /* single-channel peripheral */
+      peripheral@0 {
+        compatible = "acme,foo-dsi-panel";
+        reg = <0>;
+      };
+    };
