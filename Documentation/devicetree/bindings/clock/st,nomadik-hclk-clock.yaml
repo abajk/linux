@@ -1,0 +1,102 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/clock/st,nomadik-hclk-clock.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: ST Microelectronics Nomadik HCLK Clock
+
+maintainers:
+  - Linus Walleij <linus.walleij@linaro.org>
+  - Stefan Huber <steffhip@googlemail.com>
+
+description: |
+  HCLK nodes represent the clock gates on individual lines from the HCLK clock tree.
+  They also represent the gate for individual lines from the PCLK clock tree.
+
+  This binding uses the common clock binding:
+  Documentation/devicetree/bindings/clock/clock-bindings.txt
+
+properties:
+  compatible:
+    items:
+      - const: st,nomadik-hclk-clock
+
+  '#clock-cells':
+    const: 0
+
+  clock-id:
+    description: |
+      Clock identifier for HCLK or PCLK line; see the mapping below:
+        0: HCLKDMA0
+        1: HCLKSMC
+        2: HCLKSDRAM
+        3: HCLKDMA1
+        4: HCLKCLCD
+        5: PCLKIRDA
+        6: PCLKSSP
+        7: PCLKUART0
+        8: PCLKSDI
+        9: PCLKI2C0
+        10: PCLKI2C1
+        11: PCLKUART1
+        12: PCLMSP0
+        13: HCLKUSB
+        14: HCLKDIF
+        15: HCLKSAA
+        16: HCLKSVA
+        17: PCLKHSI
+        18: PCLKXTI
+        19: PCLKUART2
+        20: PCLKMSP1
+        21: PCLKMSP2
+        22: PCLKOWM
+        23: HCLKHPI
+        24: PCLKSKE
+        25: PCLKHSEM
+        26: HCLK3D
+        27: HCLKHASH
+        28: HCLKCRYP
+        29: PCLKMSHC
+        30: HCLKUSBM
+        31: HCLKRNG
+        36: CLDCLK
+        37: IRDACLK
+        38: SSPICLK
+        39: UART0CLK
+        40: SDICLK
+        41: I2C0CLK
+        42: I2C1CLK
+        43: UART1CLK
+        44: MSPCLK0
+        45: USBCLK
+        46: DIFCLK
+        47: IPI2CCLK
+        48: IPBMCCLK
+        49: HSICLKRX
+        50: HSICLKTX
+        51: UART2CLK
+        52: MSPCLK1
+        53: MSPCLK2
+        54: OWMCLK
+        56: SKECLK
+        58: 3DCLK
+        59: PCLKMSP3
+        60: MSPCLK3
+        61: MSHCCLK
+        62: USBMCLK
+        63: RNGCCLK
+    $ref: /schemas/types.yaml#/definitions/uint32
+    minimum: 0
+    maximum: 63
+
+  clocks:
+    maxItems: 1
+
+required:
+  - compatible
+  - '#clock-cells'
+  - clock-id
+  - clocks
+
+additionalProperties: false

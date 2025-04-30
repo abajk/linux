@@ -1,0 +1,38 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/clock/st,nomadik-pll-clock.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: ST Microelectronics Nomadik PLL Clock
+
+maintainers:
+  - Linus Walleij <linus.walleij@linaro.org>
+  - Stefan Huber <steffhip@googlemail.com>
+
+description:
+  PLL nodes represent the two PLLs on the system, which should both have the
+  main crystal as parent.
+
+properties:
+  compatible:
+    const: st,nomadik-pll-clock
+
+  '#clock-cells':
+    const: 0
+
+  clock-id:
+    description: PLL identifier; must be 1 for PLL1 or 2 for PLL2.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [1, 2]
+
+  clocks:
+    maxItems: 1
+
+required:
+  - compatible
+  - '#clock-cells'
+  - clock-id
+  - clocks
+
+additionalProperties: false
