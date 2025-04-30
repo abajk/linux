@@ -1,0 +1,75 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 NextFour
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/input/touchscreen/sis,9200-ts.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: SiS I2C Multiple Touch Controller
+
+maintainers:
+  - Mika Penttilä <mika.penttila@nextfour.com>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  * SiS I2C Multiple Touch Controller
+
+  [0]: Documentation/devicetree/bindings/interrupt-controller/interrupts.txt
+  [1]: Documentation/devicetree/bindings/pinctrl/pinctrl-bindings.txt
+
+properties:
+  compatible:
+    items:
+      - const: "sis,9200-ts"
+
+  reg:
+    items:
+      - description: I2C slave address
+
+  interrupts:
+    items:
+      - description: Interrupt number
+      - description: IRQ type flags
+
+  pinctrl-names:
+    items:
+      - const: default
+
+  pinctrl-0:
+    description: Phandle to the pin control settings for the default state
+
+  attn-gpios:
+    maxItems: 1
+    description: GPIO line used as attention signal
+
+  irq-gpios:
+    maxItems: 1
+    description: GPIO line used for interrupt notifications
+
+  reset-gpios:
+    maxItems: 1
+    description: GPIO line used to reset the controller
+
+  wakeup-source:
+    type: boolean
+    description: Enable touchscreen as a wakeup source
+
+required:
+  - compatible
+  - reg
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    sis9255@5c {
+      compatible = "sis,9200-ts";
+      reg = <0x5c>;
+      pinctrl-names = "default";
+      pinctrl-0 = <&pinctrl_sis>;
+      interrupts = <19 IRQ_TYPE_EDGE_FALLING>;
+      irq-gpios = <&gpio3 19 GPIO_ACTIVE_LOW>;
+      reset-gpios = <&gpio2 30 GPIO_ACTIVE_LOW>;
+      wakeup-source;
+    };
