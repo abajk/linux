@@ -1,0 +1,49 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/csky,csky-pmu.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: C-SKY Performance Monitor Units
+
+maintainers:
+  - Mao Han <han_mao@c-sky.com>
+
+description: |
+  C-SKY Performance Monitor Units
+
+  C-SKY Performance Monitor is designed for ck807/ck810/ck860 SMP soc and
+  it could count cpu's events for helping analysis performance issues.
+
+  PMU node bindings definition
+
+  Describes PMU
+
+properties:
+  compatible:
+    description: Binding compatible string
+    items:
+      - const: csky,csky-pmu
+
+  interrupts:
+    description: IRQ number and trigger type for PMU interrupts
+    items:
+      - description: PMU interrupt
+
+  count-width:
+    description: Width of each PMU counter
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+required:
+  - compatible
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    pmu: performace-monitor {
+        compatible = "csky,csky-pmu";
+        interrupts = <23 IRQ_TYPE_EDGE_RISING>;
+        count-width = <48>;
+    };
