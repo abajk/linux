@@ -1,0 +1,69 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 BayLibre
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/fsl-imx25-tcq.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Freescale mx25 TS conversion queue module
+
+maintainers:
+  - Eric Engestrom <eric@engestrom.ch>
+  - Markus Schneider-Pargmann <msp@baylibre.com>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  Freescale mx25 TS conversion queue module
+
+  mx25 touchscreen conversion queue module which controls the ADC unit of the
+  mx25 for attached touchscreens.
+
+properties:
+  compatible:
+    items:
+      - const: fsl,imx25-tcq
+
+  reg:
+    description: Memory range of the device.
+    items:
+      - description: Base address
+      - description: Size in bytes
+
+  interrupts:
+    description: Interrupt number associated with this module within the tscadc unit.
+    items:
+      - description: Interrupt number
+
+  fsl,wires:
+    description: "Number of wires: 4 or 5."
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [4, 5]
+
+  fsl,pen-debounce-ns:
+    description: Pen debounce time in nanoseconds.
+
+  fsl,pen-threshold:
+    description: Pen-down threshold for the touchscreen.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    minimum: 1
+    maximum: 4096
+
+  fsl,settling-time-ns:
+    description: Settling time in nanoseconds to wait for an even charge distribution before touch detection.
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - fsl,wires
+
+additionalProperties: false
+
+examples:
+  - |
+    tsc: tcq@50030400 {
+        compatible = "fsl,imx25-tcq";
+        reg = <0x50030400 0x60>;
+        interrupts = <0>;
+        fsl,wires = <4>;
+    };
