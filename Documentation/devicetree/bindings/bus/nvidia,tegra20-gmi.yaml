@@ -1,0 +1,119 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2018 Linaro Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/bus/nvidia,tegra20-gmi.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: NVIDIA Tegra20 Generic Memory Interface bus
+
+maintainers:
+  - Marcel Ziswiler <marcel.ziswiler@toradex.com>
+  - Mirza Krak <mirza.krak@gmail.com>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  Device tree bindings for NVIDIA Tegra Generic Memory Interface bus
+
+  The Generic Memory Interface bus enables memory transfers between internal and
+  external memory. Can be used to attach various high speed devices such as
+  synchronous/asynchronous NOR, FPGA, UARTS and more.
+
+  The actual devices are instantiated from the child nodes of a GMI node.
+
+  Note that the GMI controller does not have any internal chip-select address
+  decoding, because of that chip-selects either need to be managed via software
+  or by employing external chip-select decoding logic.
+
+  If external chip-select logic is used to support multiple devices it is assumed
+  that the devices use the same timing and so are probably the same type. It also
+  assumes that they can fit in the 256MB address range. In this case only one
+  child device is supported which represents the active chip-select line, see
+  examples for more insight.
+
+  The chip-select number is decoded from the child nodes second address cell of
+  'ranges' property, if 'ranges' property is not present or empty chip-select will
+  then be decoded from the first cell of the 'reg' property.
+
+  Optional child cs node properties:
+  - nvidia,snor-data-width-32bit: Use 32bit data-bus, default is 16bit.
+  - nvidia,snor-mux-mode: Enable address/data MUX mode.
+  - nvidia,snor-rdy-active-before-data: Assert RDY signal one cycle before data.
+    If omitted it will be asserted with data.
+  - nvidia,snor-rdy-active-high: RDY signal is active high
+  - nvidia,snor-adv-active-high: ADV signal is active high
+  - nvidia,snor-oe-active-high: WE/OE signal is active high
+  - nvidia,snor-cs-active-high: CS signal is active high
+
+    Note that there is some special handling for the timing values.
+    From Tegra TRM:
+    Programming 0 means 1 clock cycle: actual cycle = programmed cycle + 1
+
+  - nvidia,snor-muxed-width: Number of cycles MUX address/data asserted on the
+    bus. Valid values are 0–15, default is 1
+  - nvidia,snor-hold-width: Number of cycles CE stays asserted after the
+    de-assertion of WR_N (in case of SLAVE/MASTER Request) or OE_N
+    (in case of MASTER Request). Valid values are 0–15, default is 1
+  - nvidia,snor-adv-width: Number of cycles during which ADV stays asserted.
+    Valid values are 0–15, default is 1.
+  - nvidia,snor-ce-width: Number of cycles before CE is asserted.
+    Valid values are 0–15, default is 4
+  - nvidia,snor-we-width: Number of cycles during which WE stays asserted.
+    Valid values are 0–255, default is 1
+  - nvidia,snor-oe-width: Number of cycles during which OE stays asserted.
+    Valid values are 0–255, default is 1
+  - nvidia,snor-wait-width: Number of cycles before READY is asserted.
+    Valid values are 0–255, default is 3
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - nvidia,tegra20-gmi
+          - nvidia,tegra30-gmi
+
+  reg:
+    items:
+      - description: GMI controller registers base address and length
+
+  clocks:
+    maxItems: 1
+    description: Clock input for the GMI controller
+
+  clock-names:
+    items:
+      - const: gmi
+
+  resets:
+    items:
+      - description: Reset line for the GMI controller
+
+  reset-names:
+    items:
+      - const: gmi
+
+  '#address-cells':
+    const: 2
+
+  '#size-cells':
+    const: 1
+
+  ranges:
+    items:
+      - description: Chip-select number
+      - description: Offset within the GMI address space
+      - description: Physical address of mapping
+      - description: Size of mapping
+
+required:
+  - compatible
+  - reg
+  - clocks
+  - clock-names
+  - resets
+  - reset-names
+  - '#address-cells'
+  - '#size-cells'
+  - ranges
+
+additionalProperties: true
