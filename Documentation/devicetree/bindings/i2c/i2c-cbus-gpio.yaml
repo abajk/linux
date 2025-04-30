@@ -1,0 +1,51 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Aaro Koskinen, Javier Martinez Canillas
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/i2c/i2c-cbus-gpio.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: I2C C-Bus GPIO
+
+maintainers:
+  - Aaro Koskinen <aaro.koskinen@iki.fi>
+  - Javier Martinez Canillas <javier@dowhile0.org>
+
+properties:
+  compatible:
+    const: i2c-cbus-gpio
+
+  gpios:
+    description: phandle array for clk, dat, and sel GPIO lines
+    items:
+      - description: clk GPIO phandle and specifier
+      - description: dat GPIO phandle and specifier
+      - description: sel GPIO phandle and specifier
+
+required:
+  - compatible
+  - gpios
+  - '#address-cells'
+  - '#size-cells'
+
+allOf:
+  - $ref: /schemas/i2c/i2c-controller.yaml#
+
+unevaluatedProperties: false
+
+examples:
+  - |
+    i2c@0 {
+        compatible = "i2c-cbus-gpio";
+        gpios = <&gpio 66 0 /* clk */
+                 &gpio 65 0 /* dat */
+                 &gpio 64 0 /* sel */
+                >;
+        #address-cells = <1>;
+        #size-cells = <0>;
+
+        retu: retu@1 {
+            compatible = "nokia,retu";
+            reg = <0x1>;
+        };
+    };
