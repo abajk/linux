@@ -1,0 +1,97 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Simon Horman <horms+renesas@verge.net.au>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/dma/renesas,nbpfaxi64dmac1b4.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Renesas Type-AXI NBPFAXI DMA controller
+
+maintainers:
+  - Simon Horman <horms+renesas@verge.net.au>
+
+description: |
+  * Renesas "Type-AXI" NBPFAXI* DMA controllers
+
+  * DMA controller
+
+  You can use dma-channels and dma-requests as described in dma.txt, although they
+  won't be used, this information is derived from the compatibility string.
+
+  DMA client
+  Required properties:
+  dmas and dma-names are required, as described in dma.txt.
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - renesas,nbpfaxi64dmac1b4
+          - renesas,nbpfaxi64dmac1b8
+          - renesas,nbpfaxi64dmac1b16
+          - renesas,nbpfaxi64dmac4b4
+          - renesas,nbpfaxi64dmac4b8
+          - renesas,nbpfaxi64dmac4b16
+          - renesas,nbpfaxi64dmac8b4
+          - renesas,nbpfaxi64dmac8b8
+          - renesas,nbpfaxi64dmac8b16
+    description: Device compatible strings.
+
+  reg:
+    maxItems: 1
+
+  interrupts:
+    maxItems: 1 #FIXME
+    description: Interrupt specifiers for each DMA slave request (phandle, IRQ, flags).
+
+  '#dma-cells':
+    description: Number of cells for DMA specifier (terminal number and flags).
+    const: 2
+
+  dma-channels:
+    description: Number of DMA channels.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  dma-requests:
+    description: Number of DMA requests.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  max-burst-mem-read:
+    description: Limit for memory read burst size in bytes.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  max-burst-mem-write:
+    description: Limit for memory write burst size in bytes.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - '#dma-cells'
+
+additionalProperties: false
+
+examples:
+  - |
+    dma: dma-controller@48000000 {
+        compatible = "renesas,nbpfaxi64dmac8b4";
+        reg = <0x48000000 0x400>;
+        interrupts = <0 12 0x4
+                      0 13 0x4
+                      0 14 0x4
+                      0 15 0x4
+                      0 16 0x4
+                      0 17 0x4
+                      0 18 0x4
+                      0 19 0x4>;
+        #dma-cells = <2>;
+        dma-channels = <8>;
+        dma-requests = <8>;
+    };
+
+  - |
+    /* DMA client example */
+    dmas = <&dma 0 (NBPF_SLAVE_RQ_HIGH | NBPF_SLAVE_RQ_LEVEL)
+            &dma 1 (NBPF_SLAVE_RQ_HIGH | NBPF_SLAVE_RQ_LEVEL)>;
+    dma-names = "rx", "tx";
