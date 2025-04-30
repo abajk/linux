@@ -1,0 +1,87 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2018 Linaro Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/display/cirrus,ep7209-fb.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Cirrus Logic CLPS711X Framebuffer
+
+maintainers:
+  - Alexander Shiyan <shc_work@mail.ru>
+  - Bjorn Helgaas <bhelgaas@google.com>
+  - Martin Kaiser <martin@kaiser.cx>
+  - Rob Herring <robh@kernel.org>
+  - Yegor Yefremov <yegorslists@googlemail.com>
+
+description: |
+  * Cirrus Logic CLPS711X Framebuffer
+
+properties:
+  compatible:
+    description: Device compatibility. Must include "cirrus,ep7209-fb".
+    items:
+      - enum:
+          - cirrus,ep7209-fb
+          - cirrus,ep7312-fb
+    contains:
+      const: cirrus,ep7209-fb
+
+  reg:
+    # The order and count of entries is defined by element descriptions.
+    items:
+      - description: Controller registers (physical base address and length).
+      - description: Framebuffer memory (location and size).
+
+  clocks:
+    maxItems: 1
+    description: FB reference clock phandle specifier pair.
+
+  lcd-supply:
+    description: Regulator for LCD supply voltage.
+
+  display:
+    description: |
+      Phandle to a display node as described in
+      Documentation/devicetree/bindings/display/panel/display-timing.txt.
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    maxItems: 1
+
+required:
+  - compatible
+  - reg
+  - clocks
+  - display
+
+additionalProperties: false
+
+examples:
+  - |
+    fb: fb@800002c0 {
+        compatible = "cirrus,ep7312-fb", "cirrus,ep7209-fb";
+        reg = <0x800002c0 0xd44>, <0x60000000 0xc000>;
+        clocks = <&clks 2>;
+        lcd-supply = <&reg5v0>;
+        display = <&display>;
+    };
+
+    display: display {
+        model = "320x240x4";
+        bits-per-pixel = <4>;
+        ac-prescale = <17>;
+
+        display-timings {
+            native-mode = <&timing0>;
+            timing0: 320x240 {
+                hactive = <320>;
+                hback-porch = <0>;
+                hfront-porch = <0>;
+                hsync-len = <0>;
+                vactive = <240>;
+                vback-porch = <0>;
+                vfront-porch = <0>;
+                vsync-len = <0>;
+                clock-frequency = <6500000>;
+            };
+        };
+    };
