@@ -1,0 +1,61 @@
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/clock/hisilicon,hi3519-crg.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: HiSilicon Clock and Reset Generator (CRG)
+
+maintainers:
+  - Jiancheng Xue <xuejiancheng@hisilicon.com>
+
+description: |
+  * HiSilicon Clock and Reset Generator(CRG)
+
+  The CRG module provides clock and reset signals to various
+  modules within the SoC.
+
+  This binding uses the following bindings:
+      Documentation/devicetree/bindings/clock/clock-bindings.txt
+      Documentation/devicetree/bindings/reset/reset.txt
+
+  Each clock is assigned an identifier and client nodes use this identifier
+  to specify the clock which they consume.
+
+  All these identifier could be found in <dt-bindings/clock/hi3519-clock.h>.
+
+  A reset signal can be controlled by writing a bit register in the CRG module.
+  The reset specifier consists of two cells. The first cell represents the
+  register offset relative to the base address. The second cell represents the
+  bit index in the register.
+
+properties:
+  compatible:
+    description: Compatibility strings for the CRG controller.
+    items:
+      - enum:
+          - hisilicon,hi3516cv300-crg
+          - hisilicon,hi3516cv300-sysctrl
+          - hisilicon,hi3519-crg
+          - hisilicon,hi3798cv200-crg
+          - hisilicon,hi3798cv200-sysctrl
+
+  reg:
+    description: Physical base address of the controller and length of memory mapped region.
+    items:
+      - description: Base address and size of the CRG registers.
+
+  '#clock-cells':
+    description: Number of cells used to specify a clock index.
+    const: 1
+
+  '#reset-cells':
+    description: Number of cells used to specify a reset index.
+    const: 2
+
+required:
+  - compatible
+  - reg
+  - '#clock-cells'
+  - '#reset-cells'
+
+additionalProperties: false
