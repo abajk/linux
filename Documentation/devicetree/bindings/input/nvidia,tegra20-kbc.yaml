@@ -1,0 +1,132 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright (c) 2025 NVIDIA Corporation
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/nvidia,tegra20-kbc.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: NVIDIA Tegra20 Keyboard Controller
+
+maintainers:
+  - Laxman Dewangan <ldewangan@nvidia.com>
+  - Stephen Warren <swarren@nvidia.com>
+  - Sudeep Holla <sudeep.holla@arm.com>
+
+description: |
+  * Tegra keyboard controller
+  The key controller has maximum 24 pins to make matrix keypad. Any pin
+  can be configured as row or column. The maximum column pin can be 8
+  and maximum row pins can be 16 for Tegra20/Tegra30.
+
+properties:
+  compatible:
+    items:
+      - const: nvidia,tegra20-kbc
+
+  reg:
+    description: Register base address of the KBC and its size.
+    items:
+      - description: base address
+      - description: size
+
+  interrupts:
+    description: >
+      Interrupt specifier for the KBC: interrupt-parent phandle, IRQ number and
+      flags.
+    items:
+      - description: interrupt-parent phandle
+      - description: IRQ number
+      - description: flags
+
+  clocks:
+    maxItems: 1
+    description: Module clock for the KBC.
+
+  resets:
+    description: Reset control for the KBC.
+
+  reset-names:
+    items:
+      - const: kbc
+
+  nvidia,kbc-row-pins:
+    description: >
+      The KBC pins which are configured as row. This is an array of pin
+      numbers which are used as rows.
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+    minItems: 1
+    maxItems: 16
+
+  nvidia,kbc-col-pins:
+    description: >
+      The KBC pins which are configured as column. This is an array of pin
+      numbers which are used as columns.
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+    minItems: 1
+    maxItems: 8
+
+  linux,keymap:
+    description: >
+      The keymap for keys as described in the binding document
+      devicetree/bindings/input/matrix-keymap.txt.
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+
+  linux,fn-keymap:
+    description: >
+      A second keymap, same specification as linux,keymap but used when the
+      KEY_FN modifier key is pressed.
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+
+  nvidia,debounce-delay-ms:
+    description: Delay in milliseconds per row scan for debouncing.
+
+  nvidia,repeat-delay-ms:
+    description: Delay in milliseconds before repeat starts.
+
+  nvidia,ghost-filter:
+    description: Enable ghost filtering for this device.
+    type: boolean
+
+  wakeup-source:
+    description: Configure keyboard as a wakeup source for suspend/resume.
+    type: boolean
+
+  "nvidia,wakeup-source":
+    description: >
+      Legacy property supported: Configure keyboard as a wakeup source for suspend/resume.
+    type: boolean
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - clocks
+  - resets
+  - reset-names
+  - nvidia,kbc-row-pins
+  - nvidia,kbc-col-pins
+  - linux,keymap
+
+additionalProperties: false
+
+examples:
+  - |
+    keyboard: keyboard {
+        compatible = "nvidia,tegra20-kbc";
+        reg = <0x7000e200 0x100>;
+        interrupts = <0 85 0x04>;
+        clocks = <&tegra_car 36>;
+        resets = <&tegra_car 36>;
+        reset-names = "kbc";
+        nvidia,ghost-filter;
+        nvidia,debounce-delay-ms = <640>;
+        nvidia,kbc-row-pins = <0 1 2>;
+        nvidia,kbc-col-pins = <11 12 13>;
+        linux,keymap = <0x00000074
+                0x00010067
+                0x00020066
+                0x01010068
+                0x02000069
+                0x02010070
+                0x02020071>;
+    };
