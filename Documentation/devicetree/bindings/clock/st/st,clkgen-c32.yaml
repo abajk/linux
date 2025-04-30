@@ -1,0 +1,53 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/clock/st/st,clkgen-c32.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: ST clockgen c32
+maintainers:
+  - Eric Engestrom <eric@engestrom.ch>
+  - Gabriel Fernandez <gabriel.fernandez@st.com>
+  - Gabriel FERNANDEZ <gabriel.fernandez@st.com>
+  - Marco Franchi <marco.franchi@nxp.com>
+  - Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+
+description: |
+  Binding for a Clockgen hardware block found on
+  certain STMicroelectronics consumer electronics SoC devices.
+
+  A Clockgen node can contain pll, diviser or multiplexer nodes.
+
+  We will find only the base address of the Clockgen, this base
+  address is common of all subnode.
+
+  clockgen_node {
+    reg = <>;
+    pll_node { ... };
+    quadfs_node { ... };
+    mux_node { ... };
+    flexgen_node { ... };
+    ...;
+  };
+
+  This binding uses the common clock binding[1].
+  Each subnode should use the binding described in [2]..[7]
+
+  [1] Documentation/devicetree/bindings/clock/clock-bindings.txt
+  [3] Documentation/devicetree/bindings/clock/st/st,clkgen-mux.txt
+  [4] Documentation/devicetree/bindings/clock/st/st,clkgen-pll.txt
+  [7] Documentation/devicetree/bindings/clock/st/st,quadfs.txt
+  [8] Documentation/devicetree/bindings/clock/st/st,flexgen.txt
+
+properties:
+  compatible:
+    const: st,clkgen-c32
+
+  reg:
+    maxItems: 1
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
