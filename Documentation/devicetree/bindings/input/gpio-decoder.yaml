@@ -1,0 +1,48 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/gpio-decoder.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: GPIO Decoder
+
+maintainers:
+  - Vignesh R <vigneshr@ti.com>
+
+description: |
+  * GPIO Decoder DT bindings
+
+properties:
+  compatible:
+    items:
+      - const: gpio-decoder
+
+  gpios:
+    description: A spec of gpios to be decoded to a number with first entry representing the MSB.
+
+  'linux,axis':
+    description: The input subsystem axis to map to (ABS_X/ABS_Y). Defaults to 0 (ABS_X).
+    $ref: /schemas/types.yaml#/definitions/uint32
+    default: 0
+
+  decoder-max-value:
+    description: Maximum possible value that can be reported by the gpios.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+required:
+  - compatible
+  - gpios
+
+additionalProperties: false
+
+examples:
+  - |
+    gpio-decoder0 {
+        compatible = "gpio-decoder";
+        gpios = <&pca9536 3 GPIO_ACTIVE_HIGH>,
+                  <&pca9536 2 GPIO_ACTIVE_HIGH>,
+                  <&pca9536 1 GPIO_ACTIVE_HIGH>,
+                  <&pca9536 0 GPIO_ACTIVE_HIGH>;
+        linux,axis = <0>; /* ABS_X */
+        decoder-max-value = <9>;
+    };
