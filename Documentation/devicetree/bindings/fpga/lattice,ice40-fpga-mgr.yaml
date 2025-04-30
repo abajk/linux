@@ -1,0 +1,66 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Joel Holdsworth
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/lattice,ice40-fpga-mgr.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Lattice iCE40 FPGA Manager
+
+maintainers:
+  - Joel Holdsworth <joel@airwebreathe.org.uk>
+
+description: |
+  Lattice iCE40 FPGA Manager
+
+  Required properties:
+  - compatible: Should contain "lattice,ice40-fpga-mgr"
+  - reg: SPI chip select
+  - spi-max-frequency: Maximum SPI frequency (>=1000000, <=25000000)
+  - cdone-gpios: GPIO input connected to CDONE pin
+  - reset-gpios: Active-low GPIO output connected to CRESET_B pin. Note
+      that unless the GPIO is held low during startup, the FPGA will enter
+      Master SPI mode and drive SCK with a clock signal potentially jamming
+      other devices on the bus until the firmware is loaded.
+
+properties:
+  compatible:
+    items:
+      - const: lattice,ice40-fpga-mgr
+
+  reg:
+    items:
+      - description: SPI chip select
+
+  spi-max-frequency:
+    description: Maximum SPI frequency for firmware loading in Hertz
+    minimum: 1000000
+    maximum: 25000000
+
+  cdone-gpios:
+    maxItems: 1
+    description: GPIO input connected to CDONE pin
+
+  reset-gpios:
+    maxItems: 1
+    description: Active-low GPIO output connected to CRESET_B pin; must be
+      held low during startup or FPGA will drive SCK and may jam the bus
+
+required:
+  - compatible
+  - reg
+  - spi-max-frequency
+  - cdone-gpios
+  - reset-gpios
+
+additionalProperties: false
+
+examples:
+  - |
+    fpga@0 {
+        compatible = "lattice,ice40-fpga-mgr";
+        reg = <0>;
+        spi-max-frequency = <1000000>;
+        cdone-gpios = <&gpio 24 GPIO_ACTIVE_HIGH>;
+        reset-gpios = <&gpio 22 GPIO_ACTIVE_LOW>;
+    };
