@@ -1,0 +1,47 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/fpga/lattice,machxo2-slave-spi.yaml#
+# $schema is the meta-schema this schema should be validated with.
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Lattice MachXO2 Slave SPI FPGA Manager
+
+maintainers:
+  - Paolo Pisati <p.pisati@gmail.com>
+
+description: |
+  Lattice MachXO2 Slave SPI FPGA Manager
+
+  Lattice MachXO2 FPGAs support a method of loading the bitstream over
+  'slave SPI' interface.
+
+  See 'MachXO2ProgrammingandConfigurationUsageGuide.pdf' on www.latticesemi.com
+
+properties:
+  compatible:
+    items:
+      - const: lattice,machxo2-slave-spi
+
+  reg:
+    description: SPI chip select of the FPGA.
+    items:
+      - description: SPI chip select index.
+
+  spi-max-frequency:
+    description: Maximum SPI clock frequency for bitstream transfer.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    fpga-mgr@0 {
+        compatible = "lattice,machxo2-slave-spi";
+        reg = <0>;
+        spi-max-frequency = <8000000>;
+    };
