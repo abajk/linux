@@ -1,0 +1,82 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/dma/ti,dra7-dma-crossbar.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI DMA Crossbar
+
+maintainers:
+  - Deming Wang <wangdeming@inspur.com>
+  - Peter Ujfalusi <peter.ujfalusi@ti.com>
+  - Rob Herring <robh@kernel.org>
+  - Yu-Chun Lin <eleanor15x@gmail.com>
+
+description: |
+  Texas Instruments DMA Crossbar (DMA request router)
+
+  The DMA controller node need to have the following properties:
+  - dma-requests: Number of DMA requests the controller can handle
+
+  Notes:
+  When requesting channel via ti,dra7-dma-crossbar, the DMA client must request
+  the DMA event number as crossbar ID (input to the DMA crossbar).
+
+  For ti,am335x-edma-crossbar: the meaning of parameters of dmas for clients:
+  dmas = <&edma_xbar 12 0 1>; where <12> is the DMA request number, <0> is the TC
+  the event should be assigned and <1> is the mux selection for in the crossbar.
+  When mux 0 is used the DMA channel can be requested directly from edma node.
+
+properties:
+  compatible:
+    enum:
+      - ti,dra7-dma-crossbar
+      - ti,am335x-edma-crossbar
+
+  reg:
+    maxItems: 1
+
+  '#dma-cells':
+    description: Number of cells in the DMA specifier.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  dma-requests:
+    description: Number of DMA requests the crossbar can receive.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  dma-masters:
+    description: Phandle to the DMA controller.
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+
+  ti,dma-safe-map:
+    description: Safe routing value for unused DMA request lines.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  ti,reserved-dma-request-ranges:
+    description: DMA request ranges that must not be used when mapping inputs.
+    $ref: /schemas/types.yaml#/definitions/uint32-matrix
+    items:
+      items:
+        - description: Start of DMA request range
+        - description: Count of DMA requests in the range
+
+required:
+  - compatible
+  - reg
+  - '#dma-cells'
+  - dma-requests
+  - dma-masters
+
+additionalProperties: false
+
+examples:
+  - |
+    dma-router@4a002b78 {
+      compatible = "ti,dra7-dma-crossbar";
+      reg = <0x4a002b78 0xfc>;
+      #dma-cells = <1>;
+      dma-requests = <205>;
+      ti,dma-safe-map = <0>;
+      ti,reserved-dma-request-ranges = <10 5>, <100 27>;
+      dma-masters = <&sdma>;
+    };
