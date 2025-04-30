@@ -1,0 +1,64 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/dma/moxa,moxart-dma.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Moxa ART DMA Controller
+
+maintainers:
+  - Jonas Jensen <jonas.jensen@gmail.com>
+  - Sergei Antonov <saproj@gmail.com>
+
+description: |
+  MOXA ART DMA Controller
+
+  See dma.txt first
+
+  Clients:
+
+  DMA clients connected to the MOXA ART DMA controller must use the format
+  described in the dma.txt file, using a two-cell specifier for each channel:
+  a phandle plus one integer cells.
+  The two cells in order are:
+
+  1. A phandle pointing to the DMA controller.
+  2. Peripheral identifier for the hardware handshaking interface.
+
+properties:
+  compatible:
+    # Must match the binding compatible string
+    items:
+      - const: moxa,moxart-dma
+
+  reg:
+    # Registers base address and length of the DMA controller
+    items:
+      - description: DMA registers base address
+      - description: DMA registers length
+
+  interrupts:
+    # Interrupt specifier for the DMA controller
+    items:
+      - description: DMA controller interrupt
+
+  '#dma-cells':
+    # Number of DMA cells for the request line
+    const: 1
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - '#dma-cells'
+
+additionalProperties: false
+
+examples:
+  - |
+    dma: dma@90500000 {
+        compatible = "moxa,moxart-dma";
+        reg = <0x90500080 0x40>;
+        interrupts = <24 0>;
+        #dma-cells = <1>;
+    };
