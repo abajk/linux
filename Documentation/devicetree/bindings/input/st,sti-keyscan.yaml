@@ -1,0 +1,95 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+---
+$id: http://devicetree.org/schemas/st,sti-keyscan.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: ST keyscan controller
+
+maintainers:
+  - Gabriel FERNANDEZ <gabriel.fernandez@st.com>
+
+description: |
+  * ST Keyscan controller Device Tree bindings
+
+  The ST keyscan controller Device Tree binding is based on the
+  matrix-keymap.
+
+properties:
+  compatible:
+    const: st,sti-keyscan
+
+  reg:
+    description: Register base address and size of the keyscan controller
+    items:
+      - description: base address and size
+
+  interrupts:
+    description: Interrupt specifier for the keyscan controller
+    items:
+      - description: interrupt specifier
+
+  interrupt-controller: true
+
+  clocks:
+    description: Module clock for the keyscan controller
+    maxItems: 1
+
+  pinctrl-names:
+    items:
+      - const: default
+
+  pinctrl-0:
+    description: Pin control group for keyscan controller
+
+  linux,keymap:
+    description: Keymap for keys as described in devicetree/bindings/input/matrix-keymap.txt
+    items:
+      - description: matrix key definition
+
+  keypad,num-rows:
+    description: Number of row lines connected to the keypad controller
+    items:
+      - description: row count
+
+  keypad,num-columns:
+    description: Number of column lines connected to the keypad controller
+    items:
+      - description: column count
+
+  st,debounce_us:
+    description: Debouncing interval time in microseconds
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+additionalProperties: false
+
+examples:
+  - |
+    keyscan: keyscan@fe4b0000 {
+        compatible = "st,sti-keyscan";
+        reg = <0xfe4b0000 0x2000>;
+        interrupts = <GIC_SPI 212 IRQ_TYPE_NONE>;
+        clocks = <&CLK_SYSIN>;
+        pinctrl-names = "default";
+        pinctrl-0 = <&pinctrl_keyscan>;
+        keypad,num-rows = <4>;
+        keypad,num-columns = <4>;
+        st,debounce_us = <5000>;
+        linux,keymap = <
+            MATRIX_KEY(0x00, 0x00, KEY_F13)
+            MATRIX_KEY(0x00, 0x01, KEY_F9)
+            MATRIX_KEY(0x00, 0x02, KEY_F5)
+            MATRIX_KEY(0x00, 0x03, KEY_F1)
+            MATRIX_KEY(0x01, 0x00, KEY_F14)
+            MATRIX_KEY(0x01, 0x01, KEY_F10)
+            MATRIX_KEY(0x01, 0x02, KEY_F6)
+            MATRIX_KEY(0x01, 0x03, KEY_F2)
+            MATRIX_KEY(0x02, 0x00, KEY_F15)
+            MATRIX_KEY(0x02, 0x01, KEY_F11)
+            MATRIX_KEY(0x02, 0x02, KEY_F7)
+            MATRIX_KEY(0x02, 0x03, KEY_F3)
+            MATRIX_KEY(0x03, 0x00, KEY_F16)
+            MATRIX_KEY(0x03, 0x01, KEY_F12)
+            MATRIX_KEY(0x03, 0x02, KEY_F8)
+            MATRIX_KEY(0x03, 0x03, KEY_F4)
+        >;
+    };
