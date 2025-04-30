@@ -1,0 +1,59 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Noralf Trønnes <noralf@tronnes.org>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/display/multi-inno,mi0283qt.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Multi-Inno MI0283QT display panel
+maintainers:
+  - Noralf Trønnes <noralf@tronnes.org>
+
+description: |
+  Multi-Inno MI0283QT display panel
+
+  The node for this driver must be a child node of a SPI controller, hence
+  all mandatory properties described in ../spi/spi-bus.txt must be specified.
+
+properties:
+  compatible:
+    items:
+      - const: multi-inno,mi0283qt
+    description: Binding compatible string
+  reg:
+    description: SPI chip select for the panel
+    items:
+      - description: SPI chip select
+  spi-max-frequency:
+    description: Maximum SPI clock frequency in Hz
+    $ref: /schemas/types.yaml#/definitions/uint32
+  dc-gpios:
+    description: Data/Command control GPIO
+  reset-gpios:
+    description: Reset GPIO for the panel
+  power-supply:
+    description: Regulator supply for the panel
+  backlight:
+    description: Backlight device attached to the panel
+    $ref: /schemas/types.yaml#/definitions/phandle
+  rotation:
+    description: Panel rotation in degrees counter clockwise
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 90, 180, 270]
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    mi0283qt@0 {
+      compatible = "multi-inno,mi0283qt";
+      reg = <0>;
+      spi-max-frequency = <32000000>;
+      rotation = <90>;
+      dc-gpios = <&gpio 25 0>;
+      backlight = <&backlight>;
+    };
