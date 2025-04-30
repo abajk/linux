@@ -1,0 +1,127 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2018 Linaro Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/dma/ti,edma3-tpcc.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI eDMA3 Channel Controller
+
+maintainers:
+  - Johan Hovold <johan@kernel.org>
+  - Lokesh Vutla <lokeshvutla@ti.com>
+  - Marco Franchi <marco.franchi@nxp.com>
+  - Matt Porter <mdp@ti.com>
+  - Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+  - Peter Ujfalusi <peter.ujfalusi@ti.com>
+  - Robert P. J. Day <rpjday@crashcourse.ca>
+  - Rob Herring <robh@kernel.org>
+  - Thomas Gleixner <tglx@linutronix.de>
+
+description: |
+  Texas Instruments eDMA
+
+  The eDMA3 consists of two components: Channel controller (CC) and Transfer
+  Controller(s) (TC). The CC is the main entry for DMA users since it is
+  responsible for the DMA channel handling, while the TCs are responsible to
+  execute the actual DMA transfer.
+
+  ------------------------------------------------------------------------------
+  eDMA3 Channel Controller
+
+  ------------------------------------------------------------------------------
+  eDMA3 Transfer Controller
+
+  ------------------------------------------------------------------------------
+  DEPRECATED binding, new DTS files must use the ti,edma3-tpcc/ti,edma3-tptc
+  binding.
+
+properties:
+  compatible:
+    oneOf:
+      - items:
+          - enum:
+              - ti,edma3-tpcc
+      - items:
+          - enum:
+              - ti,k2g-edma3-tpcc
+              - ti,edma3-tpcc
+
+  reg:
+    maxItems: 1
+
+  reg-names:
+    items:
+      - const: edma3_cc
+
+  interrupts:
+    items:
+      - description: Channel controller interrupt (CCINT)
+      - description: Memory protection interrupt (MPERR)
+      - description: Error interrupt (CCERRINT)
+
+  interrupt-names:
+    items:
+      - const: edma3_ccint
+      - const: edma3_mperr
+      - const: edma3_ccerrint
+
+  '#dma-cells':
+    const: 2
+
+  dma-requests:
+    description: Number of DMA request lines exposed by the CC
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  ti,hwmods:
+    description: HW module names associated with this CC
+    $ref: /schemas/types.yaml#/definitions/string-array
+
+  ti,tptcs:
+    description: List of transfer controllers (TC) and their priorities
+    items:
+      $ref: /schemas/types.yaml#/definitions/phandle
+
+  ti,edma-memcpy-channels:
+    description: Channels reserved for software‐triggered memcpy
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+
+  ti,edma-reserved-slot-ranges:
+    description: PaRAM slot ranges reserved for other masters
+    items:
+      - $ref: /schemas/types.yaml#/definitions/uint32-array
+        items:
+          - description: First slot number
+          - description: Number of consecutive slots
+
+  dma-channel-mask:
+    description: Mask of channels usable by clients
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+    items:
+      - description: Mask for channels 0–31
+      - description: Mask for channels 32–63
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - '#dma-cells'
+
+additionalProperties: false
+
+examples:
+  - |
+    edma: edma@49000000 {
+        compatible = "ti,edma3-tpcc";
+        ti,hwmods = "tpcc";
+        reg = <0x49000000 0x10000>;
+        reg-names = "edma3_cc";
+        interrupts = <12 13 14>;
+        interrupt-names = "edma3_ccint", "edma3_mperr", "edma3_ccerrint";
+        #dma-cells = <2>;
+        ti,tptcs = <&edma_tptc0 7>, <&edma_tptc1 7>, <&edma_tptc2 0>;
+        ti,edma-memcpy-channels = <20 21>;
+        ti,edma-reserved-slot-ranges = <35 10>, <100 10>;
+        dma-channel-mask = <0xffffffff 0xffffe007>;
+        dma-requests = <64>;
+    };
