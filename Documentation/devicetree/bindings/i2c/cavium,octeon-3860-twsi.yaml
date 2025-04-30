@@ -1,0 +1,71 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/cavium,octeon-3860-twsi.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Cavium Octeon TWSI / I2C bus controller
+
+maintainers:
+  - Jan Glauber <jan.glauber@gmail.com>
+  - Wolfram Sang <wolfram@the-dreams.de>
+
+description: |
+  * Two Wire Serial Interface (TWSI) / I2C
+
+properties:
+  '#address-cells':
+    const: 1
+    description: Number of address cells (must be 1).
+  '#size-cells':
+    const: 0
+    description: Number of size cells (must be 0).
+  compatible:
+    oneOf:
+      - items:
+          - enum:
+              - "cavium,octeon-3860-twsi"
+      - items:
+          - enum:
+              - "cavium,octeon-7890-twsi"
+  reg:
+    # The core schema already checks that reg values are numbers
+    items:
+      - description: Controller register bank
+  interrupts:
+    items:
+      - description: Controller interrupt
+  interrupt-controller: true
+  clock-frequency:
+    description: I2C bus clock rate in Hz.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+required:
+  - '#address-cells'
+  - '#size-cells'
+  - compatible
+  - reg
+  - interrupts
+  - interrupt-controller
+
+additionalProperties: false
+
+examples:
+  - |
+    twsi0: i2c@1180000001000 {
+        #address-cells = <1>;
+        #size-cells = <0>;
+        compatible = "cavium,octeon-3860-twsi";
+        reg = <0x11800 0x00001000 0x0 0x200>;
+        interrupts = <0 45>;
+        clock-frequency = <100000>;
+
+        rtc@68 {
+            compatible = "dallas,ds1337";
+            reg = <0x68>;
+        };
+        tmp@4c {
+            compatible = "ti,tmp421";
+            reg = <0x4c>;
+        };
+    };
