@@ -1,0 +1,59 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Linaro Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/clock/hi6220-clock.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Hisilicon Hi6220 Clock Controller
+
+maintainers:
+  - Bintian Wang <bintian.wang@huawei.com>
+  - Leo Yan <leo.yan@linux.dev>
+  - Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+  - Zhangfei Gao <zhangfei.gao@linaro.org>
+
+description: |
+  * Hisilicon Hi6220 Clock Controller
+
+  Clock control registers reside in different Hi6220 system controllers,
+  please refer the following document to know more about the binding rules
+  for these system controllers:
+
+  Documentation/devicetree/bindings/arm/hisilicon/hisilicon.yaml
+
+  Each clock is assigned an identifier and client nodes use this identifier
+  to specify the clock which they consume.
+
+  All these identifier could be found in <dt-bindings/clock/hi6220-clock.h>.
+
+properties:
+  compatible:
+    oneOf:
+      - items:
+          - enum:
+              - hisilicon,hi6220-acpu-sctrl
+          - const: syscon
+      - const: hisilicon,hi6220-stub-clk
+
+  reg:
+    maxItems: 1
+
+  '#clock-cells':
+    const: 1
+
+  hisilicon,hi6220-clk-sram:
+    description:
+      syscon managing the SoC internal sram; driver needs the sram to pass
+      parameters for frequency change.
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  mboxes:
+    maxItems: 1
+
+required:
+  - compatible
+  - reg
+  - '#clock-cells'
+
+additionalProperties: false
