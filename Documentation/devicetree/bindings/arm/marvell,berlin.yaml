@@ -1,0 +1,104 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/arm/marvell,berlin.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+
+title: Synaptics Marvell Berlin SoC
+
+maintainers:
+  - Jisheng Zhang <jszhang@kernel.org>
+  - Krzysztof Kozlowski <krzko@linaro.org>
+  - Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+
+description: |
+  Synaptics SoC Device Tree Bindings
+
+  According to https://www.synaptics.com/company/news/conexant-marvell
+  Synaptics has acquired the Multimedia Solutions Business of Marvell, so
+  Berlin SoCs are now Synaptics' SoCs.
+
+  ---------------------------------------------------------------
+
+  CPU control register allows various operations on CPUs, like resetting them
+  independently.
+
+  Marvell Berlin SoCs have a chip control register set providing several
+  individual registers dealing with pinmux, padmux, clock, reset, and
+  secondary CPU boot address. Unfortunately, the individual registers are
+  spread among the chip control registers, so there should be a single DT
+  node only providing the different functions which are described below.
+
+  Marvell Berlin SoCs have a system control register set providing several
+  individual registers dealing with pinmux, padmux, and reset.
+
+properties: {}
+additionalProperties: false
+
+oneOf:
+  - type: object
+    properties:
+      compatible:
+        description: Root-node compatible strings on Marvell Berlin boards
+        items:
+          - description: Board-specific model identifier
+          - enum:
+              - marvell,berlin2
+              - marvell,berlin2cd
+              - marvell,berlin2ct
+              - marvell,berlin2q
+              - marvell,berlin3
+          - const: marvell,berlin
+    required:
+      - compatible
+    additionalProperties: false
+
+  - type: object
+    properties:
+      compatible:
+        const: marvell,berlin-cpu-ctrl
+      reg:
+        description: Control register address and size
+        items:
+          - description: Register base address
+          - description: Register size
+    required:
+      - compatible
+      - reg
+    additionalProperties: false
+
+  - type: object
+    properties:
+      compatible:
+        items:
+          - const: simple-mfd
+          - const: syscon
+      reg:
+        description: Chip control and optional CPU-PLL registers
+        oneOf:
+          - items:
+              - description: Chip control register set
+          - items:
+              - description: Chip control register set
+              - description: CPU-PLL registers
+    required:
+      - compatible
+      - reg
+    additionalProperties: false
+
+  - type: object
+    properties:
+      compatible:
+        items:
+          - const: simple-mfd
+          - const: syscon
+      reg:
+        description: System control register set address and size
+        items:
+          - description: Register base address
+          - description: Register size
+    required:
+      - compatible
+      - reg
+    additionalProperties: false
