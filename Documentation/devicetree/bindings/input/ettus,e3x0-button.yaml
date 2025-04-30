@@ -1,0 +1,51 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/ettus,e3x0-button.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: National Instruments Ettus Research USRP E3x0 button driver
+
+maintainers:
+  - Moritz Fischer <moritz.fischer@ettus.com>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  National Instruments Ettus Research USRP E3x0 button driver
+
+  This module is part of the NI Ettus Research USRP E3x0 SDR.
+
+  This module provides a simple power button event via two interrupts.
+
+properties:
+  compatible:
+    items:
+      - const: ettus,e3x0-button
+    description: Hardware compatible string for the USRP E3x0 button device.
+
+  interrupts:
+    description: Interrupt lines for press and release events.
+    items:
+      - description: Press interrupt
+      - description: Release interrupt
+
+  interrupt-names:
+    description: Names for the interrupts.
+    items:
+      - const: press
+      - const: release
+
+required:
+  - compatible
+  - interrupts
+  - interrupt-names
+
+additionalProperties: false
+
+examples:
+  - |
+    button {
+        compatible = "ettus,e3x0-button";
+        interrupts = <0 30 1>, <0 31 1>;
+        interrupt-names = "press", "release";
+    };
