@@ -1,0 +1,72 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2018 Linaro Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/display/fsl,dcu.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Freescale DCU DRM Driver
+
+maintainers:
+  - Meng Yi <meng.yi@nxp.com>
+  - Stefan Agner <stefan@agner.ch>
+
+description: |
+  Device Tree bindings for Freescale DCU DRM Driver
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - fsl,ls1021a-dcu
+          - fsl,vf610-dcu
+
+  reg:
+    maxItems: 1
+
+  clocks:
+    description: Handle to "dcu" and "pix" clocks (in that order)
+    maxItems: 2
+
+  clock-names:
+    items:
+      - const: dcu
+      - const: pix
+
+  big-endian:
+    description: LS1021A DCU registers are big-endian
+    type: boolean
+
+  port:
+    description: Video port for the panel output
+
+  fsl,tcon:
+    description: The phandle to the timing controller node
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+required:
+  - compatible
+  - reg
+  - clocks
+  - clock-names
+  - big-endian
+  - port
+
+additionalProperties: false
+
+examples:
+  - |
+    dcu@2ce0000 {
+        compatible = "fsl,ls1021a-dcu";
+        reg = <0x0 0x2ce0000 0x0 0x10000>;
+        clocks = <&platform_clk 0>, <&platform_clk 0>;
+        clock-names = "dcu", "pix";
+        big-endian;
+        fsl,tcon = <&tcon>;
+
+        port {
+            dcu_out: endpoint {
+                remote-endpoint = <&panel_out>;
+            };
+        };
+    };
