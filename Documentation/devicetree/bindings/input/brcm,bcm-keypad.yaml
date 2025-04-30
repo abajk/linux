@@ -1,0 +1,126 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Broadcom Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/brcm,bcm-keypad.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Broadcom BCM Keypad Controller
+maintainers:
+  - Rob Herring <robh@kernel.org>
+  - Scott Branden <sbranden@broadcom.com>
+
+description: |
+  * Broadcom Keypad Controller device tree bindings
+
+  Broadcom Keypad controller is used to interface a SoC with a matrix-type
+  keypad device. The keypad controller supports multiple row and column lines.
+  A key can be placed at each intersection of a unique row and a unique column.
+  The keypad controller can sense a key-press and key-release and report the
+  event using a interrupt to the cpu.
+
+  This binding is based on the matrix-keymap binding with the following
+  changes:
+
+  keypad,num-rows and keypad,num-columns are required.
+
+properties:
+  compatible:
+    items:
+      - const: brcm,bcm-keypad
+
+  reg:
+    items:
+      - description: physical base address of the controller
+      - description: length of memory mapped region
+
+  interrupts:
+    items:
+      - description: The interrupt number to the cpu
+
+  keypad,num-rows:
+    description: Number of row lines connected to the keypad controller.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  keypad,num-columns:
+    description: Number of column lines connected to the keypad controller.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  col-debounce-filter-period:
+    description: The debounce period for the Column filter.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 1, 2, 3, 4, 5, 6, 7]
+
+  status-debounce-filter-period:
+    description: The debounce period for the Status filter.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 1, 2, 3, 4, 5, 6, 7]
+
+  row-output-enabled:
+    description: An optional property indicating whether the row or column is being used as output.
+      If specified the row is being used as the output. Else defaults to column.
+    type: boolean
+
+  pull-up-enabled:
+    description: An optional property indicating the Keypad scan mode.
+      If specified implies the keypad scan pull-up has been enabled.
+    type: boolean
+
+  autorepeat:
+    description: Enable auto repeat feature of Linux input subsystem.
+    type: boolean
+
+  linux,keymap:
+    description: The keymap for keys as described in the binding document
+      devicetree/bindings/input/matrix-keymap.txt
+    items: {}
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - keypad,num-rows
+  - keypad,num-columns
+
+additionalProperties: false
+
+examples:
+  - |
+    #include "dt-bindings/input/input.h"
+    / {
+        keypad: keypad@180ac000 {
+            compatible = "brcm,bcm-keypad";
+            reg = <0x180ac000 0x1000>;
+            interrupts = <24>;
+            keypad,num-rows = <5>;
+            keypad,num-columns = <5>;
+            linux,keymap = <
+                MATRIX_KEY(0x00, 0x02, KEY_F) /* key_forward */
+                MATRIX_KEY(0x00, 0x03, KEY_HOME) /* key_home */
+                MATRIX_KEY(0x00, 0x04, KEY_M) /* key_message */
+                MATRIX_KEY(0x01, 0x00, KEY_A) /* key_contacts */
+                MATRIX_KEY(0x01, 0x01, KEY_1) /* key_1 */
+                MATRIX_KEY(0x01, 0x02, KEY_2) /* key_2 */
+                MATRIX_KEY(0x01, 0x03, KEY_3) /* key_3 */
+                MATRIX_KEY(0x01, 0x04, KEY_S) /* key_speaker */
+                MATRIX_KEY(0x02, 0x00, KEY_P) /* key_phone */
+                MATRIX_KEY(0x02, 0x01, KEY_4) /* key_4 */
+                MATRIX_KEY(0x02, 0x02, KEY_5) /* key_5 */
+                MATRIX_KEY(0x02, 0x03, KEY_6) /* key_6 */
+                MATRIX_KEY(0x02, 0x04, KEY_VOLUMEUP) /* key_vol_up */
+                MATRIX_KEY(0x03, 0x00, KEY_C) /* key_call_log */
+                MATRIX_KEY(0x03, 0x01, KEY_7) /* key_7 */
+                MATRIX_KEY(0x03, 0x02, KEY_8) /* key_8 */
+                MATRIX_KEY(0x03, 0x03, KEY_9) /* key_9 */
+                MATRIX_KEY(0x03, 0x04, KEY_VOLUMEDOWN) /* key_vol_down */
+                MATRIX_KEY(0x04, 0x00, KEY_H) /* key_headset */
+                MATRIX_KEY(0x04, 0x01, KEY_KPASTERISK) /* key_* */
+                MATRIX_KEY(0x04, 0x02, KEY_0) /* key_0 */
+                MATRIX_KEY(0x04, 0x03, KEY_GRAVE) /* key_# */
+                MATRIX_KEY(0x04, 0x04, KEY_MUTE) /* key_mute */
+            >;
+            col-debounce-filter-period = <5>;
+            row-output-enabled;
+            pull-up-enabled;
+        };
+    };
