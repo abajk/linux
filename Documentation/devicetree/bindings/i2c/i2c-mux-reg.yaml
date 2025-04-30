@@ -1,0 +1,111 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/i2c-mux-reg.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Register-based I2C Bus Mux
+
+maintainers:
+  - Rob Herring <robh@kernel.org>
+  - Simon Horman <horms+renesas@verge.net.au>
+  - York Sun <yorksun@freescale.com>
+
+description: |
+  This binding describes an I2C bus multiplexer that uses a single register
+  to route the I2C signals.
+
+  Whenever an access is made to a device on a child bus, the value set
+  in the relevant node's reg property will be output to the register.
+
+  If an idle state is defined, using the idle-state property, whenever
+  an access is not being made to a device on a child bus, the register
+  will be set according to the idle-state value.
+
+  If an idle state is not defined, the most recently used value will be
+  left programmed into the register.
+
+properties:
+  compatible:
+    const: i2c-mux-reg
+
+  i2c-parent:
+    description: The phandle of the I2C bus that this multiplexer’s master-side port is connected to.
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  reg:
+    maxItems: 1
+
+  little-endian:
+    description: Indicates the register is in little endian.
+    type: boolean
+
+  big-endian:
+    description: Indicates the register is in big endian.
+    type: boolean
+
+  write-only:
+    description: Indicates the register is write-only.
+    type: boolean
+
+  idle-state:
+    description: Value to set the multiplexer to when idle.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  '#address-cells':
+    const: 1
+
+  '#size-cells':
+    const: 0
+    
+patternProperties:
+  '^i2c@.*$':
+    type: object
+    additionalProperties: true
+
+    properties:
+      reg:
+        description: The channel selection value written to the parent register.
+        maxItems: 1
+
+    required:
+      - reg
+
+required:
+  - compatible
+  - i2c-parent
+
+additionalProperties: false
+
+examples:
+  - |
+    i2c-mux {
+        reg = <0x6028 0x4>;
+        little-endian;
+        compatible = "i2c-mux-reg";
+        #address-cells = <1>;
+        #size-cells = <0>;
+        i2c-parent = <&i2c1>;
+
+        i2c@0 {
+            reg = <0>;
+            #address-cells = <1>;
+            #size-cells = <0>;
+
+            si5338: clock-generator@70 {
+                compatible = "silabs,si5338";
+                reg = <0x70>;
+            };
+        };
+
+        i2c@1 {
+            reg = <1>;
+            #address-cells = <1>;
+            #size-cells = <0>;
+
+            si5338: clock-generator@70 {
+                compatible = "silabs,si5338";
+                reg = <0x70>;
+            };
+        };
+    };
