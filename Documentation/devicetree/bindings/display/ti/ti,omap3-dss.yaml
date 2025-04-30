@@ -1,0 +1,312 @@
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/display/ti/ti,omap3-dss.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Texas Instruments OMAP3 Display Subsystem
+
+maintainers:
+  - Peter Ujfalusi <peter.ujfalusi@ti.com>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  Texas Instruments OMAP3 Display Subsystem
+
+  See Documentation/devicetree/bindings/display/ti/ti,omap-dss.txt for generic
+  description about OMAP Display Subsystem bindings.
+
+
+definitions:
+  dispc:
+    description: DISPC – display controller sub-module
+    type: object
+    properties:
+      compatible:
+        items:
+          - const: ti,omap3-dispc
+      reg:
+        description: Address and length of DISPC register space.
+        items:
+          - description: Base address of DISPC register space
+          - description: Length of DISPC register space
+      ti,hwmods:
+        description: Hardware module identifier for DISPC.
+        items:
+          - const: dss_dispc
+      interrupts:
+        description: DISPC interrupt.
+        minItems: 1
+        items:
+          - description: DISPC interrupt line
+      clocks:
+        description: Functional clock for DISPC.
+        maxItems: 1
+      clock-names:
+        description: Name for the DISPC clock.
+        items:
+          - const: fck
+      max-memory-bandwidth:
+        description: Input memory (from main memory to DISPC) bandwidth limit in bytes per second
+        $ref: /schemas/types.yaml#/definitions/uint64
+    required:
+      - compatible
+      - reg
+      - ti,hwmods
+      - interrupts
+      - clocks
+      - clock-names
+
+  rfbi:
+    description: RFBI – raster frame buffer interface
+    type: object
+    properties:
+      compatible:
+        items:
+          - const: ti,omap3-rfbi
+      reg:
+        description: Address and length of RFBI register space.
+        items:
+          - description: Base address of RFBI register space
+          - description: Length of RFBI register space
+      ti,hwmods:
+        description: Hardware module identifier for RFBI.
+        items:
+          - const: dss_rfbi
+      clocks:
+        description: Clocks for RFBI.
+        items:
+          - description: Functional clock for RFBI
+          - description: Interface clock for RFBI
+      clock-names:
+        description: Names for the RFBI clocks.
+        items:
+          - const: fck
+          - const: ick
+    required:
+      - compatible
+      - reg
+      - ti,hwmods
+      - clocks
+      - clock-names
+
+  venc:
+    description: VENC – video encoder
+    type: object
+    properties:
+      compatible:
+        items:
+          - const: ti,omap3-venc
+      reg:
+        description: Address and length of VENC register space.
+        items:
+          - description: Base address of VENC register space
+          - description: Length of VENC register space
+      ti,hwmods:
+        description: Hardware module identifier for VENC.
+        items:
+          - const: dss_venc
+      vdda-supply:
+        description: Power supply for DAC.
+        $ref: /schemas/types.yaml#/definitions/phandle
+      clocks:
+        description: Functional clock for VENC.
+        maxItems: 1
+      clock-names:
+        description: Name for the VENC clock.
+        items:
+          - const: fck
+    required:
+      - compatible
+      - reg
+      - ti,hwmods
+      - vdda-supply
+      - clocks
+      - clock-names
+
+  dsi:
+    description: DSI – display serial interface
+    type: object
+    properties:
+      compatible:
+        items:
+          - const: ti,omap3-dsi
+      reg:
+        description: Register spaces for 'proto', 'phy', and 'pll'.
+        items:
+          - description: Base address of 'proto' register space
+          - description: Length of 'proto' register space
+          - description: Base address of 'phy' register space
+          - description: Length of 'phy' register space
+          - description: Base address of 'pll' register space
+          - description: Length of 'pll' register space
+      reg-names:
+        description: Names for the DSI register spaces.
+        items:
+          - const: proto
+          - const: phy
+          - const: pll
+      interrupts:
+        description: DSI interrupt.
+        minItems: 1
+        items:
+          - description: DSI interrupt line
+      ti,hwmods:
+        description: Hardware module identifier for DSI.
+        items:
+          - const: dss_dsi1
+      vdd-supply:
+        description: Power supply for DSI.
+        $ref: /schemas/types.yaml#/definitions/phandle
+      clocks:
+        description: Clocks used by DSI.
+        items:
+          - description: Functional clock (fck)
+          - description: PHY PLL clock
+      clock-names:
+        description: Names for the DSI clocks.
+        items:
+          - const: fck
+          - const: sys_clk
+    required:
+      - compatible
+      - reg
+      - reg-names
+      - interrupts
+      - ti,hwmods
+      - vdd-supply
+      - clocks
+      - clock-names
+
+  video-port:
+    description: Video port child node
+    type: object
+    patternProperties:
+      '^endpoint@[0-9]+$':
+        oneOf:
+          - $ref: '#/definitions/dpi-endpoint'
+          - $ref: '#/definitions/sdi-endpoint'
+    additionalProperties: false
+
+  dpi-endpoint:
+    description: DPI endpoint child node
+    type: object
+    properties:
+      data-lines:
+        description: Number of data lines used by DPI endpoint.
+        $ref: /schemas/types.yaml#/definitions/uint32
+    required:
+      - data-lines
+    additionalProperties: false
+
+  sdi-endpoint:
+    description: SDI endpoint child node
+    type: object
+    properties:
+      datapairs:
+        description: Number of data pairs used by SDI endpoint.
+        $ref: /schemas/types.yaml#/definitions/uint32
+    required:
+      - datapairs
+    additionalProperties: false
+
+properties:
+  compatible:
+    description: Device compatible string.
+    items:
+      - enum:
+          - ti,omap3-dss
+  reg:
+    description: Address and length of the DSS core register space.
+    items:
+      - description: Base address of DSS core register space
+      - description: Length of DSS core register space
+  ti,hwmods:
+    description: Hardware module identifier for DSS core.
+    items:
+      - const: dss_core
+  clocks:
+    description: Functional clock for DSS core.
+    maxItems: 1
+  clock-names:
+    description: Name for the DSS core clock.
+    items:
+      - const: fck
+  dispc:
+    $ref: '#/definitions/dispc'
+  rfbi:
+    $ref: '#/definitions/rfbi'
+  venc:
+    $ref: '#/definitions/venc'
+  dsi:
+    $ref: '#/definitions/dsi'
+patternProperties:
+  '^port@[0-9]+$':
+    $ref: '#/definitions/video-port'
+
+required:
+  - compatible
+  - reg
+  - ti,hwmods
+  - clocks
+  - clock-names
+
+additionalProperties: false
+
+examples:
+  - |
+    &dss_core {
+        compatible = "ti,omap3-dss";
+        reg = <0x48050000 0x1000>;
+        ti,hwmods = "dss_core";
+        clocks = <&fclk>;
+        clock-names = "fck";
+
+        port@0 {
+            endpoint@0 {
+                data-lines = <24>;
+            };
+        };
+
+        port@1 {
+            endpoint@0 {
+                datapairs = <4>;
+            };
+        };
+
+        dispc {
+            compatible = "ti,omap3-dispc";
+            reg = <0x48052000 0x1000>;
+            ti,hwmods = "dss_dispc";
+            interrupts = <96>;
+            clocks = <&fclk>;
+            clock-names = "fck";
+        };
+
+        rfbi {
+            compatible = "ti,omap3-rfbi";
+            reg = <0x48054000 0x1000>;
+            ti,hwmods = "dss_rfbi";
+            clocks = <&fclk>, <&ick>;
+            clock-names = "fck", "ick";
+        };
+
+        venc {
+            compatible = "ti,omap3-venc";
+            reg = <0x48055000 0x1000>;
+            ti,hwmods = "dss_venc";
+            vdda-supply = <&vdda1>;
+            clocks = <&fclk>;
+            clock-names = "fck";
+        };
+
+        dsi {
+            compatible = "ti,omap3-dsi";
+            reg = <0x48057000 0x1000>, <0x48058000 0x100>, <0x48059000 0x100>;
+            reg-names = "proto", "phy", "pll";
+            interrupts = <97>;
+            ti,hwmods = "dss_dsi1";
+            vdd-supply = <&vdda2>;
+            clocks = <&fclk>, <&dsiphy_pll_clk>;
+            clock-names = "fck", "sys_clk";
+        };
+    };
