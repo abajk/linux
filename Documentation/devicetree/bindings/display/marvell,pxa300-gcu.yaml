@@ -1,0 +1,46 @@
+---
+$id: http://devicetree.org/schemas/display/marvell,pxa300-gcu.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: PXA3xx GCU Controller
+
+maintainers:
+  - Daniel Mack <daniel@zonque.org>
+
+description: |
+  PXA3xx GCU Controller
+  ---------------------
+
+properties:
+  compatible:
+    items:
+      - const: marvell,pxa300-gcu
+
+  reg:
+    items:
+      - description: register range (address and length)
+
+  interrupts:
+    items:
+      - description: Controller interrupt
+
+  clocks:
+    maxItems: 1
+    description: phandle to the PXA specific input clock
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - clocks
+
+additionalProperties: false
+
+examples:
+  - |
+    display-controller@54000000 {
+        compatible = "marvell,pxa300-gcu";
+        reg = <0x54000000 0x1000>;
+        interrupts = <39>;
+        clocks = <&clks CLK_PXA300_GCU>;
+    };
