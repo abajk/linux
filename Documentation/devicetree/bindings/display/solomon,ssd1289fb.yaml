@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Rob Herring <robh@kernel.org>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/solomon,ssd1289fb.yaml#
+# $schema is the meta-schema this schema should be validated with.
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Solomon SSD1289 Framebuffer Driver
+
+maintainers:
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  * Solomon SSD1289 Framebuffer Driver
+
+properties:
+  compatible:
+    items:
+      - const: solomon,ssd1289fb
+    description: Must be "solomon,ssd1289fb" to identify this controller.
+  reg:
+    items:
+      - description: Base address of the controller on the LBC bus
+      - description: Size of the register window
+    description: Memory-mapped register window for the controller.
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    display@2,0 {
+        compatible = "solomon,ssd1289fb";
+        reg = <0x2 0x0000 0x0004>;
+    };
