@@ -1,0 +1,30 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/marvell,pxa-clocks.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Marvell PXA Clock Provider
+
+maintainers:
+  - Robert Jarzmik <robert.jarzmik@free.fr>
+
+properties:
+  compatible:
+    const: marvell,pxa-clocks
+
+  '#clock-cells':
+    const: 1
+
+required:
+  - compatible
+  - '#clock-cells'
+
+additionalProperties: false
+
+examples:
+  - |
+    clock-controller@41300004 {
+        compatible = "marvell,pxa-clocks";
+        #clock-cells = <1>;
+    };
