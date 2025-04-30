@@ -1,0 +1,103 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Geert Uytterhoeven
+# Copyright 2025 Wolfram Sang
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/intel,ce4100-i2c-controller.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Intel CE4100 I2C Controller
+
+maintainers:
+  - Geert Uytterhoeven <geert+renesas@glider.be>
+  - Wolfram Sang <wolfram@the-dreams.de>
+
+description: |
+  CE4100 I2C
+  ----------
+
+  CE4100 has one PCI device which is described as the I2C-Controller. This
+  PCI device has three PCI-bars, each bar contains a complete I2C
+  controller. So we have a total of three independent I2C-Controllers
+  which share only an interrupt line.
+  The driver is probed via the PCI-ID and is gathering the information of
+  attached devices from the device tree.
+
+  Grant Likely recommended to use the ranges property to map the PCI-Bar
+  number to its physical address and to use this to find the child nodes
+  of the specific I2C controller. This were his exact words:
+
+      Here's where the magic happens.  Each entry in
+      ranges describes how the parent pci address space
+      (middle group of 3) is translated to the local
+      address space (first group of 2) and the size of
+      each range (last cell).  In this particular case,
+      the first cell of the local address is chosen to be
+      1:1 mapped to the BARs, and the second is the
+      offset from the base of the BAR (which would be
+      non-zero if you had 2 or more devices mapped off
+      the same BAR)
+
+      ranges allows the address mapping to be described
+      in a way that the OS can interpret without
+      requiring custom device driver code.
+
+properties:
+  '#address-cells':
+    const: 2
+
+  '#size-cells':
+    const: 1
+
+  compatible:
+    description: PCI device compatible identifiers
+    items:
+      - const: pci8086,2e68.2
+      - const: pci8086,2e68
+      - const: pciclass,ff0000
+      - const: pciclass,ff00
+
+  reg:
+    description: PCI BAR register specification
+    items:
+      - description: PCI BAR number
+      - description: reserved
+      - description: reserved
+      - description: reserved
+      - description: size of mapping
+
+  interrupts:
+    description: 'Interrupt specifier: IRQ number and flags'
+    items:
+      - description: interrupt number
+      - description: interrupt flags
+
+  ranges:
+    description: PCI BAR mapping ranges, specified as tuples of [bar-number, bar-address, size]
+    items:
+      - description: bar number
+      - description: BAR address
+      - description: size of mapping
+
+required:
+  - '#address-cells'
+  - '#size-cells'
+  - compatible
+  - reg
+  - interrupts
+  - ranges
+
+additionalProperties: false
+
+examples:
+  - |
+    i2c-controller@b,2 {
+      #address-cells = <2>;
+      #size-cells = <1>;
+      compatible = "pci8086,2e68.2", "pci8086,2e68", "pciclass,ff0000", "pciclass,ff00";
+      reg = <0x15a00 0x0 0x0 0x0 0x0>;
+      interrupts = <16 1>;
+      ranges = <0 0 0x02000000 0 0xdffe0500 0x100>,
+               <1 0 0x02000000 0 0xdffe0600 0x100>,
+               <2 0 0x02000000 0 0xdffe0700 0x100>;
+    };
