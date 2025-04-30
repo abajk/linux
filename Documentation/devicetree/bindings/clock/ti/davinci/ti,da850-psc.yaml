@@ -1,0 +1,71 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/clock/ti/davinci/ti,da850-psc.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI DaVinci Power Sleep Controller (PSC)
+
+maintainers:
+  - David Lechner <david@lechnology.com>
+  - Krzysztof Kozlowski <krzk@kernel.org>
+
+description: >
+  The PSC provides power management, clock gating and reset functionality. It is
+  primarily used for clocking.
+
+  Consumers:
+    Clock, power domain and reset consumers shall use the local power domain
+    module ID (LPSC) as the index corresponding to the clock cell. Refer to
+    the device-specific datasheet to find these numbers. NB: Most local domains
+    only provide a clock/power domain and not a reset.
+
+properties:
+  compatible:
+    enum:
+      - ti,da850-psc0
+      - ti,da850-psc1
+
+  reg:
+    maxItems: 1
+
+  "#clock-cells":
+    const: 1
+
+  "#power-domain-cells":
+    const: 1
+
+  clocks:
+    description: phandles to clocks corresponding to the clock-names property
+
+  clock-names:
+    description: list of parent clock names; order and count depend on compatible
+
+  "#reset-cells":
+    const: 1
+
+additionalProperties: false
+
+examples:
+  - |
+    psc0: clock-controller@10000 {
+      compatible = "ti,da850-psc0";
+      reg = <0x10000 0x1000>;
+      #clock-cells = <1>;
+      #power-domain-cells = <1>;
+      #reset-cells = <1>;
+      clocks = <&pll0_sysclk 1>, <&pll0_sysclk 2>,
+               <&pll0_sysclk 4>, <&pll0_sysclk 6>, <&async1_clk>;
+      clock_names = "pll0_sysclk1", "pll0_sysclk2",
+                    "pll0_sysclk4", "pll0_sysclk6", "async1";
+    };
+
+  - |
+    psc1: clock-controller@227000 {
+      compatible = "ti,da850-psc1";
+      reg = <0x227000 0x1000>;
+      #clock-cells = <1>;
+      #power-domain-cells = <1>;
+      clocks = <&pll0_sysclk 2>, <&pll0_sysclk 4>, <&async3_clk>;
+      clock_names = "pll0_sysclk2", "pll0_sysclk4", "async3";
+    };
