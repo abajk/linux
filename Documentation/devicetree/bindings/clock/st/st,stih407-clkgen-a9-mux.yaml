@@ -1,0 +1,40 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/clock/st/st,stih407-clkgen-a9-mux.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: STIH407 Clock Generator A9 Multiplexer
+
+maintainers:
+  - Gabriel Fernandez <gabriel.fernandez@st.com>
+
+description: |
+  Binding for a ST multiplexed clock driver.
+
+  This binding supports only simple indexed multiplexers, it does not
+  support table based parent index to hardware value translations.
+
+properties:
+  compatible:
+    const: st,stih407-clkgen-a9-mux
+
+  reg:
+    maxItems: 1
+
+  "#clock-cells":
+    const: 0
+    description: Must be zero.
+
+  clocks:
+    minItems: 2
+    maxItems: 4
+    description: Parent clocks for the multiplexer.
+
+required:
+  - compatible
+  - "#clock-cells"
+  - reg
+  - clocks
+
+additionalProperties: false
