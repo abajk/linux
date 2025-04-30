@@ -1,0 +1,50 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Viresh Kumar <vireshk@kernel.org>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/st,spear300-kbd.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: SPEAr keyboard controller
+maintainers:
+  - Viresh Kumar <vireshk@kernel.org>
+description: |
+  * SPEAr keyboard controller
+
+properties:
+  compatible:
+    const: st,spear300-kbd
+
+  reg:
+    description: Memory region for the SPEAr keyboard controller.
+    items:
+      - description: Register window
+
+  linux,keymap:
+    description: Keymap entries for the SPEAr keyboard controller.
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+
+  autorepeat:
+    description: Enables key autorepeat.
+    type: boolean
+
+  st,mode:
+    description: "Keyboard mode: 0 - 9x9, 1 - 6x6, 2 - 2x2."
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+    items:
+      - enum: [0, 1, 2]
+
+required:
+  - compatible
+
+additionalProperties: false
+
+examples:
+  - |
+    kbd@fc400000 {
+        compatible = "st,spear300-kbd";
+        reg = <0xfc400000 0x100>;
+        linux,keymap = <0x00030012 0x0102003a>;
+        autorepeat;
+        st,mode = <0>;
+    };
