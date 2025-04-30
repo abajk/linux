@@ -1,0 +1,55 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Andrew Jeffery
+
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/hwmon/maxim,max31785.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Maxim MAX31785 Intelligent Fan Controller
+
+maintainers:
+  - Andrew Jeffery <andrew@aj.id.au>
+
+description: |
+  Bindings for the Maxim MAX31785 Intelligent Fan Controller
+
+  Reference:
+
+  https://datasheets.maximintegrated.com/en/ds/MAX31785.pdf
+
+  The Maxim MAX31785 is a PMBus device providing closed-loop, multi-channel fan
+  management with temperature and remote voltage sensing. Various fan control
+  features are provided, including PWM frequency control, temperature hysteresis,
+  dual tachometer measurements, and fan health monitoring.
+
+properties:
+  compatible:
+    $ref: /schemas/types.yaml#/definitions/string-array
+    items:
+      - enum:
+          - maxim,max31785
+          - maxim,max31785a
+
+  reg:
+    description: I2C register address of the device.
+    items:
+      - description: I2C register address
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    i2c-bus {
+      #address-cells = <1>;
+      #size-cells = <0>;
+
+      fans@52 {
+        compatible = "maxim,max31785";
+        reg = <0x52>;
+      };
+    };
