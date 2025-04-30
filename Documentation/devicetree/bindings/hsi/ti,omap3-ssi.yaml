@@ -1,0 +1,164 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Linaro Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/ti,omap3-ssi.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI OMAP SSI Controller
+
+maintainers:
+  - Rob Herring <robh@kernel.org>
+  - Sebastian Reichel <sre@kernel.org>
+  - Tony Lindgren <tony@atomide.com>
+
+description: |
+  OMAP SSI controller bindings
+
+  OMAP3's Synchronous Serial Interface (SSI) controller implements a
+  legacy variant of MIPI's High Speed Synchronous Serial Interface (HSI),
+  while the controller found inside OMAP4 is supposed to be fully compliant
+  with the HSI standard.
+
+properties:
+  compatible:
+    oneOf:
+      - items:
+          - enum: [ti, omap3-ssi]
+      - items:
+          - enum: [ti, omap4-hsi]
+    description: Device compatible string.
+
+  reg-names:
+    items:
+      - const: sys
+      - const: gdd
+    description: Order of register regions.
+
+  reg:
+    items:
+      - description: System registers region
+      - description: GDD registers region
+    description: Register address and size for each region.
+
+  interrupt-names:
+    items:
+      - const: gdd_mpu
+    description: Name of the MPU interrupt.
+
+  interrupts:
+    items:
+      - description: GDD MPU interrupt
+    description: Interrupt specifier for gdd_mpu.
+
+  ranges:
+    items:
+      - description: Child bus address.
+      - description: Parent bus address.
+      - description: Size of mapping.
+    description: Bus address mapping to child nodes.
+
+  clock-names:
+    items:
+      - const: ssi_ssr_fck
+      - const: ssi_sst_fck
+      - const: ssi_ick
+    description: Names of required clocks.
+
+  clocks:
+    items:
+      - description: SSI SSR functional clock
+      - description: SSI SST functional clock
+      - description: SSI interface clock
+    description: Clock phandles corresponding to clock-names.
+
+  '#address-cells':
+    const: 1
+    description: Node has single address cell.
+
+  '#size-cells':
+    const: 1
+    description: Node has single size cell.
+
+  ti,hwmods:
+    $ref: /schemas/types.yaml#/definitions/string
+    description: Optional TI interconnect module name.
+
+patternProperties:
+  "^ssi-port@[0-9A-Fa-f]+$":
+    $ref: "#/definitions/port"
+
+additionalProperties: false
+
+definitions:
+  port:
+    type: object
+    description: SSI port sub-node.
+    properties:
+      compatible:
+        items:
+          - enum: [ti, omap3-ssi-port]
+          - enum: [ti, omap4-hsi-port]
+        description: Port compatible string.
+      reg-names:
+        items:
+          - const: tx
+          - const: rx
+        description: Order of port register regions.
+      reg:
+        items:
+          - description: TX registers region
+          - description: RX registers region
+        description: Register specifiers for port windows.
+      interrupts:
+        items:
+          - description: MPU interrupt 0
+          - description: MPU interrupt 1
+        description: Interrupt specifier list for port.
+      ti,ssi-cawake-gpio:
+        $ref: /schemas/types.yaml#/definitions/phandle-array
+        description: GPIO pin for CAWAKE events.
+    required:
+      - compatible
+      - reg-names
+      - reg
+      - interrupts
+    additionalProperties: false
+
+required:
+  - compatible
+  - reg-names
+  - reg
+  - interrupt-names
+  - interrupts
+
+examples:
+  - |
+    ssi-controller@48058000 {
+      compatible = "ti,omap3-ssi";
+      reg = <0x48058000 0x1000>,
+            <0x48059000 0x1000>;
+      reg-names = "sys", "gdd";
+      interrupts = <55>;
+      interrupt-names = "gdd_mpu";
+      clocks = <&ssi_ssr_fck>, <&ssi_sst_fck>, <&ssi_ick>;
+      clock-names = "ssi_ssr_fck", "ssi_sst_fck", "ssi_ick";
+      #address-cells = <1>;
+      #size-cells = <1>;
+      ranges;
+
+      ssi-port@4805a000 {
+        compatible = "ti,omap3-ssi-port";
+        reg = <0x4805a000 0x800>, <0x4805a800 0x800>;
+        reg-names = "tx", "rx";
+        interrupts = <67>, <68>;
+        ti,ssi-cawake-gpio = <&gpio5 23 GPIO_ACTIVE_HIGH>;
+      };
+
+      ssi-port@4805b000 {
+        compatible = "ti,omap3-ssi-port";
+        reg = <0x4805b000 0x800>, <0x4805b800 0x800>;
+        reg-names = "tx", "rx";
+        interrupts = <69>, <70>;
+      };
+    };
