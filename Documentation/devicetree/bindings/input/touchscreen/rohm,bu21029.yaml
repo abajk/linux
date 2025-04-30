@@ -1,0 +1,66 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Zhu Yi
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/input/touchscreen/rohm,bu21029.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Rohm BU21029 Touch Screen Controller
+maintainers:
+  - Zhu Yi <yi.zhu5@cn.bosch.com>
+
+description: |
+  * Rohm BU21029 Touch Screen Controller
+
+properties:
+  compatible:
+    items:
+      - const: rohm,bu21029
+    description: Must be "rohm,bu21029".
+  reg:
+    items:
+      - description: I2C bus address of the chip (0x40 or 0x41)
+  interrupts:
+    items:
+      - description: (gpio) interrupt to which the chip is connected
+  rohm,x-plate-ohms:
+    description: X-plate resistance in Ohm
+  reset-gpios:
+    maxItems: 1
+    description: GPIO pin to reset the chip (active low)
+  touchscreen-size-x:
+    description: Horizontal resolution of touchscreen (in pixels)
+    $ref: /schemas/types.yaml#/definitions/uint32
+  touchscreen-size-y:
+    description: Vertical resolution of touchscreen (in pixels)
+    $ref: /schemas/types.yaml#/definitions/uint32
+  touchscreen-max-pressure:
+    description: Maximum pressure value
+    $ref: /schemas/types.yaml#/definitions/uint32
+  vdd-supply:
+    description: Power supply for the controller
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - rohm,x-plate-ohms
+
+additionalProperties: false
+
+examples:
+  - |
+    &i2c1 {
+      /* ... */
+      bu21029: bu21029@40 {
+        compatible = "rohm,bu21029";
+        reg = <0x40>;
+        interrupts = <4 IRQ_TYPE_EDGE_FALLING>;
+        reset-gpios = <&gpio6 16 GPIO_ACTIVE_LOW>;
+        rohm,x-plate-ohms = <600>;
+        touchscreen-size-x = <800>;
+        touchscreen-size-y = <480>;
+        touchscreen-max-pressure = <4095>;
+      };
+      /* ... */
+    };
