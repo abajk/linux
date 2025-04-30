@@ -1,0 +1,67 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Allied Telesis
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/i2c/nxp,pca9564.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: NXP PCA PCA9564/PCA9665 I2C controller
+
+maintainers:
+  - Chris Packham <chris.packham@alliedtelesis.co.nz>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  NXP PCA PCA9564/PCA9665 I2C controller
+
+  The PCA9564/PCA9665 serves as an interface between most standard
+  parallel-bus microcontrollers/microprocessors and the serial I2C-bus
+  and allows the parallel-bus system to communicate bi-directionally
+  with the I2C-bus.
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - nxp,pca9564
+          - nxp,pca9665
+
+  '#address-cells':
+    const: 1
+
+  '#size-cells':
+    const: 0
+
+  reg:
+    items:
+      - description: Offset of the register set
+      - description: Length of the register set
+
+  interrupts:
+    description: Interrupt number of the I2C controller
+    items:
+      - description: Interrupt number
+
+  reset-gpios:
+    description: GPIO specifier for RESET_N pin; active low
+    maxItems: 1
+
+  clock-frequency:
+    description: I2C bus frequency, in hertz
+
+additionalProperties: false
+
+required:
+  - compatible
+  - reg
+
+examples:
+  - |
+    i2c0: i2c@80000 {
+        compatible = "nxp,pca9564";
+        #address-cells = <1>;
+        #size-cells = <0>;
+        reg = <0x80000 0x4>;
+        reset-gpios = <&gpio1 0 GPIO_ACTIVE_LOW>;
+        clock-frequency = <100000>;
+    };
