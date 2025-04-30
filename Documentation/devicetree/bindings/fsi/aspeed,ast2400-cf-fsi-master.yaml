@@ -1,0 +1,86 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Benjamin Herrenschmidt
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/aspeed,ast2400-cf-fsi-master.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: ColdFire offloaded gpio-based FSI master
+
+maintainers:
+  - Benjamin Herrenschmidt <benh@kernel.crashing.org>
+
+description: |
+  Device-tree bindings for ColdFire offloaded gpio-based FSI master driver
+
+properties:
+  compatible:
+    oneOf:
+      - items:
+          - const: aspeed,ast2400-cf-fsi-master
+      - items:
+          - const: aspeed,ast2500-cf-fsi-master
+      - items:
+          - const: aspeed,ast2500-cf-fsi-master
+          - const: fsi-master
+
+  clock-gpios:
+    maxItems: 1
+    description: GPIO for FSI clock
+
+  data-gpios:
+    maxItems: 1
+    description: GPIO for FSI data signal
+
+  enable-gpios:
+    maxItems: 1
+    description: GPIO for enable signal
+
+  trans-gpios:
+    maxItems: 1
+    description: GPIO for voltage translator enable
+
+  mux-gpios:
+    maxItems: 1
+    description: GPIO for pin multiplexing with other functions (eg, external FSI masters)
+
+  memory-region:
+    description: |
+      Reference to the reserved memory for the ColdFire. Must be 2M aligned on AST2400
+      and 1M aligned on AST2500.
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  aspeed,sram:
+    description: Reference to the SRAM node.
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  aspeed,cvic:
+    description: Reference to the CVIC node.
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+required:
+  - compatible
+  - clock-gpios
+  - data-gpios
+  - enable-gpios
+  - trans-gpios
+  - mux-gpios
+  - memory-region
+  - aspeed,sram
+  - aspeed,cvic
+
+additionalProperties: false
+
+examples:
+  - |
+    fsi-master {
+      compatible = "aspeed,ast2500-cf-fsi-master", "fsi-master";
+      clock-gpios = <&gpio 0>;
+      data-gpios = <&gpio 1>;
+      enable-gpios = <&gpio 2>;
+      trans-gpios = <&gpio 3>;
+      mux-gpios = <&gpio 4>;
+      memory-region = <&coldfire_memory>;
+      aspeed,sram = <&sram>;
+      aspeed,cvic = <&cvic>;
+    };
