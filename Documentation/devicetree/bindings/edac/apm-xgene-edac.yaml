@@ -1,0 +1,229 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 APM
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/edac/apm-xgene-edac.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: APM X-Gene SoC EDAC node
+
+maintainers:
+  - Arnd Bergmann <arnd@arndb.de>
+  - Loc Ho <lho@apm.com>
+
+description: |
+  APM X-Gene SoC EDAC node
+
+  EDAC node is defined to describe on-chip error detection and correction.
+
+  The following error types are supported:
+    memory controller - Memory controller
+    PMD (L1/L2)        - Processor module unit (PMD) L1/L2 cache
+    L3                 - L3 cache controller
+    SoC                - SoC IPs such as Ethernet, SATA, etc
+
+  The following section describes the EDAC DT node binding.
+
+properties:
+  compatible:
+    items:
+      - const: apm,xgene-edac
+
+  regmap-csw:
+    description: Regmap of the CPU switch fabric (CSW) resource.
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  regmap-mcba:
+    description: Regmap of the MCB-A (memory bridge) resource.
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  regmap-mcbb:
+    description: Regmap of the MCB-B (memory bridge) resource.
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  regmap-efuse:
+    description: Regmap of the PMD efuse resource.
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  regmap-rb:
+    description: Regmap of the register bus resource (optional for compatibility).
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  reg:
+    description: First resource shall be the CPU bus (PCP) resource.
+    items:
+      - description: CPU bus (PCP) resource
+
+  interrupts:
+    description: Interrupt-specifier for MCU, PMD, L3, or SoC error IRQ(s).
+    items:
+      - description: MCU error IRQ
+      - description: PMD error IRQ
+      - description: L3 error IRQ
+      - description: SoC error IRQ
+    minItems: 1
+
+required:
+  - compatible
+  - regmap-csw
+  - regmap-mcba
+  - regmap-mcbb
+  - regmap-efuse
+  - reg
+  - interrupts
+
+# Child-node bindings
+patternProperties:
+  '^edacmc@.*$':
+    $ref: '#/definitions/edac-mc'
+  '^edacpmd@.*$':
+    $ref: '#/definitions/edac-pmd'
+  '^edacl3@.*$':
+    $ref: '#/definitions/edac-l3'
+  '^edacsoc@.*$':
+    $ref: '#/definitions/edac-soc'
+
+additionalProperties: false
+
+definitions:
+  edac-mc:
+    type: object
+    description: Memory controller subnode
+    properties:
+      compatible:
+        items:
+          - const: apm,xgene-edac-mc
+      reg:
+        description: Memory controller unit (MCU) resource.
+        items:
+          - description: MCU resource
+      memory-controller:
+        description: Instance number of the memory controller.
+        $ref: /schemas/types.yaml#/definitions/uint32
+    required:
+      - compatible
+      - reg
+      - memory-controller
+    additionalProperties: false
+
+  edac-pmd:
+    type: object
+    description: PMD subnode
+    properties:
+      compatible:
+        oneOf:
+          - items:
+              - const: apm,xgene-edac-pmd
+          - items:
+              - const: apm,xgene-edac-pmd-v2
+      reg:
+        description: PMD resource.
+        items:
+          - description: PMD resource
+      pmd-controller:
+        description: Instance number of the PMD controller.
+        $ref: /schemas/types.yaml#/definitions/uint32
+    required:
+      - compatible
+      - reg
+      - pmd-controller
+    additionalProperties: false
+
+  edac-l3:
+    type: object
+    description: L3 subnode
+    properties:
+      compatible:
+        oneOf:
+          - items:
+              - const: apm,xgene-edac-l3
+          - items:
+              - const: apm,xgene-edac-l3-v2
+      reg:
+        description: L3 EDAC resource.
+        items:
+          - description: L3 EDAC resource
+    required:
+      - compatible
+      - reg
+    additionalProperties: false
+
+  edac-soc:
+    type: object
+    description: SoC subnode
+    properties:
+      compatible:
+        enum:
+          - apm,xgene-edac-soc-v1
+          - apm,xgene-edac-l3-soc
+      reg:
+        description: SoC EDAC resource.
+        items:
+          - description: SoC EDAC resource
+    required:
+      - compatible
+      - reg
+    additionalProperties: false
+
+examples:
+  - |
+    csw: csw@7e200000 {
+        compatible = "apm,xgene-csw", "syscon";
+        reg = <0x0 0x7e200000 0x0 0x1000>;
+    };
+
+    mcba: mcba@7e700000 {
+        compatible = "apm,xgene-mcb", "syscon";
+        reg = <0x0 0x7e700000 0x0 0x1000>;
+    };
+
+    mcbb: mcbb@7e720000 {
+        compatible = "apm,xgene-mcb", "syscon";
+        reg = <0x0 0x7e720000 0x0 0x1000>;
+    };
+
+    efuse: efuse@1054a000 {
+        compatible = "apm,xgene-efuse", "syscon";
+        reg = <0x0 0x1054a000 0x0 0x20>;
+    };
+
+    rb: rb@7e000000 {
+        compatible = "apm,xgene-rb", "syscon";
+        reg = <0x0 0x7e000000 0x0 0x10>;
+    };
+
+    edac@78800000 {
+        compatible = "apm,xgene-edac";
+        #address-cells = <2>;
+        #size-cells = <2>;
+        ranges;
+        regmap-csw = <&csw>;
+        regmap-mcba = <&mcba>;
+        regmap-mcbb = <&mcbb>;
+        regmap-efuse = <&efuse>;
+        regmap-rb = <&rb>;
+        reg = <0x0 0x78800000 0x0 0x100>;
+        interrupts = <0x0 0x20 0x4>, <0x0 0x21 0x4>, <0x0 0x27 0x4>;
+
+        edacmc@7e800000 {
+            compatible = "apm,xgene-edac-mc";
+            reg = <0x0 0x7e800000 0x0 0x1000>;
+            memory-controller = <0>;
+        };
+
+        edacpmd@7c000000 {
+            compatible = "apm,xgene-edac-pmd";
+            reg = <0x0 0x7c000000 0x0 0x200000>;
+            pmd-controller = <0>;
+        };
+
+        edacl3@7e600000 {
+            compatible = "apm,xgene-edac-l3";
+            reg = <0x0 0x7e600000 0x0 0x1000>;
+        };
+
+        edacsoc@7e930000 {
+            compatible = "apm,xgene-edac-soc-v1";
+            reg = <0x0 0x7e930000 0x0 0x1000>;
+        };
+    };
