@@ -1,0 +1,87 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Sebastian Andrzej Siewior
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/gpio/pci8086,2e67.2.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: GPIO controller on CE4100 / Sodaville SoCs
+
+maintainers:
+  - Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+
+description: |
+  The bindings for CE4100's GPIO controller match the generic description
+  which is covered by the gpio.txt file in this folder.
+
+  The only additional property is the intel,muxctl property which holds the
+  value which is written into the MUXCNTL register.
+
+  There is no compatible property for now because the driver is probed via
+  PCI id (vendor 0x8086 device 0x2e67).
+
+  The interrupt specifier consists of two cells encoded as follows:
+    - <1st cell>: The interrupt-number that identifies the interrupt source.
+    - <2nd cell>: The level-sense information, encoded as follows:
+        4 - active high level-sensitive
+        8 - active low level-sensitive
+
+properties:
+  compatible:
+    description: List of compatible strings for the CE4100/Sodaville GPIO controller.
+    items:
+      - enum:
+          - pci8086,2e67.2
+          - pci8086,2e67
+          - pciclassff0000
+          - pciclassff00
+
+  reg:
+    description: PCI resource specifier for the GPIO controller register block.
+    items:
+      - description: PCI BAR and device/function identifier.
+      - description: Base address high 32 bits.
+      - description: Base address low 32 bits.
+      - description: Size high 32 bits.
+      - description: Size low 32 bits.
+
+  interrupts:
+    description: Interrupt specifier for the GPIO controller.
+    items:
+      - description: Interrupt number that identifies the interrupt source.
+      - description: Level-sense information, 4=active high, 8=active low.
+
+  interrupt-controller: true
+
+  '#interrupt-cells':
+    const: 2
+
+  gpio-controller: true
+
+  '#gpio-cells':
+    const: 2
+
+  intel,muxctl:
+    description: Value to be written into the MUXCNTL register.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+additionalProperties: false
+
+examples:
+  - |
+    pcigpio: gpio@b,1 {
+        #gpio-cells = <2>;
+        #interrupt-cells = <2>;
+        compatible = "pci8086,2e67.2", "pci8086,2e67", "pciclassff0000", "pciclassff00";
+        reg = <0x15900 0x0 0x0 0x0 0x0>;
+        interrupts = <15 1>;
+        interrupt-controller;
+        gpio-controller;
+        intel,muxctl = <0>;
+    };
+
+    testuser@20 {
+        compatible = "example,testuser";
+        interrupts = <11 8>;
+        gpios = <&pcigpio 11 0>;
+    };
