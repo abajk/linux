@@ -1,0 +1,133 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/brcm,iproc-touchscreen.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Broadcom IPROC Touchscreen Controller
+
+maintainers:
+  - Geert Uytterhoeven <geert+renesas@glider.be>
+  - Jonathan Richardson <jonathar@broadcom.com>
+  - Raveendra Padasalagi <raveendra.padasalagi@broadcom.com>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  * Broadcom's IPROC Touchscreen Controller
+
+properties:
+  compatible:
+    items:
+      - enum: [ "brcm,iproc-touchscreen" ]
+
+  '#address-cells':
+    const: 1
+    description: Number of u32 entries needed in child nodes.
+
+  '#size-cells':
+    const: 1
+    description: Number of u32 entries needed to specify child node size in reg.
+
+  ts_syscon:
+    description: |
+      Handler of syscon node defining physical base address of the controller
+      and length of memory mapped region. Requires MFD_SYSCON.
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  clocks:
+    description: The clock provided by the SoC to drive the touchscreen controller.
+    maxItems: 1
+
+  clock-names:
+    items:
+      - const: tsc_clk
+
+  interrupts:
+    description: The touchscreen controller interrupt.
+    items:
+      - description: irq
+
+  scanning_period:
+    description: Time between scans in steps of 1024 µs. Valid 1–256.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  debounce_timeout:
+    description: Debounce duration in steps of 512 µs. Valid 0–255.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  settling_timeout:
+    description: Settling duration after driver enable, indexed 0–11 (0=0.008 ms … 11=10.24 ms).
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  touch_timeout:
+    description: Number of scan periods without touch before idle. Valid 0–255.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  average_data:
+    description: Number of samples averaged before FIFO insert. Valid 0–7 (0=1 sample … 7=128 samples).
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  fifo_threshold:
+    description: FIFO interrupt threshold. Valid 0–31.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  touchscreen-size-x:
+    description: Horizontal resolution of the touchscreen in pixels.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  touchscreen-size-y:
+    description: Vertical resolution of the touchscreen in pixels.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  touchscreen-fuzz-x:
+    description: Horizontal noise value of the absolute input device, in pixels.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  touchscreen-fuzz-y:
+    description: Vertical noise value of the absolute input device, in pixels.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  touchscreen-inverted-x:
+    description: X axis is inverted.
+    type: boolean
+
+  touchscreen-inverted-y:
+    description: Y axis is inverted.
+    type: boolean
+
+required:
+  - compatible
+  - '#address-cells'
+  - '#size-cells'
+  - ts_syscon
+  - clocks
+  - clock-names
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    ts_adc_syscon: ts_adc_syscon@180a6000 {
+        compatible = "brcm,iproc-ts-adc-syscon","syscon";
+        reg = <0x180a6000 0xc30>;
+    };
+    touchscreen: touchscreen@180a6000 {
+        compatible = "brcm,iproc-touchscreen";
+        #address-cells = <1>;
+        #size-cells = <1>;
+        ts_syscon = <&ts_adc_syscon>;
+        clocks = <&adc_clk>;
+        clock-names = "tsc_clk";
+        interrupts = <GIC_SPI 164 IRQ_TYPE_LEVEL_HIGH>;
+
+        scanning_period = <5>;
+        debounce_timeout = <40>;
+        settling_timeout = <7>;
+        touch_timeout = <10>;
+        average_data = <5>;
+        fifo_threshold = <1>;
+        /* Touchscreen is rotated 180 degrees. */
+        touchscreen-inverted-x;
+        touchscreen-inverted-y;
+    };
