@@ -1,0 +1,87 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/arm/xen,xen.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Xen hypervisor for ARM virtual platforms
+
+maintainers:
+  - Jonathan Corbet <corbet@lwn.net>
+  - Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+  - Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>
+  - Shannon Zhao <shannon.zhao@linaro.org>
+  - Stefano Stabellini <stefano.stabellini@eu.citrix.com>
+
+description: |
+  * Xen hypervisor device tree bindings
+
+  Xen ARM virtual platforms shall have a top-level "hypervisor" node with
+  the following properties:
+
+  To support UEFI on Xen ARM virtual platforms, Xen populates the FDT "uefi" node
+  under /hypervisor with following parameters:
+
+  The format and meaning of the "xen,uefi-*" parameters are similar to those in
+  Documentation/arch/arm/uefi.rst, which are provided by the regular UEFI stub.
+  However they differ because they are provided by the Xen hypervisor, together with a set
+  of UEFI runtime services implemented via hypercalls, see
+  http://xenbits.xen.org/docs/unstable/hypercall/x86_64/include,public,platform.h.html.
+
+properties:
+  compatible:
+    # Must be either ["xen,xen-<version>", "xen,xen"] or ["xen,xen"]
+    oneOf:
+      - items:
+          - pattern: "^xen,xen-[0-9]+(\\.[0-9]+)*$"
+          - const: xen,xen
+      - items:
+          - const: xen,xen
+
+  reg:
+    description: Memory regions for the grant table and extended regions.
+    items:
+      - description: Grant table region
+
+  interrupts:
+    description: Xen event notification interrupt.
+    items:
+      - description: Event interrupt specifier
+
+  interrupt-names:
+    items:
+      - const: hypervisor-event
+
+  uefi:
+    description: UEFI hypervisor runtime parameters.
+    type: object
+    additionalProperties: false
+    properties:
+      xen,uefi-system-table:
+        description: Guest physical address of the UEFI System Table.
+        $ref: /schemas/types.yaml#/definitions/uint64
+      xen,uefi-mmap-start:
+        description: Guest physical address of the UEFI memory map.
+        $ref: /schemas/types.yaml#/definitions/uint64
+      xen,uefi-mmap-size:
+        description: Size in bytes of the UEFI memory map.
+        $ref: /schemas/types.yaml#/definitions/uint32
+      xen,uefi-mmap-desc-size:
+        description: Size in bytes of each entry in the UEFI memory map.
+        $ref: /schemas/types.yaml#/definitions/uint32
+      xen,uefi-mmap-desc-ver:
+        description: Version of the mmap descriptor format.
+        $ref: /schemas/types.yaml#/definitions/uint32
+    required:
+      - xen,uefi-system-table
+      - xen,uefi-mmap-start
+      - xen,uefi-mmap-size
+      - xen,uefi-mmap-desc-size
+      - xen,uefi-mmap-desc-ver
+
+required:
+  - compatible
+  - reg
+  - interrupts
+
+additionalProperties: false
