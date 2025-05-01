@@ -1,0 +1,115 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Texas Instruments
+
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/leds/ti,lm3697.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI LM3697 LED driver
+
+maintainers:
+  - Alexander A. Klimov <grandmaster@al2klimov.de>
+  - Dan Murphy <dmurphy@ti.com>
+
+description: |
+  * Texas Instruments - LM3697 Highly Efficient White LED Driver
+
+  The LM3697 11-bit LED driver provides high-
+  performance backlight dimming for 1, 2, or 3 series
+  LED strings while delivering up to 90% efficiency.
+
+  This device is suitable for display and keypad lighting
+
+properties:
+  compatible:
+    description: Device compatible with the TI LM3697 LED driver.
+    $ref: /schemas/types.yaml#/definitions/string-array
+    items:
+      - enum: ["ti,lm3697"]
+
+  reg:
+    description: I2C slave address of the device.
+    maxItems: 1
+
+  "#address-cells":
+    const: 1
+
+  "#size-cells":
+    const: 0
+
+  enable-gpios:
+    description: GPIO pin to enable or disable the device.
+    maxItems: 1
+
+  vled-supply:
+    description: LED supply for the device.
+
+patternProperties:
+  "^led@\\d+$":
+    description: LED control bank nodes.
+    type: object
+    additionalProperties: false
+    properties:
+      reg:
+        description: Control bank selection (0 = bank A, 1 = bank B).
+        maxItems: 1
+      led-sources:
+        description: HVLED strings associated with this control bank (zero-based indices).
+        $ref: /schemas/types.yaml#/definitions/uint32-array
+      ti,brightness-resolution:
+        description: Brightness resolution for the LED string.
+        $ref: /schemas/types.yaml#/definitions/uint32
+      ramp-up-us:
+        description: Ramp-up time in microseconds.
+      ramp-down-us:
+        description: Ramp-down time in microseconds.
+      label:
+        description: Label for the LED.
+        $ref: /schemas/types.yaml#/definitions/string
+      linux,default-trigger:
+        description: Default trigger for the LED class device.
+        $ref: /schemas/types.yaml#/definitions/string
+    required:
+      - reg
+      - led-sources
+
+required:
+  - compatible
+  - reg
+  - "#address-cells"
+  - "#size-cells"
+
+additionalProperties: false
+
+examples:
+  - |
+    led-controller@36 {
+        compatible = "ti,lm3697";
+        #address-cells = <1>;
+        #size-cells = <0>;
+        reg = <0x36>;
+
+        enable-gpios = <&gpio1 28 GPIO_ACTIVE_HIGH>;
+        vled-supply = <&vbatt>;
+
+        led@0 {
+            reg = <0>;
+            led-sources = <0 2>;
+            ti,brightness-resolution = <2047>;
+            ramp-up-us = <5000>;
+            ramp-down-us = <1000>;
+            label = "white:first_backlight_cluster";
+            linux,default-trigger = "backlight";
+        };
+
+        led@1 {
+            reg = <1>;
+            led-sources = <1>;
+            ti,brightness-resolution = <255>;
+            ramp-up-us = <500>;
+            ramp-down-us = <1000>;
+            label = "white:second_backlight_cluster";
+            linux,default-trigger = "backlight";
+        };
+    };
