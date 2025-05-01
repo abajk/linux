@@ -1,0 +1,72 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 STMicroelectronics
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/phy/st,miphy365x-phy.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: STMicroelectronics STi MIPHY365x PHY
+
+maintainers:
+  - Lee Jones <lee@kernel.org>
+  - Peter Griffin <peter.griffin@linaro.org>
+
+description: |
+  STMicroelectronics STi MIPHY365x PHY binding
+
+  This binding describes a miphy device that is used to control PHY hardware
+  for SATA and PCIe.
+
+  Specifying phy control of devices
+
+  Device nodes should specify the configuration required in their "phys"
+  property, containing a phandle to the phy port node and a device type.
+
+properties:
+  compatible:
+    items:
+      - const: st,miphy365x-phy
+
+  "st,syscfg":
+    description: Phandle to sysconfig group and integer offsets for each port sub-node.
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+
+  "#address-cells":
+    const: 1
+
+  "#size-cells":
+    const: 1
+
+  ranges: true
+
+patternProperties:
+  "^port@.*":
+    description: Port sub-node describing each PHY port.
+    type: object
+    additionalProperties: false
+    properties:
+      reg:
+        maxItems: 1
+      "#phy-cells":
+        const: 1
+        description: Cell after port phandle specifying device type (PHY_TYPE_SATA or PHY_TYPE_PCI).
+      "st,sata-gen":
+        description: Generation of locally attached SATA IP. Expected values {1,2,3}.
+        $ref: /schemas/types.yaml#/definitions/uint32
+        enum: [1, 2, 3]
+      "st,pcie-tx-pol-inv":
+        description: Invert polarity of PCIe Tx (Txn/Txp).
+        type: boolean
+      "st,sata-tx-pol-inv":
+        description: Invert polarity of SATA Tx (Txn/Txp).
+        type: boolean
+    required:
+      - reg
+      - reg-names
+      - "#phy-cells"
+
+required:
+  - compatible
+  - "st,syscfg"
+
+additionalProperties: false
