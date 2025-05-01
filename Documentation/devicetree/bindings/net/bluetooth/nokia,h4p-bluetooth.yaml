@@ -1,0 +1,74 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/nokia,h4p-bluetooth.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Nokia H4P Bluetooth
+maintainers:
+  - Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+
+description: |
+  Nokia Bluetooth Chips
+
+  Nokia phones often come with UART connected bluetooth chips from different
+  vendors and modified device API. Those devices speak a protocol named H4+
+  (also known as h4p) by Nokia, which is similar to the H4 protocol from the
+  Bluetooth standard. In addition to the H4 protocol it specifies two more
+  UART status lines for wakeup of UART transceivers to improve power management
+  and a few new packet types used to negotiate uart speed.
+
+properties:
+  compatible:
+    oneOf:
+      - items:
+          - enum:
+              - brcm,bcm2048-nokia
+              - ti,wl1271-bluetooth-nokia
+          - const: nokia,h4p-bluetooth
+      - items:
+          - const: nokia,h4p-bluetooth
+
+  clocks:
+    description: System clock for the Bluetooth module.
+    maxItems: 1
+
+  clock-names:
+    items:
+      - const: sysclk
+
+  reset-gpios:
+    description: Controls the reset of the Bluetooth module (active low).
+    maxItems: 1
+
+  host-wakeup-gpios:
+    description: Controls the host wakeup signal (active high).
+    maxItems: 1
+
+  bluetooth-wakeup-gpios:
+    description: Controls the Bluetooth wakeup signal (active high).
+    maxItems: 1
+
+required:
+  - compatible
+  - clocks
+  - clock-names
+  - reset-gpios
+  - host-wakeup-gpios
+  - bluetooth-wakeup-gpios
+
+additionalProperties: false
+
+examples:
+  - |
+    &uart2 {
+      bluetooth {
+        compatible = "ti,wl1271-bluetooth-nokia", "nokia,h4p-bluetooth";
+        clocks = <&bluetooth_clk>;
+        clock-names = "sysclk";
+        reset-gpios = <&gpio1 26 GPIO_ACTIVE_LOW>;
+        host-wakeup-gpios = <&gpio4 5 GPIO_ACTIVE_HIGH>;
+        bluetooth-wakeup-gpios = <&gpio2 5 GPIO_ACTIVE_HIGH>;
+      };
+    };
