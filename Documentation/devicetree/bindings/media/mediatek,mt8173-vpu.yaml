@@ -1,0 +1,69 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Andrew-CT Chen <andrew-ct.chen@mediatek.com>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mediatek,mt8173-vpu.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Mediatek Video Processor Unit
+
+maintainers:
+  - Andrew-CT Chen <andrew-ct.chen@mediatek.com>
+
+description: |
+  * Mediatek Video Processor Unit
+  Video Processor Unit is a HW video controller. It controls HW Codec including
+  H.264/VP8/VP9 Decode, H.264/VP8 Encode and Image Processor (scale/rotate/color convert).
+
+properties:
+  compatible:
+    items:
+      - const: mediatek,mt8173-vpu
+
+  reg:
+    items:
+      - description: tcm base
+      - description: Main configuration registers base
+
+  reg-names:
+    items:
+      - const: tcm
+      - const: cfg_reg
+
+  interrupts:
+    items:
+      - description: Interrupt number to the CPU
+
+  clocks:
+    maxItems: 1
+    description: Clock name from clock manager
+
+  clock-names:
+    items:
+      - const: main
+
+  memory-region:
+    description: Phandle to a reserved-memory region to be used for VPU extended memory
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+required:
+  - compatible
+  - reg
+  - reg-names
+  - interrupts
+  - clocks
+  - clock-names
+
+additionalProperties: false
+
+examples:
+  - |
+    vpu: vpu@10020000 {
+        compatible = "mediatek,mt8173-vpu";
+        reg = <0 0x10020000 0 0x30000>,
+              <0 0x10050000 0 0x100>;
+        reg-names = "tcm", "cfg_reg";
+        interrupts = <GIC_SPI 166 IRQ_TYPE_LEVEL_HIGH>;
+        clocks = <&topckgen TOP_SCP_SEL>;
+        clock-names = "main";
+    };
