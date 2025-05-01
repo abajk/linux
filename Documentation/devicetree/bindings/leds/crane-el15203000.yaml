@@ -1,0 +1,112 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/leds/crane-el15203000.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: crane,el15203000
+maintainers:
+  - Oleh Kravchenko <oleg@kaa.org.ua>
+
+description: |
+  Crane Merchandising System - EL15203000 LED driver
+
+  This LED Board (aka RED LEDs board) is widely used in
+  coffee vending machines produced by Crane Merchandising Systems.
+  The board manages 3 LEDs and supports predefined blinking patterns
+  for specific leds.
+
+  Vending area LED encoded with symbol 'V' (hex code 0x56).
+  Doesn't have any hardware blinking pattern.
+
+  Screen light tube LED which surrounds vending machine screen and
+  encoded with symbol 'S' (hex code 0x53). Supports blinking breathing pattern.
+
+  Water Pipe LED encoded with symbol 'P' (hex code 0x50) and
+  actually consists of 5 LEDs that exposed by protocol like one LED.
+  Supports next patterns:
+    - cascade pattern
+    - inversed cascade pattern
+    - bounce pattern
+    - inversed bounce pattern
+
+properties:
+  compatible:
+    items:
+      - const: "crane,el15203000"
+    description: |
+      Device compatible string.
+
+  reg:
+    items:
+      - description: SPI chip-select index for the LED controller
+    description: |
+      SPI bus chip-select for this device.
+
+  spi-max-frequency:
+    description: |
+      Maximum SPI clock frequency for the LED controller.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  "#address-cells":
+    const: 1
+    description: |
+      Number of address cells for LED sub-nodes.
+
+  "#size-cells":
+    const: 0
+    description: |
+      Number of size cells for LED sub-nodes.
+
+patternProperties:
+  "^led@[0-9A-Fa-f]+$":
+    $ref: /schemas/leds/common.yaml#
+    unevaluatedProperties: false
+    properties:
+      reg:
+        items:
+          - description: LED symbol register (hex code).
+        description: |
+          Sub-node register specifying the LED’s symbol code.
+
+    required:
+      - reg
+      - function
+      - color
+
+required:
+  - compatible
+  - reg
+  - spi-max-frequency
+  - "#address-cells"
+  - "#size-cells"
+
+additionalProperties: false
+
+examples:
+  - |
+    led-controller@0 {
+      compatible = "crane,el15203000";
+      reg = <0>;
+      spi-max-frequency = <50000>;
+      #address-cells = <1>;
+      #size-cells = <0>;
+
+      led@50 {
+        reg = <0x50>;
+        function = "pipe";
+        color = <LED_COLOR_ID_RED>;
+      };
+
+      led@53 {
+        reg = <0x53>;
+        function = "screen";
+        color = <LED_COLOR_ID_RED>;
+      };
+
+      led@56 {
+        reg = <0x56>;
+        function = "vend";
+        color = <LED_COLOR_ID_RED>;
+      };
+    };
