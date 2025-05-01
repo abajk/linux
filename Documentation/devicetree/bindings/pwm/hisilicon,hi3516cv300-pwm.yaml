@@ -1,0 +1,55 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pwm/hisilicon,hi3516cv300-pwm.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Hisilicon PWM controller
+maintainers:
+  - Krzysztof Kozlowski <krzk@kernel.org>
+  - Mathieu Othacehe <othacehe@gnu.org>
+  - yuanjian <yuanjian12@hisilicon.com>
+description: |
+  Hisilicon PWM controller
+
+properties:
+  compatible:
+    description: SoC specific compatible string
+    items:
+      - enum:
+          - hisilicon,hi3516cv300-pwm
+          - hisilicon,hi3519v100-pwm
+          - hisilicon,hi3559v100-shub-pwm
+          - hisilicon,hi3559v100-pwm
+  reg:
+    description: Physical base address and length of the controller's registers.
+    items:
+      - description: Base address of the register region
+      - description: Size of the register region
+  clocks:
+    description: PWM reference clock
+    maxItems: 1
+  resets:
+    description: PWM controller reset
+    maxItems: 1
+  '#pwm-cells':
+    description: Number of cells used to specify PWM operations
+    const: 3
+
+required:
+  - compatible
+  - reg
+  - clocks
+  - resets
+  - '#pwm-cells'
+
+additionalProperties: false
+
+examples:
+  - |
+    pwm: pwm@12130000 {
+        compatible = "hisilicon,hi3516cv300-pwm";
+        reg = <0x12130000 0x10000>;
+        clocks = <&crg_ctrl HI3516CV300_PWM_CLK>;
+        resets = <&crg_ctrl 0x38 0>;
+        #pwm-cells = <3>;
+    };
