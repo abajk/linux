@@ -1,0 +1,57 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Analog Devices, Inc.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mux/adi,adgs1408.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Analog Devices ADGS1408/1409 8:1/Dual 4:1 Mux Controller
+maintainers:
+  - Mircea Caprioru <mircea.caprioru@analog.com>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  Bindings for Analog Devices ADGS1408/1409 8:1/Dual 4:1 Mux
+
+  States 0 through 7 correspond to signals S1 through S8 in the datasheet.
+  For ADGS1409 only states 0 to 3 are available.
+
+properties:
+  compatible:
+    description: Compatible string identifying the device.
+    items:
+      - enum:
+          - adi,adgs1408
+          - adi,adgs1409
+
+  reg:
+    description: Register specifying the chip‐select index of the multiplexer.
+    items:
+      - description: Chip‐select index register offset.
+
+  spi-max-frequency:
+    description: Maximum supported SPI bus frequency.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  '#mux-control-cells':
+    const: 0
+    description: Number of mux control cells (always zero).
+
+  gpio-controller:
+    description: Indicates that a GPIO child node is present for channel selection.
+    type: boolean
+
+  '#gpio-cells':
+    description: GPIO specifier cells.
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+
+  idle-state:
+    description: Idle state for the mux controller when idle.
+    enum:
+      - MUX_IDLE_AS_IS
+      - MUX_IDLE_DISCONNECT
+
+required:
+  - compatible
+
+additionalProperties: false
