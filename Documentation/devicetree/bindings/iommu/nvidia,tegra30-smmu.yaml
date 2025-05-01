@@ -1,0 +1,64 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 NVIDIA Corporation
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/iommu/nvidia,tegra30-smmu.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: NVIDIA Tegra30 SMMU
+maintainers:
+  - Hiroshi Doyu <hdoyu@nvidia.com>
+
+description: |
+  NVIDIA Tegra 30 IOMMU H/W, SMMU (System Memory Management Unit)
+
+properties:
+  compatible:
+    items:
+      - const: nvidia,tegra30-smmu
+
+  reg:
+    description: SMMU register banks (address and length).
+    items:
+      - description: bank 0 registers
+      - description: bank 1 registers
+      - description: bank 2 registers
+
+  interrupts:
+    description: MC General interrupt.
+    items:
+      - description: MC General interrupt
+
+  nvidia,#asids:
+    description: Number of ASIDs.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  dma-window:
+      $ref: /schemas/types.yaml#/definitions/address
+    description: IOVA start address and length.
+
+  nvidia,ahb:
+    description: Phandle to the AHB bus connected to SMMU.
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - nvidia,#asids
+  - dma-window
+  - nvidia,ahb
+
+additionalProperties: false
+
+examples:
+  - |
+    smmu {
+        compatible = "nvidia,tegra30-smmu";
+        reg = <0x7000f010 0x02c
+               0x7000f1f0 0x010
+               0x7000f228 0x05c>;
+        nvidia,#asids = <4>;
+        dma-window = <0 0x40000000>;
+        nvidia,ahb = <&ahb>;
+    };
