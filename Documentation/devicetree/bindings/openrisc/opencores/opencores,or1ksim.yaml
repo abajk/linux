@@ -1,0 +1,76 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Stafford Horne <shorne@gmail.com>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/opencores,or1ksim.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: OpenRISC Generic SoC
+
+maintainers:
+  - Stafford Horne <shorne@gmail.com>
+
+description: |
+  Boards and FPGA SoCs which support the OpenRISC standard platform.
+  The platform essentially follows the conventions of the OpenRISC
+  architecture specification, however some aspects, such as the boot
+  protocol have been defined by the Linux port.
+
+  The bootloader may pass the following arguments to the kernel:
+  r3: address of a flattened device-tree blob or 0x0.
+
+properties:
+  compatible:
+    description: Device must include this compatible string.
+    items:
+      - const: opencores,or1ksim
+
+  cpus:
+    type: object
+    description: CPU bus containing processor subnodes.
+    properties:
+      '#address-cells':
+        const: 1
+      '#size-cells':
+        const: 0
+    additionalProperties: false
+    patternProperties:
+      "^cpu@.*":
+        type: object
+        description: CPU subnode.
+        properties:
+          compatible:
+            items:
+              - const: opencores,or1200-rtlsvn481
+          reg:
+            maxItems: 1
+            description: CPU index.
+          clock-frequency:
+            $ref: /schemas/types.yaml#/definitions/uint32
+            description: CPU clock frequency in Hz.
+        required:
+          - compatible
+          - reg
+          - clock-frequency
+        additionalProperties: false
+
+required:
+  - compatible
+  - cpus
+
+additionalProperties: false
+
+examples:
+  - |
+    soc {
+        compatible = "opencores,or1ksim";
+        cpus {
+            #address-cells = <1>;
+            #size-cells = <0>;
+            cpu@0 {
+                compatible = "opencores,or1200-rtlsvn481";
+                reg = <0>;
+                clock-frequency = <20000000>;
+            };
+        };
+    };
