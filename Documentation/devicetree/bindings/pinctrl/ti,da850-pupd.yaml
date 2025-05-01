@@ -1,0 +1,124 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 David Lechner <david@lechnology.com>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pinctrl/ti,da850-pupd.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI DA850 Pullup/Down Pin Controller
+maintainers:
+  - David Lechner <david@lechnology.com>
+
+description: |
+  * Pin configuration for TI DA850/OMAP-L138/AM18x
+
+  These SoCs have a separate controller for setting bias (internal pullup/down).
+  Bias can only be selected for groups rather than individual pins.
+
+  The controller node also acts as a container for pin group configuration nodes.
+  The names of these groups are ignored.
+
+  The pin configuration parameters use the generic pinconf bindings defined in
+  pinctrl-bindings.txt in this directory. The supported parameters are
+  bias-disable, bias-pull-up, bias-pull-down.
+
+properties:
+  compatible:
+    items:
+      - const: ti,da850-pupd
+
+  reg:
+    description: >
+      Base address and length of the memory resource used by the pullup/down
+      controller hardware module.
+    items:
+      - description: Base address of the pullup/down controller
+      - description: Length of the pullup/down controller register space
+
+patternProperties:
+  '^(?P<name>.*)$':
+    description: Pin group configuration node
+    type: object
+    additionalProperties: false
+    properties:
+      groups:
+        description: List of pin group names to apply this configuration
+        $ref: /schemas/types.yaml#/definitions/string-array
+        items:
+          - enum:
+              - cp0
+              - cp1
+              - cp2
+              - cp3
+              - cp4
+              - cp5
+              - cp6
+              - cp7
+              - cp8
+              - cp9
+              - cp10
+              - cp11
+              - cp12
+              - cp13
+              - cp14
+              - cp15
+              - cp16
+              - cp17
+              - cp18
+              - cp19
+              - cp20
+              - cp21
+              - cp22
+              - cp23
+              - cp24
+              - cp25
+              - cp26
+              - cp27
+              - cp28
+              - cp29
+              - cp30
+              - cp31
+      bias-disable:
+        type: boolean
+        description: Disable internal pull-up/down on the specified pin groups
+      bias-pull-up:
+        type: boolean
+        description: Enable internal pull-up on the specified pin groups
+      bias-pull-down:
+        type: boolean
+        description: Enable internal pull-down on the specified pin groups
+    required:
+      - groups
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    pinconf: pin-controller@22c00c {
+        compatible = "ti,da850-pupd";
+        reg = <0x22c00c 0x8>;
+    };
+  - |
+    &pinconf {
+        pinctrl-0 = <&pinconf_bias_groups>;
+        pinctrl-names = "default";
+
+        pinconf_bias_groups: bias-groups {
+            pull-up {
+                groups = "cp30", "cp31";
+                bias-pull-up;
+            };
+            pull-down {
+                groups = "cp29", "cp28";
+                bias-pull-down;
+            };
+            disable {
+                groups = "cp27", "cp26";
+                bias-disable;
+            };
+        };
+    };
