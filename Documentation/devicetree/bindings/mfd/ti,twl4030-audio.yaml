@@ -1,0 +1,70 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mfd/ti,twl4030-audio.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI TWL4030 audio
+maintainers:
+  - Peter Ujfalusi <peter.ujfalusi@ti.com>
+
+description: |
+  Texas Instruments TWL family (twl4030) audio module
+
+  The audio module inside the TWL family consist of an audio codec and a vibra
+  driver.
+
+properties:
+  compatible:
+    const: "ti,twl4030-audio"
+
+  ti,enable-vibra:
+    type: boolean
+    description: Enable the vibra functionality.
+
+  codec:
+    description: Codec subnode.
+    type: object
+    properties:
+      ti,digimic_delay:
+        $ref: /schemas/types.yaml#/definitions/uint32
+        description: Delay after enabling the digimic to reduce artifacts (ms).
+      ti,ramp_delay_value:
+        $ref: /schemas/types.yaml#/definitions/uint32
+        description: HS ramp delay configuration to reduce pop noise.
+      ti,hs_extmute:
+        type: boolean
+        description: Use external mute for HS pop reduction.
+      ti,hs_extmute_gpio:
+        $ref: /schemas/types.yaml#/definitions/phandle-array
+        description: External GPIO to control the external mute.
+      ti,offset_cncl_path:
+        $ref: /schemas/types.yaml#/definitions/uint32
+        description: Offset cancellation path selection.
+    additionalProperties: false
+
+required:
+  - compatible
+
+additionalProperties: false
+
+examples:
+  - |
+    &i2c1 {
+        clock-frequency = <2600000>;
+
+        twl: twl@48 {
+            reg = <0x48>;
+            interrupts = <7>;
+            interrupt-controller;
+
+            twl_audio: audio {
+                compatible = "ti,twl4030-audio";
+                ti,enable-vibra;
+
+                codec {
+                    ti,ramp_delay_value = <3>;
+                };
+            };
+        };
+    };
