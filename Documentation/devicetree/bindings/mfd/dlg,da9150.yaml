@@ -1,0 +1,77 @@
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mfd/dlg,da9150.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Dialog Semiconductor DA9150 Combined Charger/Fuel-Gauge MFD
+
+maintainers:
+  - Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  Dialog Semiconductor DA9150 Combined Charger/Fuel-Gauge MFD bindings
+
+  DA9150 consists of a group of sub-devices:
+
+  Device             Description
+  ------             -----------
+  da9150-gpadc       : General Purpose ADC
+  da9150-charger     : Battery Charger
+  da9150-fg          : Battery Fuel-Gauge
+
+properties:
+  compatible:
+    items:
+      - const: dlg,da9150
+    description: Must be "dlg,da9150"
+  reg:
+    items:
+      - description: I2C slave address of the DA9150 chip
+  interrupts:
+    maxItems: 1
+    description: IRQ line info for the DA9150 chip
+  interrupt-controller: true
+
+additionalProperties: false
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - interrupt-controller
+
+examples:
+  - |
+    charger_fg: da9150@58 {
+      compatible = "dlg,da9150";
+      reg = <0x58>;
+      interrupts = <11 IRQ_TYPE_LEVEL_LOW>;
+      interrupt-controller;
+
+      gpadc: da9150-gpadc {
+        compatible = "dlg,da9150-gpadc";
+        #io-channel-cells = <1>;
+      };
+
+      charger {
+        compatible = "dlg,da9150-charger";
+
+        io-channels = <&gpadc 0>,
+                      <&gpadc 2>,
+                      <&gpadc 8>,
+                      <&gpadc 5>;
+        io-channel-names = "CHAN_IBUS",
+                           "CHAN_VBUS",
+                           "CHAN_TJUNC",
+                           "CHAN_VBAT";
+      };
+
+      fuel-gauge {
+        compatible = "dlg,da9150-fuel-gauge";
+
+        dlg,update-interval = <10000>;
+        dlg,warn-soc-level = /bits/ 8 <15>;
+        dlg,crit-soc-level = /bits/ 8 <5>;
+      };
+    };
