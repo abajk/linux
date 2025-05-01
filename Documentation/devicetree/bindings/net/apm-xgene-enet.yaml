@@ -1,0 +1,127 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/net/apm-xgene-enet.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: APM X-Gene SoC Ethernet nodes
+
+maintainers:
+  - Iyappan Subramanian <isubramanian@apm.com>
+  - Keyur Chudgar <kchudgar@apm.com>
+
+allOf:
+ - $ref: ethernet-controller.yaml#
+
+properties:
+  compatible:
+    enum:
+      - apm,xgene-enet
+      - apm,xgene1-sgenet
+      - apm,xgene1-xgenet
+
+  reg:
+    maxItems: 3
+
+  reg-names:
+    items:
+      - const: enet_csr
+      - const: ring_csr
+      - const: ring_cmd
+
+  interrupts:
+    items:
+      - description: Rx interrupt
+      - description: Tx completion interrupt
+
+  interrupt-controller: true
+
+  interrupt-names:
+    items:
+      - const: rx irq
+      - const: tx irq
+
+  channel:
+    description: Ethernet to CPU start channel number
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  port-id:
+    description: Port number
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  clocks:
+    # Cases that have only a single entry just need to express that with maxItems
+    maxItems: 1
+    description: Reference to the clock entry
+
+  phy-connection-type:
+    description: Interface type between ethernet device and PHY
+    $ref: /schemas/types.yaml#/definitions/string
+
+  phy-handle:
+    description: Reference to an external PHY device
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  mdio:
+    description: MDIO bus subnode
+    type: object
+    properties:
+      compatible:
+        const: apm,xgene-mdio
+
+    additionalProperties: true
+
+  tx-delay:
+    description: Delay value for RGMII bridge TX clock
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 1, 2, 3, 4, 5, 6, 7]
+    default: 4
+
+  rx-delay:
+    description: Delay value for RGMII bridge RX clock
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 1, 2, 3, 4, 5, 6, 7]
+    default: 2
+
+  rxlos-gpios:
+    description: Input GPIO from SFP+ module indicating incoming signal
+    maxItems: 1
+
+required:
+  - compatible
+  - reg
+  - reg-names
+  - interrupts
+  - interrupt-controller
+
+additionalProperties: false
+
+examples:
+  - |
+    ethernet@17020000 {
+      compatible = "apm,xgene-enet";
+      reg = <0x17020000 0xd100>,
+            <0x17030000 0x400>,
+            <0x10000000 0x200>;
+      reg-names = "enet_csr", "ring_csr", "ring_cmd";
+      interrupts = <3>, <4>;
+      interrupt-controller;
+      interrupt-names = "rx irq", "tx irq";
+      channel = <0>;
+      port-id = <0>;
+      clocks = <&menetclk 0>;
+      local-mac-address = [00 01 73 00 00 01];
+      phy-connection-type = "rgmii";
+      phy-handle = <&menetphy>;
+      mdio {
+        compatible = "apm,xgene-mdio";
+        #address-cells = <1>;
+        #size-cells = <0>;
+        menetphy: ethernet-phy-id001c.c915@3 {
+          compatible = "ethernet-phy-id001c.c915";
+          reg = <3>;
+        };
+      };
+      tx-delay = <4>;
+      rx-delay = <2>;
+    };
