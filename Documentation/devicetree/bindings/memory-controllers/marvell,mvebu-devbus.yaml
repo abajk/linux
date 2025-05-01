@@ -1,0 +1,167 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/memory-controllers/marvell,mvebu-devbus.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Marvell Device Bus Controller
+
+maintainers:
+  - Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+  - Rob Herring <robh@kernel.org>
+  - Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+
+description: |
+  Device tree bindings for MVEBU Device Bus controllers
+
+  The Device Bus controller available in some Marvell's SoC allows to control
+  different types of standard memory and I/O devices such as NOR, NAND, and FPGA.
+  The actual devices are instantiated from the child nodes of a Device Bus node.
+
+properties:
+  compatible:
+    items:
+      - const: marvell,mvebu-devbus
+      - const: marvell,orion-devbus
+
+  reg:
+    description: A resource specifier for the register space. This is the base
+      address of a chip select within the controller's register space.
+    items:
+      - description: Base address of a chip select register block
+
+  '#address-cells':
+    description: Must be set to 1.
+    const: 1
+
+  '#size-cells':
+    description: Must be set to 1.
+    const: 1
+
+  ranges:
+    description: |
+      Must be set up to reflect the memory layout with four integer values
+      for each chip-select line in use: 0 <physical address of mapping> <size>.
+    items:
+      - description: Mapping tuple element
+      - description: Mapping tuple element
+      - description: Mapping tuple element
+
+  devbus,keep-config:
+    description: Keep using the timing parameters set by the bootloader,
+      making all timing properties below unused.
+    type: boolean
+
+  devbus,bus-width:
+    description: Defines the bus width in bits.
+    items:
+      - description: Bus width in bits
+
+  devbus,turn-off-ps:
+    description: Time during which the controller does not drive the AD bus
+      after completing a device read.
+    items:
+      - description: Turn-off period in picoseconds
+
+  devbus,badr-skew-ps:
+    description: Time delay from A[2:0] toggle to read data sample.
+    items:
+      - description: Badr skew in picoseconds
+
+  devbus,acc-first-ps:
+    description: Time delay from ALE[0] negation to first read data sample.
+    items:
+      - description: Access-first delay in picoseconds
+
+  devbus,acc-next-ps:
+    description: Time delay between successive data samples in burst reads.
+    items:
+      - description: Access-next delay in picoseconds
+
+  devbus,rd-setup-ps:
+    description: Time between DEV_CSn assertion and DEV_OEn assertion.
+      Set to less than acc-first-ps for proper timing.
+    items:
+      - description: Read-setup delay in picoseconds
+
+  devbus,rd-hold-ps:
+    description: Time between the last data sample and de-assertion of DEV_CSn.
+    items:
+      - description: Read-hold delay in picoseconds
+
+  devbus,ale-wr-ps:
+    description: Time delay from ALE[0] negation to DEV_WEn assertion.
+    items:
+      - description: ALE-write delay in picoseconds
+
+  devbus,wr-low-ps:
+    description: Duration for which DEV_WEn is active.
+    items:
+      - description: Write-low period in picoseconds
+
+  devbus,wr-high-ps:
+    description: Duration for which DEV_WEn is inactive between bursts.
+    items:
+      - description: Write-high period in picoseconds
+
+  devbus,sync-enable:
+    description: Synchronous device enable (0 or 1).
+    type: boolean
+
+required:
+  - compatible
+  - reg
+  - "#address-cells"
+  - "#size-cells"
+  - ranges
+
+additionalProperties: false
+
+examples:
+  - |
+    devbus-bootcs@d0010400 {
+      ranges = <0 0xf0000000 0x1000000>; /* @addr 0xf0000000, size 0x1000000 */
+      #address-cells = <1>;
+      #size-cells = <1>;
+
+      /* Device Bus parameters are required */
+
+      /* Read parameters */
+      devbus,bus-width    = <8>;
+      devbus,turn-off-ps  = <60000>;
+      devbus,badr-skew-ps = <0>;
+      devbus,acc-first-ps = <124000>;
+      devbus,acc-next-ps  = <248000>;
+      devbus,rd-setup-ps  = <0>;
+      devbus,rd-hold-ps   = <0>;
+
+      /* Write parameters */
+      devbus,sync-enable = <0>;
+      devbus,wr-high-ps  = <60000>;
+      devbus,wr-low-ps   = <60000>;
+      devbus,ale-wr-ps   = <60000>;
+
+      flash@0 {
+        compatible = "cfi-flash";
+
+        /* 16 MiB */
+        reg = <0 0x1000000>;
+        bank-width = <2>;
+        #address-cells = <1>;
+        #size-cells = <1>;
+
+        /*
+         * We split the 16 MiB in two partitions,
+         * just as an example.
+         */
+        partition@0 {
+          label = "First";
+          reg = <0 0x800000>;
+        };
+
+        partition@800000 {
+          label = "Second";
+          reg = <0x800000 0x800000>;
+        };
+      };
+    };
