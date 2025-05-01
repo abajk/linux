@@ -1,0 +1,61 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2018 Linaro Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mfd/keymile,bfticu.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: KEYMILE bfticu Chassis Management FPGA
+
+maintainers:
+  - Rob Herring <robh@kernel.org>
+  - Valentin Longchamp <valentin.longchamp@keymile.com>
+
+description: |
+  KEYMILE bfticu Chassis Management FPGA
+
+  The bfticu is a multifunction device that manages the whole chassis.
+  Its main functionality is to collect IRQs from the whole chassis and signals
+  them to a single controller.
+
+properties:
+  compatible:
+    items:
+      - const: keymile,bfticu
+
+  reg:
+    description: Access on the parent local bus (chip select, offset in chip select, size)
+    items:
+      - description: chip select
+      - description: offset in chip select
+      - description: size
+
+  interrupts:
+    description: The main IRQ line to signal the collected IRQs
+    items:
+      - description: interrupt number
+      - description: interrupt flags
+
+  interrupt-controller: true
+
+  '#interrupt-cells':
+    const: 2
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - interrupt-controller
+  - '#interrupt-cells'
+
+additionalProperties: false
+
+examples:
+  - |
+    chassis-mgmt@3,0 {
+        compatible = "keymile,bfticu";
+        reg = <3 0 0x100>;
+        interrupts = <6 1>;
+        interrupt-controller;
+        #interrupt-cells = <2>;
+    };
