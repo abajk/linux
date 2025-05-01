@@ -1,0 +1,51 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pwm/spear-pwm.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: ST SPEAr SoC PWM controller
+
+maintainers:
+  - Krzysztof Kozlowski <krzk@kernel.org>
+  - Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+  - Shiraz Hashim <shiraz.linux.kernel@gmail.com>
+
+description: |
+  ST SPEAr SoC PWM controller
+
+  Required properties:
+  - compatible: should be one of: "st,spear320-pwm", "st,spear1340-pwm"
+  - reg: physical base address and length of the controller's registers
+  - #pwm-cells: should be 2. See pwm.yaml in this directory for a description of the cells format.
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - st,spear320-pwm
+          - st,spear1340-pwm
+
+  reg:
+    description: Physical base address and length of the controller's registers
+    items:
+      - description: Base address of the PWM registers
+      - description: Size of the PWM register region in bytes
+
+  '#pwm-cells':
+    const: 2
+
+required:
+  - compatible
+  - reg
+  - '#pwm-cells'
+
+additionalProperties: false
+
+examples:
+  - |
+    pwm: pwm@a8000000 {
+        compatible = "st,spear320-pwm";
+        reg = <0xa8000000 0x1000>;
+        #pwm-cells = <2>;
+    };
