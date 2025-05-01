@@ -1,0 +1,149 @@
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/net/ni,xge-enet-3.00.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: NI XGE Ethernet controller
+
+maintainers:
+  - Alex Williams <alex.williams@ni.com>
+  - Moritz Fischer <mdf@kernel.org>
+
+description: |
+  * NI XGE Ethernet controller
+
+properties:
+  compatible:
+    oneOf:
+      - items:
+          - const: ni,xge-enet-3.00
+      - items:
+          - const: ni,xge-enet-2.00
+
+  reg:
+    oneOf:
+      - items:
+          - description: DMA engine control and status region
+          - description: MDIO and PHY control and status region
+      - items:
+          - description: Address and length of the register set for the device
+
+  reg-names:
+    items:
+      - const: dma
+      - const: ctrl
+
+  interrupts:
+    description: Interrupts for TX and RX
+    items:
+      - description: TX or combined interrupt
+      - description: RX interrupt
+
+  interrupt-names:
+    items:
+      - const: rx
+      - const: tx
+
+  phy-mode:
+    description: PHY interface mode
+    enum:
+      - xgmii
+
+  nvmem-cells:
+    description: Phandle to nvmem cell containing the MAC address
+    maxItems: 1
+
+  nvmem-cell-names:
+    items:
+      - const: address
+
+  phy-handle:
+    description: Phandle to the PHY device
+
+  fixed-link:
+    description: Fixed-link parameters for 1G fixed-link PHY
+    type: object
+    additionalProperties: false
+    properties:
+      speed:
+        $ref: /schemas/types.yaml#/definitions/uint32
+        description: Link speed in Mbps
+      pause:
+        type: boolean
+        description: Pause frame support
+      link-gpios:
+        maxItems: 1
+        description: GPIO for link status
+    required:
+      - speed
+
+  mdio:
+    description: MDIO bus subnode to enumerate PHYs
+    type: object
+    additionalProperties: true
+
+required:
+  - compatible
+  - reg
+  - reg-names
+  - interrupts
+  - interrupt-names
+  - phy-mode
+  - nvmem-cells
+  - nvmem-cell-names
+
+additionalProperties: false
+
+examples:
+  - |
+    nixge0: ethernet@40000000 {
+      compatible = "ni,xge-enet-3.00";
+      reg = <0x40000000 0x4000 0x41002000 0x2000>;
+      reg-names = "dma", "ctrl";
+      nvmem-cells = <&eth1_addr>;
+      nvmem-cell-names = "address";
+      interrupts = <0 29 IRQ_TYPE_LEVEL_HIGH>, <0 30 IRQ_TYPE_LEVEL_HIGH>;
+      interrupt-names = "rx", "tx";
+      phy-mode = "xgmii";
+      phy-handle = <&ethernet_phy1>;
+      mdio {
+        ethernet_phy1: ethernet-phy@4 {
+          compatible = "ethernet-phy-ieee802.3-c45";
+          reg = <4>;
+        };
+      };
+    };
+
+  - |
+    nixge0: ethernet@40000000 {
+      compatible = "ni,xge-enet-2.00";
+      reg = <0x40000000 0x6000>;
+      nvmem-cells = <&eth1_addr>;
+      nvmem-cell-names = "address";
+      interrupts = <0 29 IRQ_TYPE_LEVEL_HIGH>, <0 30 IRQ_TYPE_LEVEL_HIGH>;
+      interrupt-names = "rx", "tx";
+      phy-mode = "xgmii";
+      phy-handle = <&ethernet_phy1>;
+    };
+
+  - |
+    nixge0: ethernet@40000000 {
+      compatible = "ni,xge-enet-2.00";
+      reg = <0x40000000 0x6000>;
+      nvmem-cells = <&eth1_addr>;
+      nvmem-cell-names = "address";
+      interrupts = <0 29 IRQ_TYPE_LEVEL_HIGH>, <0 30 IRQ_TYPE_LEVEL_HIGH>;
+      interrupt-names = "rx", "tx";
+      phy-mode = "xgmii";
+      fixed-link {
+        speed = <1000>;
+        pause;
+        link-gpios = <&gpio0 63 GPIO_ACTIVE_HIGH>;
+      };
+      mdio {
+        ethernet_phy1: ethernet-phy@4 {
+          compatible = "ethernet-phy-ieee802.3-c22";
+          reg = <4>;
+        };
+      };
+    };
