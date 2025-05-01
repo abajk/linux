@@ -1,0 +1,351 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Texas Instruments Incorporated
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/net/ti,netcp-1.0.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Keystone Network Coprocessor (NetCP)
+
+maintainers:
+  - Grygorii Strashko <grygorii.strashko@ti.com>
+  - Karicheri, Muralidharan <m-karicheri2@ti.com>
+  - Masanari Iida <standby24x7@gmail.com>
+  - Petr Štetiar <ynezz@true.cz>
+  - WingMan Kwok <w-kwok2@ti.com>
+
+description: |
+  This document describes the device tree bindings associated with the
+  Keystone network coprocessor (NetCP) driver support.
+
+  The network coprocessor (NetCP) is a hardware accelerator that processes
+  Ethernet packets. NetCP has a gigabit Ethernet (GbE) subsystem with an
+  Ethernet switch sub-module to send and receive packets. NetCP also includes
+  a packet accelerator (PA) module to perform packet classification operations
+  such as header matching, and packet modification operations such as checksum
+  generation. NetCP can also optionally include a Security Accelerator (SA)
+  capable of performing IPSec operations on ingress/egress packets.
+
+  Keystone II SoCs also have a 10 Gigabit Ethernet Subsystem (XGbE) which
+  includes a 3-port Ethernet switch sub-module capable of 10Gb/s and 1Gb/s
+  rates per Ethernet port.
+
+  Keystone NetCP driver has a plug-in module architecture where each of the
+  NetCP sub-modules exist as a loadable kernel module which plug in to the
+  netcp core. These sub-modules are represented as "netcp-devices" in the
+  DTS bindings. It is mandatory to have the Ethernet switch sub-module for
+  the Ethernet interface to be operational. Any other sub-module like the
+  PA is optional.
+
+properties:
+  compatible:
+    items:
+      - const: ti,netcp-1.0
+
+  reg:
+    maxItems: 1
+
+  reg-names:
+    items:
+      - const: efuse
+
+  "#address-cells":
+    const: 1
+
+  "#size-cells":
+    const: 1
+
+  ranges: true
+
+  clocks:
+    description: Phandle to the reference clocks for the subsystem
+
+  dma-coherent: true
+
+  dma-id:
+    description: Navigator packet DMA instance ID
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  big-endian: true
+
+  netcp-devices:
+    description: NetCP sub-module devices
+    type: object
+    properties:
+      "#address-cells":
+        const: 1
+      "#size-cells":
+        const: 1
+      ranges:
+        description: No address translation for sub-nodes
+    additionalProperties:
+      description: Sub-node representing a NetCP sub-module
+      type: object
+      properties:
+        label:
+          description: Sub-module label
+          type: string
+        compatible:
+          description: Sub-module compatible strings
+          items:
+            - enum:
+                - ti,netcp-gbe
+                - ti,netcp-gbe-2
+                - ti,netcp-gbe-5
+                - ti,netcp-gbe-9
+                - ti,netcp-xgbe
+        reg:
+          description: Register location and size for sub-module
+          items:
+            - description: Base address
+            - description: Size of the register region
+        tx-channel:
+          description: Navigator packet DMA channel for TX
+          $ref: /schemas/types.yaml#/definitions/uint32
+        tx-queue:
+          description: Navigator queue number for the TX DMA channel
+          $ref: /schemas/types.yaml#/definitions/uint32
+        cpts:
+          description: CPTS submodule configuration
+          type: object
+          properties:
+            clocks:
+              description: CPTS reference clock phandle
+            clock-names:
+              items:
+                - const: cpts
+            cpts-refclk-mux:
+              description: Multiplexer clock definition sub-node for CPTS reference
+              type: object
+              properties:
+                "#clock-cells":
+                  const: 0
+                clocks:
+                  description: List of CPTS reference clock parents
+                "ti,mux-tbl":
+                  description: Array of multiplexer indexes
+                  items:
+                    $ref: /schemas/types.yaml#/definitions/uint32
+                assigned-clocks:
+                  description: Phandle to cpts-refclk-mux clock
+                assigned-clock-parents:
+                  description: Phandle to required RFTCLK clock parent
+              additionalProperties: false
+              required:
+                - "#clock-cells"
+                - clocks
+                - "ti,mux-tbl"
+                - assigned-clocks
+                - assigned-clock-parents
+          required:
+            - clocks
+            - clock-names
+            - cpts-refclk-mux
+          additionalProperties: false
+        interfaces:
+          description: Switch ports to be registered as network interfaces
+          type: object
+          additionalProperties:
+            description: Interface node
+            type: object
+            properties:
+              slave-port:
+                description: Switch port number
+                $ref: /schemas/types.yaml#/definitions/uint32
+              link-interface:
+                description: Type of link interface
+                $ref: /schemas/types.yaml#/definitions/uint32
+              phy-handle:
+                description: Phandle to PHY device
+            required:
+              - slave-port
+              - link-interface
+            additionalProperties: false
+        secondary-slave-ports:
+          description: Switch ports not registered as network interfaces
+          type: object
+          additionalProperties:
+            description: Secondary port configuration
+            type: object
+            properties:
+              slave-port:
+                description: Switch port number
+                $ref: /schemas/types.yaml#/definitions/uint32
+              link-interface:
+                description: Type of link interface
+                $ref: /schemas/types.yaml#/definitions/uint32
+            required:
+              - slave-port
+              - link-interface
+            additionalProperties: false
+      additionalProperties: false
+
+  netcp-interfaces:
+    description: Interface specification for NetCP sub-modules
+    type: object
+    additionalProperties:
+      description: Interface configuration
+      type: object
+      properties:
+        rx-channel:
+          description: Navigator packet DMA channel for RX
+          $ref: /schemas/types.yaml#/definitions/uint32
+        rx-queue:
+          description: Navigator queue number for RX DMA
+          $ref: /schemas/types.yaml#/definitions/uint32
+        rx-pool:
+          description: Number of descriptors and region ID for RX descriptor pool
+          items:
+            - description: Number of descriptors
+            - description: Region ID
+        tx-pool:
+          description: Number of descriptors and region ID for TX descriptor pool
+          items:
+            - description: Number of descriptors
+            - description: Region ID
+        rx-queue-depth:
+          description: Number of descriptors in each RX free descriptor queue
+          items:
+            - description: Depth of queue 0
+            - description: Depth of queue 1
+            - description: Depth of queue 2
+            - description: Depth of queue 3
+        rx-buffer-size:
+          description: Buffer size for each Rx flow FDQ
+          items:
+            - description: Size for queue 0
+            - description: Size for queue 1
+            - description: Size for queue 2
+            - description: Size for queue 3
+        tx-completion-queue:
+          description: Navigator queue number for TX completion
+          $ref: /schemas/types.yaml#/definitions/uint32
+        efuse-mac:
+          description: EFUSE MAC address source selection
+          enum: [0, 1, 2]
+        local-mac-address:
+          description: Static MAC address
+        netcp-gbe:
+          description: Phandle to NetCP device for this interface
+      required:
+        - rx-channel
+        - rx-queue
+        - rx-pool
+        - tx-pool
+        - rx-queue-depth
+        - rx-buffer-size
+        - tx-completion-queue
+      additionalProperties: false
+
+required:
+  - reg
+  - reg-names
+  - compatible
+  - ranges
+
+additionalProperties: false
+
+examples:
+  - |
+    netcp: netcp@2000000 {
+        reg = <0x2620110 0x8>;
+        reg-names = "efuse";
+        compatible = "ti,netcp-1.0";
+        #address-cells = <1>;
+        #size-cells = <1>;
+        ranges = <0 0x2000000 0xfffff>;
+        clocks = <&papllclk>, <&clkcpgmac>, <&chipclk12>;
+        dma-coherent;
+        /* big-endian; */
+        dma-id = <0>;
+
+        netcp-devices {
+            #address-cells = <1>;
+            #size-cells = <1>;
+            ranges;
+
+            gbe@90000 {
+                label = "netcp-gbe";
+                compatible = "ti,netcp-gbe";
+                reg = <0x90000 0x300>, <0x90400 0x400>, <0x90800 0x700>;
+                /* enable-ale; */
+                tx-queue = <648>;
+                tx-channel = <8>;
+
+                cpts {
+                    clocks = <&cpts_refclk_mux>;
+                    clock-names = "cpts";
+
+                    cpts_refclk_mux: cpts-refclk-mux {
+                        #clock-cells = <0>;
+                        clocks = <&chipclk12>, <&chipclk13>,
+                                 <&timi0>, <&timi1>,
+                                 <&tsipclka>, <&tsrefclk>,
+                                 <&tsipclkb>;
+                        ti,mux-tbl = <0x0>, <0x1>, <0x2>,
+                                     <0x3>, <0x4>, <0x8>, <0xC>;
+                        assigned-clocks = <&cpts_refclk_mux>;
+                        assigned-clock-parents = <&chipclk12>;
+                    };
+                };
+
+                interfaces {
+                    gbe0: interface-0 {
+                        slave-port = <0>;
+                        link-interface = <4>;
+                    };
+                    gbe1: interface-1 {
+                        slave-port = <1>;
+                        link-interface = <4>;
+                    };
+                };
+
+                secondary-slave-ports {
+                    port-2 {
+                        slave-port = <2>;
+                        link-interface = <2>;
+                    };
+                    port-3 {
+                        slave-port = <3>;
+                        link-interface = <2>;
+                    };
+                };
+            };
+        };
+
+        netcp-interfaces {
+            interface-0 {
+                rx-channel = <22>;
+                rx-pool = <1024 12>;
+                tx-pool = <1024 12>;
+                rx-queue-depth = <128 128 0 0>;
+                rx-buffer-size = <1518 4096 0 0>;
+                rx-queue = <8704>;
+                tx-completion-queue = <8706>;
+                efuse-mac = <1>;
+                netcp-gbe = <&gbe0>;
+            };
+            interface-1 {
+                rx-channel = <23>;
+                rx-pool = <1024 12>;
+                tx-pool = <1024 12>;
+                rx-queue-depth = <128 128 0 0>;
+                rx-buffer-size = <1518 4096 0 0>;
+                rx-queue = <8705>;
+                tx-completion-queue = <8707>;
+                efuse-mac = <0>;
+                local-mac-address = [02 18 31 7e 3e 6f];
+                netcp-gbe = <&gbe1>;
+            };
+        };
+    };
+
+    CPTS board configuration - select external CPTS RFTCLK:
+
+    &tsrefclk {
+        clock-frequency = <500000000>;
+    };
+
+    &cpts_refclk_mux {
+        assigned-clock-parents = <&tsrefclk>;
+    };
