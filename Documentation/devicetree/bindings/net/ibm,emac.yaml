@@ -1,0 +1,227 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Rob Herring <robh@kernel.org>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/net/ibm,emac.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: IBM and AMCC 4xx/Axon EMAC Ethernet Controller
+
+maintainers:
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  4xx/Axon EMAC ethernet nodes
+
+  The EMAC ethernet controller in IBM and AMCC 4xx chips, and also
+  the Axon bridge.  To operate this needs to interact with a this
+  special McMAL DMA controller, and sometimes an RGMII or ZMII
+  interface.  In addition to the nodes and properties described
+  below, the node for the OPB bus on which the EMAC sits must have a
+  correct clock-frequency property.
+
+properties:
+  device_type:
+    const: network
+
+  compatible:
+    oneOf:
+      - items:
+          - enum:
+              - ibm,emac-440gp
+              - ibm,emac-405gp
+              - ibm,emac-axon
+              - ibm,emac-apm821xx
+          - enum:
+              - ibm,emac
+              - ibm,emac4
+              - ibm,emac4sync
+
+  reg:
+    items:
+      - description: base address of registers
+      - description: length of registers in bytes
+
+  interrupts:
+    items:
+      - description: EMAC IRQ mapping
+      - description: WOL IRQ mapping
+
+  mal-device:
+    description: phandle of the associated McMAL node
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  mal-tx-channel:
+    description: index of the tx channel on McMAL associated with this EMAC
+    items:
+      - description: TX channel index
+
+  mal-rx-channel:
+    description: index of the rx channel on McMAL associated with this EMAC
+    items:
+      - description: RX channel index
+
+  cell-index:
+    description: hardware index of the EMAC cell on this ASIC
+    items:
+      - description: EMAC cell index
+
+  max-frame-size:
+    description: maximum frame size supported in bytes
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  rx-fifo-size:
+    description: Rx FIFO size in bytes for 10 and 100 Mb/sec operations
+    items:
+      - description: FIFO size in bytes
+
+  tx-fifo-size:
+    description: Tx FIFO size in bytes for 10 and 100 Mb/sec operations
+    items:
+      - description: FIFO size in bytes
+
+  fifo-entry-size:
+    description: size of a FIFO entry used to calculate thresholds
+    items:
+      - description: FIFO entry size
+
+  mal-burst-size:
+    description: MAL burst size in bytes used to calculate thresholds
+    items:
+      - description: burst size in bytes
+
+  phy-mode:
+    description: mode of operations of the PHY interface
+    enum:
+      - mii
+      - rmii
+      - smii
+      - rgmii
+      - tbi
+      - gmii
+      - rtbi
+      - sgmii
+
+  mdio-device:
+    description: phandle of the MDIO controller for shared MDIO registers
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  zmii-device:
+    description: phandle of the ZMII device
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  zmii-channel:
+    description: which ZMII channel or 0xffffffff if ZMII is only used for MDIO
+    items:
+      - description: ZMII channel index or 0xffffffff
+
+  rgmii-device:
+    description: phandle of the RGMII device
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  rgmii-channel:
+    description: RGMII channel index
+    items:
+      - description: RGMII channel index
+
+  phy-address:
+    description: MDIO address of the PHY; if absent, a search is performed
+    items:
+      - description: MDIO address to probe
+
+  phy-map:
+    description: bitmap of addresses to probe the PHY; bit 0x00000001 is MDIO address 0
+    items:
+      - description: PHY probe map
+
+  phy-handle:
+    description: phandle of an external PHY device node
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  rx-fifo-size-gige:
+    description: Rx FIFO size in bytes for 1000 Mb/sec operations (if absent, same as rx-fifo-size)
+    items:
+      - description: FIFO size in bytes for gigabit
+
+  tx-fifo-size-gige:
+    description: Tx FIFO size in bytes for 1000 Mb/sec operations (if absent, same as tx-fifo-size)
+    items:
+      - description: FIFO size in bytes for gigabit
+
+  tah-device:
+    description: phandle of the TAH device node
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  tah-channel:
+    description: channel used on the TAH engine
+    items:
+      - description: TAH channel index
+
+  fixed-link:
+    description: Fixed-link subnode describing a link to a non-MDIO managed entity
+    type: object
+    additionalProperties: false
+    properties:
+      phy-handle:
+        description: phandle of the fixed-link device
+        $ref: /schemas/types.yaml#/definitions/phandle
+      local-rx-len:
+        description: local receive length in bytes
+        $ref: /schemas/types.yaml#/definitions/uint32
+      remote-rx-len:
+        description: remote receive length in bytes
+        $ref: /schemas/types.yaml#/definitions/uint32
+      pause:
+        description: pause parameter
+        $ref: /schemas/types.yaml#/definitions/uint32
+    required:
+      - phy-handle
+      - local-rx-len
+      - remote-rx-len
+
+  mdio:
+    description: MDIO bus subnode for PHY definitions
+    type: object
+    additionalProperties: false
+    properties:
+      "#address-cells":
+        const: 1
+      "#size-cells":
+        const: 0
+    required:
+      - "#address-cells"
+      - "#size-cells"
+    patternProperties:
+      "^[a-zA-Z0-9,\\-]+$":
+        description: PHY device node definition
+        type: object
+        additionalProperties: false
+        properties:
+          compatible:
+            items:
+              - const: ethernet-phy-ieee802.3-c22
+          reg:
+            items:
+              - description: PHY register address
+        required:
+          - compatible
+          - reg
+
+required:
+  - device_type
+  - compatible
+  - reg
+  - interrupts
+  - local-mac-address
+  - mal-device
+  - mal-tx-channel
+  - mal-rx-channel
+  - cell-index
+  - max-frame-size
+  - rx-fifo-size
+  - tx-fifo-size
+  - fifo-entry-size
+  - mal-burst-size
+  - phy-mode
+
+additionalProperties: false
