@@ -1,0 +1,66 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Tony Lindgren <tony@atomide.com>
+
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/power/ti,omap3-smartreflex-core.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI SmartReflex
+maintainers:
+  - Tony Lindgren <tony@atomide.com>
+
+description: |
+  Texas Instruments SmartReflex binding
+
+  SmartReflex is used to set and adjust the SoC operating points.
+
+properties:
+  compatible:
+    oneOf:
+      - items:
+          - enum:
+              - ti,omap3-smartreflex-core
+              - ti,omap3-smartreflex-mpu-iva
+              - ti,omap4-smartreflex-core
+              - ti,omap4-smartreflex-mpu
+              - ti,omap4-smartreflex-iva
+  reg:
+    items:
+      - description: SmartReflex module register window
+  interrupts:
+    items:
+      - description: SmartReflex module interrupt
+  ti,hwmods:
+    description: TI interconnect module name for SmartReflex
+    $ref: /schemas/types.yaml#/definitions/string
+
+required:
+  - compatible
+  - reg
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    smartreflex_iva: smartreflex@4a0db000 {
+        compatible = "ti,omap4-smartreflex-iva";
+        reg = <0x4a0db000 0x80>;
+        interrupts = <GIC_SPI 102 IRQ_TYPE_LEVEL_HIGH>;
+        ti,hwmods = "smartreflex_iva";
+    };
+
+    smartreflex_core: smartreflex@4a0dd000 {
+        compatible = "ti,omap4-smartreflex-core";
+        reg = <0x4a0dd000 0x80>;
+        interrupts = <GIC_SPI 19 IRQ_TYPE_LEVEL_HIGH>;
+        ti,hwmods = "smartreflex_core";
+    };
+
+    smartreflex_mpu: smartreflex@4a0d9000 {
+        compatible = "ti,omap4-smartreflex-mpu";
+        reg = <0x4a0d9000 0x80>;
+        interrupts = <GIC_SPI 18 IRQ_TYPE_LEVEL_HIGH>;
+        ti,hwmods = "smartreflex_mpu";
+    };
