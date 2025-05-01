@@ -1,0 +1,185 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Linaro Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mmc/hisilicon,hi3660-dw-mshc.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Hisilicon Designware Mobile Storage Host Controller
+
+maintainers:
+  - Carlos Garcia <carlos@cgarcia.org>
+  - Guodong Xu <guodong.xu@linaro.org>
+  - Jaehoon Chung <jh80.chung@samsung.com>
+  - Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+  - Shawn Lin <shawn.lin@rock-chips.com>
+  - Zhangfei Gao <zhangfei.gao@linaro.org>
+
+description: |
+  * Hisilicon specific extensions to the Synopsys Designware Mobile
+    Storage Host Controller
+
+  Read synopsys-dw-mshc.txt for more details
+
+  The Synopsys designware mobile storage host controller is used to interface
+  a SoC with storage medium such as eMMC or SD/MMC cards. This file documents
+  differences between the core Synopsys dw mshc controller properties described
+  by synopsys-dw-mshc.txt and the properties used by the Hisilicon specific
+  extensions to the Synopsys Designware Mobile Storage Host Controller.
+
+properties:
+  compatible:
+    description: The compatible string for this controller, indicating the SoC-specific extension.
+    $ref: /schemas/types.yaml#/definitions/string-array
+    items:
+      enum:
+        - hisilicon,hi3660-dw-mshc
+        - hisilicon,hi3670-dw-mshc
+        - hisilicon,hi4511-dw-mshc
+        - hisilicon,hi6220-dw-mshc
+    minItems: 1
+    maxItems: 1
+
+  reg:
+    description: Register address and size for the controller.
+    items:
+      - description: Controller registers
+
+  interrupts:
+    description: Interrupt specifier for this controller.
+    items:
+      - description: Interrupt parent phandle
+      - description: Interrupt specifier
+      - description: Interrupt flags
+
+  clocks:
+    description: Phandle(s) to clocks required by the controller.
+    items:
+      - description: CIU clock
+      - description: BIU clock
+
+  clock-names:
+    description: Names for the clocks.
+    items:
+      - const: ciu
+      - const: biu
+
+  bus-width:
+    description: Data bus width in bits.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  disable-wp:
+    description: Disable write protection feature.
+    type: boolean
+
+  cap-mmc-highspeed:
+    description: Support for MMC high-speed mode.
+    type: boolean
+
+  cap-sd-highspeed:
+    description: Support for SD high-speed mode.
+    type: boolean
+
+  sd-uhs-sdr12:
+    description: Support for SD UHS SDR12 mode.
+    type: boolean
+
+  sd-uhs-sdr25:
+    description: Support for SD UHS SDR25 mode.
+    type: boolean
+
+  card-detect-delay:
+    description: Delay in milliseconds before card detection.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  hisilicon,peripheral-syscon:
+    description: Phandle of syscon used to control peripheral.
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  vqmmc-supply: true
+
+  vmmc-supply: true
+
+  fifo-depth:
+    description: FIFO depth in bytes.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  pinctrl-names:
+    description: Pin control state names.
+    $ref: /schemas/types.yaml#/definitions/string-array
+    items:
+      enum:
+        - default
+        - idle
+    minItems: 1
+    maxItems: 2
+
+  pinctrl-0:
+    description: default pinctrl phandle and flags.
+    items:
+      - $ref: /schemas/types.yaml#/definitions/phandle
+      - description: Pin configuration flags
+
+  pinctrl-1:
+    description: idle pinctrl phandle and flags.
+    items:
+      - $ref: /schemas/types.yaml#/definitions/phandle
+      - description: Pin configuration flags
+
+  cd-gpios:
+    description: Card detect GPIO phandle.
+    maxItems: 1
+
+required:
+  - compatible
+
+additionalProperties: false
+
+examples:
+  - |
+    # Example for hi4511 SoC portion
+    dwmmc_0: dwmmc0@fcd03000 {
+        compatible = "hisilicon,hi4511-dw-mshc";
+        reg = <0xfcd03000 0x1000>;
+        interrupts = <0 16 4>;
+        #address-cells = <1>;
+        #size-cells = <0>;
+        clocks = <&mmc_clock HI3620_SD_CIUCLK>, <&clock HI3620_DDRC_PER_CLK>;
+        clock-names = "ciu", "biu";
+    };
+
+    # Board portion
+    dwmmc0@fcd03000 {
+        vmmc-supply = <&ldo12>;
+        fifo-depth = <0x100>;
+        pinctrl-names = "default";
+        pinctrl-0 = <&sd_pmx_pins &sd_cfg_func1 &sd_cfg_func2>;
+        bus-width = <4>;
+        disable-wp;
+        cd-gpios = <&gpio10 3 0>;
+        cap-mmc-highspeed;
+        cap-sd-highspeed;
+    };
+
+  - |
+    # Example for hi6220
+    dwmmc_1: dwmmc1@f723e000 {
+        compatible = "hisilicon,hi6220-dw-mshc";
+        bus-width = <0x4>;
+        disable-wp;
+        cap-sd-highspeed;
+        sd-uhs-sdr12;
+        sd-uhs-sdr25;
+        card-detect-delay = <200>;
+        hisilicon,peripheral-syscon = <&ao_ctrl>;
+        reg = <0x0 0xf723e000 0x0 0x1000>;
+        interrupts = <0x0 0x49 0x4>;
+        clocks = <&clock_sys HI6220_MMC1_CIUCLK>, <&clock_sys HI6220_MMC1_CLK>;
+        clock-names = "ciu", "biu";
+        cd-gpios = <&gpio1 0 1>;
+        pinctrl-names = "default", "idle";
+        pinctrl-0 = <&sd_pmx_func &sd_clk_cfg_func &sd_cfg_func>;
+        pinctrl-1 = <&sd_pmx_idle &sd_clk_cfg_idle &sd_cfg_idle>;
+        vqmmc-supply = <&ldo7>;
+        vmmc-supply = <&ldo10>;
+    };
