@@ -1,0 +1,135 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/media/ti-am437x-vpfe.yaml#
+# $schema is the meta-schema this schema should be validated with.
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Texas Instruments AM437x CAMERA (VPFE)
+
+maintainers:
+  - Benoit Parrot <bparrot@ti.com>
+
+description: |
+  Texas Instruments AM437x CAMERA (VPFE)
+
+  The Video Processing Front End (VPFE) is a key component for image capture
+  applications. The capture module provides the system interface and the
+  processing capability to connect RAW image-sensor modules and video decoders
+  to the AM437x device.
+
+  VPFE supports a single port node with parallel bus. It should contain one
+  'port' child node with child 'endpoint' node. Please refer to the bindings
+  defined in Documentation/devicetree/bindings/media/video-interfaces.txt.
+
+properties:
+  compatible:
+    const: ti,am437x-vpfe
+
+  reg:
+    description: Physical base address and length of the registers set for the device
+    items:
+      - description: base address
+      - description: length
+
+  interrupts:
+    description: IRQ line for the VPFE
+    items:
+      - description: vpfe interrupt
+
+  interrupt-controller: true
+
+  ti,am437x-vpfe-interface:
+    description: Interface type
+    enum: [0, 1, 2, 3, 4]
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  pinctrl-names:
+    items:
+      - const: default
+      - const: sleep
+
+  port:
+    description: Video input port
+    type: object
+    additionalProperties: false
+    properties:
+      '#address-cells':
+        const: 1
+      '#size-cells':
+        const: 0
+      endpoint:
+        description: Video endpoint
+        type: object
+        additionalProperties: false
+        properties:
+          remote-endpoint:
+            $ref: /schemas/types.yaml#/definitions/phandle
+          ti,am437x-vpfe-interface:
+            enum: [0, 1, 2, 3, 4]
+          bus-width:
+            description: Data bus width in bits
+            items:
+              - description: bus width
+          hsync-active:
+            description: HSYNC signal polarity
+            type: boolean
+          vsync-active:
+            description: VSYNC signal polarity
+            type: boolean
+        required:
+          - remote-endpoint
+          - ti,am437x-vpfe-interface
+          - bus-width
+          - hsync-active
+          - vsync-active
+    required:
+      - endpoint
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - interrupt-controller
+  - ti,am437x-vpfe-interface
+
+additionalProperties: false
+examples:
+  - |
+    vpfe: vpfe@f0034000 {
+        compatible = "ti,am437x-vpfe";
+        reg = <0x48328000 0x2000>;
+        interrupts = <GIC_SPI 50 IRQ_TYPE_LEVEL_HIGH>;
+
+        pinctrl-names = "default", "sleep";
+        pinctrl-0 = <&vpfe_pins_default>;
+        pinctrl-1 = <&vpfe_pins_sleep>;
+
+        port {
+            #address-cells = <1>;
+            #size-cells = <0>;
+
+            vpfe0_ep: endpoint {
+                remote-endpoint = <&ov2659_1>;
+                ti,am437x-vpfe-interface = <0>;
+                bus-width = <8>;
+                hsync-active = <0>;
+                vsync-active = <0>;
+            };
+        };
+    };
+
+    i2c1: i2c@4802a000 {
+        ov2659@30 {
+            compatible = "ti,ov2659";
+            reg = <0x30>;
+
+            port {
+                ov2659_1: endpoint {
+                    remote-endpoint = <&vpfe0_ep>;
+                    bus-width = <8>;
+                    mclk-frequency = <12000000>;
+                };
+            };
+        };
+    };
