@@ -1,0 +1,53 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Alexander Monakov
+
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/regulator/marvell,88pg867.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Marvell 88PG867/88PG868 voltage regulators
+
+maintainers:
+  - Alexander Monakov <amonakov@ispras.ru>
+
+description: |
+  Marvell 88PG867/88PG868 voltage regulators
+
+properties:
+  compatible:
+    # Device compatible strings
+    items:
+      - enum:
+          - marvell,88pg867
+          - marvell,88pg868
+
+  reg:
+    # I2C slave address
+    items:
+      - description: I2C slave address
+
+patternProperties:
+  "^buck[12]$":
+    description: Regulator subnode
+    $ref: /schemas/regulator/regulator.yaml#
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    pg868@19 {
+        compatible = "marvell,88pg868";
+        reg = <0x19>;
+
+        vcpu: buck1 {
+            regulator-boot-on;
+            regulator-always-on;
+            regulator-min-microvolt = <1000000>;
+            regulator-max-microvolt = <1350000>;
+        };
+    };
