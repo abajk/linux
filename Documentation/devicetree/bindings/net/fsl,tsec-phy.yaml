@@ -1,0 +1,50 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/net/fsl,tsec-phy.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Freescale TSEC PHY
+maintainers:
+  - Aida Mynzhasova <aida.mynzhasova@skitlab.ru>
+  - Claudiu Manoil <claudiu.manoil@freescale.com>
+  - David S. Miller <davem@davemloft.net>
+  - Esben Haabendal <eha@deif.com>
+  - Florian Fainelli <f.fainelli@gmail.com>
+  - Frank Li <Frank.Li@nxp.com>
+  - Grant Likely <grant.likely@secretlab.ca>
+  - J. Neuschäfer <j.ne@posteo.net>
+  - Richard Cochran <richardcochran@gmail.com>
+  - Rob Herring <robh@kernel.org>
+  - Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+  - Shruti Kanetkar <Kanetkar.Shruti@gmail.com>
+  - Yangbo Lu <yangbo.lu@nxp.com>
+
+description: |
+  * MDIO IO device
+
+  Refer to Documentation/devicetree/bindings/net/fsl,gianfar-mdio.yaml
+
+  * TBI Internal MDIO bus
+
+  Refer to Documentation/devicetree/bindings/net/fsl,gianfar-mdio.yaml
+
+  * Gianfar-compatible ethernet nodes
+
+  Refer to Documentation/devicetree/bindings/net/fsl,gianfar.yaml
+
+  * Gianfar PTP clock nodes
+
+  Refer to Documentation/devicetree/bindings/ptp/fsl,ptp.yaml
+
+properties:
+  compatible:
+    items:
+      - const: fsl,tsec-phy
+
+allOf:
+  - $ref: /schemas/net/fsl,gianfar-mdio.yaml#
+  - $ref: /schemas/net/fsl,gianfar.yaml#
+  - $ref: /schemas/ptp/fsl,ptp.yaml#
+
+additionalProperties: false
