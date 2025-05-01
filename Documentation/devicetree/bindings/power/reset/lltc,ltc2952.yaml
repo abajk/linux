@@ -1,0 +1,54 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/power/reset/lltc,ltc2952.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: LTC2952 PowerPath controller
+
+maintainers:
+  - Frans Klaver <frans.klaver@xsens.com>
+  - Marek Czerski <ma.czerski@gmail.com>
+  - René Moll <Rene.Moll@xsens.com>
+
+description: |
+  Binding for the LTC2952 PowerPath controller
+
+  This chip is used to externally trigger a system shut down. Once the trigger has
+  been sent, the chip's watchdog has to be reset to gracefully shut down.
+  A full powerdown can be triggered via the kill signal.
+
+properties:
+  compatible:
+    description: Compatibility string for the LTC2952 PowerPath controller.
+    items:
+      - const: "lltc,ltc2952"
+  kill-gpios:
+    description: GPIO connected to the chip's kill line.
+  trigger-gpios:
+    description: GPIO connected to the chip's trigger line. If this property
+      is not set, the trigger function is ignored and the chip is kept alive
+      until an explicit kill signal is received.
+  watchdog-gpios:
+    description: GPIO connected to the chip's watchdog line.
+  trigger-delay-ms:
+    description: The number of milliseconds to wait after trigger line assertion
+      before executing the shut down procedure.
+    default: 2500
+
+required:
+  - compatible
+  - kill-gpios
+  - watchdog-gpios
+
+additionalProperties: false
+
+examples:
+  - |
+    ltc2952 {
+        compatible = "lltc,ltc2952";
+        kill-gpios = <&gpio0 2 GPIO_ACTIVE_LOW>;
+        trigger-gpios = <&gpio0 1 GPIO_ACTIVE_LOW>;
+        watchdog-gpios = <&gpio1 2 GPIO_ACTIVE_HIGH>;
+        trigger-delay-ms = <2000>;
+    };
