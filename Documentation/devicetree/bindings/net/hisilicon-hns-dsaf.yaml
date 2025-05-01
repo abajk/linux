@@ -1,0 +1,152 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Hisilicon Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/net/hisilicon-hns-dsaf.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Hisilicon DSA Fabric device controller
+
+maintainers:
+  - huangdaode <huangdaode@hisilicon.com>
+  - Kejian Yan <yankejian@huawei.com>
+  - Rob Herring <robh@kernel.org>
+  - yankejian <yankejian@huawei.com>
+  - Yisen.Zhuang(Zhuangyuzeng) <Yisen.Zhuang@huawei.com>
+
+description: |
+  Hisilicon DSA Fabric device controller
+
+  [1] Documentation/devicetree/bindings/net/phy.txt
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - hisilicon,hns-dsaf-v1
+          - hisilicon,hns-dsaf-v2
+
+  reg:
+    items:
+      - description: |
+         external interface control register base and size (optional,
+         only used when subctrl-syscon does not exist)
+      - description: |
+         SerDes base register and size (optional,
+         only used when serdes-syscon in port node does not exist)
+      - description: PPE register base and size
+      - description: DSA Fabric base register and size (not required for single-port mode)
+
+  reg-names:
+    items:
+      - const: ppe-base
+      - const: dsaf-base
+
+  interrupts:
+    minItems: 1
+    items:
+      - description: DSA Fabric interrupt
+      - description: RCB interrupt
+
+  mode:
+    description: DSA Fabric mode string
+    $ref: /schemas/types.yaml#/definitions/string
+
+  phy-handle:
+    description: PHY handle of physical port, 0 if no PHY device
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  subctrl-syscon:
+    description: syscon handle for external interface control register
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  reset-field-offset:
+    description: offset of reset field in the control register
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  buf-size:
+    description: RX buffer size (bytes)
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  desc-num:
+    description: number of descriptors in TX and RX queue
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  dma-coherent: true
+
+patternProperties:
+  "^port@.*":
+    description: DSA Fabric port node
+    type: object
+    additionalProperties: false
+    properties:
+      reg:
+        description: physical port index within the DSA Fabric
+        maxItems: 1
+
+      phy-handle:
+        description: PHY handle for this port
+        $ref: /schemas/types.yaml#/definitions/phandle
+      serdes-syscon:
+        description: syscon handle for SerDes register
+        $ref: /schemas/types.yaml#/definitions/phandle
+      cpld-syscon:
+        description: syscon handle plus register offset for CPLD register
+        $ref: /schemas/types.yaml#/definitions/phandle-array
+        items:
+          - items:
+              - description: CPLD phandle
+              - description: offset
+      port-rst-offset:
+        description: reset field offset for this port
+        $ref: /schemas/types.yaml#/definitions/uint32
+      port-mode-offset:
+        description: port mode field offset for this port
+        $ref: /schemas/types.yaml#/definitions/uint32
+      mc-mac-mask:
+        description: multicast MAC address mask
+        $ref: /schemas/types.yaml#/definitions/uint8-array
+    required:
+      - reg
+
+required:
+  - compatible
+  - reg
+  - reg-names
+  - interrupts
+  - mode
+
+additionalProperties: false
+
+examples:
+  - |
+    dsaf0: dsa@c7000000 {
+        compatible = "hisilicon,hns-dsaf-v1";
+        mode = "6port-16rss";
+        reg = <0x0 0xc5000000 0x0 0x890000
+               0x0 0xc7000000 0x0 0x60000>;
+        reg-names = "ppe-base", "dsaf-base";
+        subctrl-syscon = <&subctrl>;
+        reset-field-offset = <0>;
+        interrupts = <131 4>,<132 4>, <133 4>,<134 4>,
+                     <135 4>,<136 4>, <137 4>,<138 4>,
+                     <139 4>,<140 4>, <141 4>,<142 4>,
+                     <143 4>,<144 4>, <145 4>,<146 4>,
+                     <147 4>,<148 4>, <384 1>,<385 1>,
+                     <386 1>,<387 1>, <388 1>,<389 1>,
+                     <390 1>,<391 1>,
+        buf-size = <4096>;
+        desc-num = <1024>;
+        dma-coherent;
+        port@0 {
+            reg = <0>;
+            phy-handle = <&phy0>;
+            serdes-syscon = <&serdes>;
+            mc-mac-mask = [ff f0 00 00 00 00];
+        };
+        port@1 {
+            reg = <1>;
+            serdes-syscon = <&serdes>;
+            mc-mac-mask = [ff f0 00 00 00 00];
+        };
+    };
