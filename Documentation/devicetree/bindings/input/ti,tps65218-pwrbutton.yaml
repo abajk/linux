@@ -1,0 +1,59 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/ti,tps65218-pwrbutton.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Texas Instruments TPS65217 and TPS65218 power button
+
+maintainers:
+  - Felipe Balbi <balbi@ti.com>
+  - Marcin Niestroj <m.niestroj@grinn-global.com>
+  - Milo Kim <woogyom.kim@gmail.com>
+
+description: |
+  Texas Instruments TPS65217 and TPS65218 power button
+
+  This module is part of the TPS65217/TPS65218. For more details about the whole
+  TPS65217 chip see Documentation/devicetree/bindings/regulator/tps65217.txt.
+
+  This driver provides a simple power button event via an Interrupt.
+
+properties:
+  compatible:
+    description: >
+      Must be one of:
+      - "ti,tps65217-pwrbutton"
+      - "ti,tps65218-pwrbutton"
+    items:
+      - enum:
+          - ti,tps65217-pwrbutton
+          - ti,tps65218-pwrbutton
+
+  interrupts:
+    description: |
+      Interrupt for the power button. Use:
+      - <2> for controllers compatible with ti,tps65217
+      - <3 IRQ_TYPE_EDGE_BOTH> for controllers compatible with ti,tps65218
+
+required:
+  - compatible
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+      &tps {
+          tps65217-pwrbutton {
+              compatible = "ti,tps65217-pwrbutton";
+              interrupts = <2>;
+          };
+      };
+  - |
+      &tps {
+          power-button {
+              compatible = "ti,tps65218-pwrbutton";
+              interrupts = <3 IRQ_TYPE_EDGE_BOTH>;
+          };
+      };
