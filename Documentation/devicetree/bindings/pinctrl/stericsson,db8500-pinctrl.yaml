@@ -1,0 +1,202 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 ST Ericsson
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/stericsson,db8500-pinctrl.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: ST Ericsson Nomadik pinmux controller
+
+maintainers:
+  - Gabriel Fernandez <gabriel.fernandez@stericsson.com>
+  - Lee Jones <lee@kernel.org>
+  - Linus Walleij <linus.walleij@linaro.org>
+
+description: |
+  ST Ericsson Nomadik pinmux controller
+
+  Required properties:
+    - compatible: "stericsson,db8500-pinctrl", "stericsson,db8540-pinctrl", or "stericsson,stn8815-pinctrl"
+    - nomadik-gpio-chips: phandles to the GPIO chips (these carry the register ranges used by the controller)
+    - prcm: phandle to the PRCMU managing the back end of this pin controller
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - stericsson,db8500-pinctrl
+          - stericsson,db8540-pinctrl
+          - stericsson,stn8815-pinctrl
+
+  nomadik-gpio-chips:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    description: |
+      Phandles to the corresponding GPIO chips.
+      These have the register ranges used by the pin controller.
+
+  prcm:
+    $ref: /schemas/types.yaml#/definitions/phandle
+    description: Phandle to the PRCMU managing the back end of this pin controller.
+
+  pinctrl-names:
+    $ref: /schemas/types.yaml#/definitions/string-array
+    description: Names for pinctrl states.
+
+  function:
+    $ref: /schemas/types.yaml#/definitions/string
+    description: Function to mux to the pin or group.
+
+  groups:
+    $ref: /schemas/types.yaml#/definitions/string-array
+    description: Pin groups to use for the function.
+
+  pins:
+    $ref: /schemas/types.yaml#/definitions/string-array
+    description: Pins affected by the configuration in the node.
+
+  ste,config:
+    $ref: /schemas/types.yaml#/definitions/phandle
+    description: Handle of pin configuration node.
+
+  ste,input:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 1, 2]
+    description: |
+      0: input with no pull,
+      1: input with pull up,
+      2: input with pull down.
+
+  ste,output:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 1, 2]
+    description: |
+      0: output low,
+      1: output high,
+      2: output (value not specified).
+
+  ste,sleep:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 1]
+    description: |
+      0: sleep mode disable,
+      1: sleep mode enable.
+
+  ste,sleep-input:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 1, 2, 3]
+    description: |
+      0: sleep input with no pull,
+      1: sleep input with pull up,
+      2: sleep input with pull down,
+      3: sleep input and keep last input configuration.
+
+  ste,sleep-output:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 1, 2]
+    description: |
+      0: sleep output low,
+      1: sleep output high,
+      2: sleep output (value not specified).
+
+  ste,sleep-gpio:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 1]
+    description: |
+      0: disable sleep GPIO mode,
+      1: enable sleep GPIO mode.
+
+  ste,sleep-wakeup:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 1]
+    description: |
+      0: wake-up detection enabled,
+      1: wake-up detection disabled.
+
+  ste,sleep-pull-disable:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 1]
+    description: |
+      0: GPIO pull-up or pull-down resistor enabled when pin is an input,
+      1: GPIO pull-up and pull-down resistor disabled.
+
+required:
+  - compatible
+  - nomadik-gpio-chips
+  - prcm
+
+additionalProperties: false
+
+examples:
+  - |
+    pinctrl@80157000 {
+        compatible = "stericsson,db8500-pinctrl";
+        nomadik-gpio-chips = <&gpio0>, <&gpio1>, <&gpio2>, <&gpio3>;
+        prcm = <&prcmu>;
+
+        pinctrl-names = "default";
+
+        slpm_in_wkup_pdis: slpm_in_wkup_pdis {
+            ste,sleep = <1>;
+            ste,sleep-input = <3>;
+            ste,sleep-wakeup = <1>;
+            ste,sleep-pull-disable = <0>;
+        };
+
+        slpm_out_hi_wkup_pdis: slpm_out_hi_wkup_pdis {
+            ste,sleep = <1>;
+            ste,sleep-output = <1>;
+            ste,sleep-wakeup = <1>;
+            ste,sleep-pull-disable = <0>;
+        };
+
+        slpm_out_wkup_pdis: slpm_out_wkup_pdis {
+            ste,sleep = <1>;
+            ste,sleep-output = <2>;
+            ste,sleep-wakeup = <1>;
+            ste,sleep-pull-disable = <0>;
+        };
+
+        uart0 {
+            uart0_default_mux: uart0_mux {
+                u0_default_mux {
+                    function = "u0";
+                    pins = "u0_a_1";
+                };
+            };
+            uart0_default_mode: uart0_default {
+                uart0_default_cfg1 {
+                    pins = "GPIO0", "GPIO2";
+                    ste,input = <1>;
+                };
+
+                uart0_default_cfg2 {
+                    pins = "GPIO1", "GPIO3";
+                    ste,output = <1>;
+                };
+            };
+            uart0_sleep_mode: uart0_sleep {
+                uart0_sleep_cfg1 {
+                    pins = "GPIO0", "GPIO2";
+                    ste,config = <&slpm_in_wkup_pdis>;
+                };
+                uart0_sleep_cfg2 {
+                    pins = "GPIO1";
+                    ste,config = <&slpm_out_hi_wkup_pdis>;
+                };
+                uart0_sleep_cfg3 {
+                    pins = "GPIO3";
+                    ste,config = <&slpm_out_wkup_pdis>;
+                };
+            };
+        };
+    };
+
+    uart@80120000 {
+        compatible = "arm,pl011", "arm,primecell";
+        reg = <0x80120000 0x1000>;
+        interrupts = <0 11 0x4>;
+
+        pinctrl-names = "default","sleep";
+        pinctrl-0 = <&uart0_default_mux>, <&uart0_default_mode>;
+        pinctrl-1 = <&uart0_sleep_mode>;
+    };
