@@ -1,0 +1,48 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Cavium Inc.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mips/cavium/cavium,octeon-5750-bootbus-dma.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Cavium Octeon 5750 BootBus DMA Engine
+
+maintainers:
+  - David Daney <david.daney@cavium.com>
+  - Masanari Iida <standby24x7@gmail.com>
+
+description: |
+  DMA Engine.
+
+  The Octeon DMA Engine transfers between the Boot Bus and main memory.
+  The DMA Engine will be referred to by phandle by any device that is
+  connected to it.
+
+properties:
+  compatible:
+    description: Compatibility with all cn52XX, cn56XX and cn6XXX SOCs.
+    items:
+      - const: cavium,octeon-5750-bootbus-dma
+
+  reg:
+    description: The base address of the DMA Engine’s register bank.
+    maxItems: 1
+
+  interrupts:
+    description: A single interrupt specifier.
+    maxItems: 1
+
+required:
+  - compatible
+  - reg
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    dma0: dma-engine@1180000000100 {
+        compatible = "cavium,octeon-5750-bootbus-dma";
+        reg = <0x11800 0x00000100 0x0 0x8>;
+        interrupts = <0 63>;
+    };
