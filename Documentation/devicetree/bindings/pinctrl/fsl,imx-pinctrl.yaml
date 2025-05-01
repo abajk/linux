@@ -1,0 +1,110 @@
+---
+$id: http://devicetree.org/schemas/pinctrl/fsl,imx-pinctrl.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Freescale i.MX IOMUX Controller pinctrl
+maintainers:
+  - Dirk Behme <dirk.behme@de.bosch.com>
+  - Dong Aisheng <dong.aisheng@linaro.org>
+  - Marco Franchi <marco.franchi@nxp.com>
+  - Rob Herring <robh@kernel.org>
+  - Shawn Guo <shawn.guo@linaro.org>
+
+description: |
+  * Freescale IOMUX Controller (IOMUXC) for i.MX
+
+  The IOMUX Controller (IOMUXC), together with the IOMUX, enables the IC
+  to share one PAD to several functional blocks. The sharing is done by
+  multiplexing the PAD input/output signals. For each PAD there are up to
+  8 muxing options (called ALT modes). Since different modules require
+  different PAD settings (like pull up, keeper, etc) the IOMUXC controls
+  also the PAD settings parameters.
+
+  Please refer to pinctrl-bindings.txt in this directory for details of the
+  common pinctrl bindings used by client devices, including the meaning of the
+  phrase "pin configuration node".
+
+  Freescale IMX pin configuration node is a node of a group of pins which can be
+  used for a specific device or function. This node represents both mux and config
+  of the pins in that group. The 'mux' selects the function mode (also named mux
+  mode) this pin can work on and the 'config' configures various pad settings
+  such as pull-up, open drain, drive strength, etc.
+
+  Bits used for CONFIG:
+  NO_PAD_CTL (1 << 31): indicate this pin does not need config.
+
+  SION (1 << 30): Software Input On Field.
+  Force the selected mux mode input path no matter of MUX_MODE functionality.
+  By default the input path is determined by functionality of the selected
+  mux mode (regular).
+
+  Other bits are used for PAD setting.
+  Please refer to each fsl,<soc>-pinctrl.txt binding doc for SoC specific part
+  of bits definitions.
+
+  NOTE:
+    1. We have pin function node defined under iomux controller node to represent
+       what pinmux functions this SoC supports.
+    2. The pin configuration node intended to work on a specific function should
+       be defined under that specific function node.
+    3. The driver can use the function node’s name and pin configuration node’s
+       name to describe the pin function and group hierarchy.
+    4. Each pin configuration node should have a phandle; devices set pins
+       configurations by referring to this phandle.
+
+properties:
+  compatible:
+    description: IOMUX controller compatible string
+    items:
+      - pattern: '^fsl,imx.*-iomuxc$'
+  reg:
+    description: IOMUXC controller register region
+    items:
+      - description: base address of IOMUXC registers
+      - description: size of IOMUXC register region
+
+additionalProperties
+  description: Pin configuration subnode for a function group
+  type: object
+  properties:
+    fsl,pins:
+      description: >
+        Each entry is a tuple of six integers: a PIN_FUNC_ID macro encoding
+        mux_reg, conf_reg, input_reg, mux_val, input_val, and the CONFIG
+        pad setting value.
+      $ref: /schemas/types.yaml#/definitions/uint32-matrix
+      items:
+        minItems: 6
+        maxItems: 6
+  required:
+    - fsl,pins
+  additionalProperties: false
+
+required:
+  - compatible
+  - reg
+
+examples:
+  - |
+    iomuxc@20e0000 {
+      compatible = "fsl,imx6q-iomuxc";
+      reg = <0x020e0000 0x4000>;
+
+      /* shared pinctrl settings */
+      usdhc4 {
+        pinctrl_usdhc4_1: usdhc4grp-1 {
+          fsl,pins = <
+            MX6QDL_PAD_SD4_CMD__SD4_CMD    0x17059
+            MX6QDL_PAD_SD4_CLK__SD4_CLK    0x10059
+            MX6QDL_PAD_SD4_DAT0__SD4_DATA0 0x17059
+            MX6QDL_PAD_SD4_DAT1__SD4_DATA1 0x17059
+            MX6QDL_PAD_SD4_DAT2__SD4_DATA2 0x17059
+            MX6QDL_PAD_SD4_DAT3__SD4_DATA3 0x17059
+            MX6QDL_PAD_SD4_DAT4__SD4_DATA4 0x17059
+            MX6QDL_PAD_SD4_DAT5__SD4_DATA5 0x17059
+            MX6QDL_PAD_SD4_DAT6__SD4_DATA6 0x17059
+            MX6QDL_PAD_SD4_DAT7__SD4_DATA7 0x17059
+          >;
+        };
+      };
+    };
