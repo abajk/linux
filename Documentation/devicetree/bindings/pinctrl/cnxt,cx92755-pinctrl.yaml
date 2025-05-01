@@ -1,0 +1,63 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Baruch Siach <baruch@tkos.co.il>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pinctrl/cnxt,cx92755-pinctrl.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Conexant Digicolor CX92755 Pin Controller
+maintainers:
+  - Baruch Siach <baruch@tkos.co.il>
+
+description: |
+  Conexant Digicolor CX92755 General Purpose Pin Mapping
+
+  This document describes the device tree binding of the pin mapping hardware
+  modules in the Conexant Digicolor CX92755 SoCs. The CX92755 in one of the
+  Digicolor series of SoCs.
+
+properties:
+  compatible:
+    items:
+      - const: cnxt,cx92755-pinctrl
+
+  reg:
+    description: Base address of the General Purpose Pin Mapping register block and the size of the block.
+    items:
+      - description: Base address
+      - description: Size of the register block
+
+  gpio-controller: true
+
+  '#gpio-cells':
+    const: 2
+
+additionalProperties: false
+
+examples:
+  - |
+    pinctrl: pinctrl@f0000e20 {
+        compatible = "cnxt,cx92755-pinctrl";
+        reg = <0xf0000e20 0x100>;
+        gpio-controller;
+        #gpio-cells = <2>;
+    };
+  - |
+    pinctrl: pinctrl@f0000e20 {
+        compatible = "cnxt,cx92755-pinctrl";
+        reg = <0xf0000e20 0x100>;
+
+        uart0_default: uart0_active {
+            data_signals {
+                pins = "GP_O0", "GP_O1";
+                function = "client_b";
+            };
+        };
+    };
+
+    uart0: uart@f0000740 {
+        compatible = "cnxt,cx92755-usart";
+        ...
+        pinctrl-0 = <&uart0_default>;
+        pinctrl-names = "default";
+    };
