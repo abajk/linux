@@ -1,0 +1,102 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mmc/renesas,usdhi6rol0.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Renesas USDHI6ROL0 SD/SDIO host controller
+
+maintainers:
+  - Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+  - Lars Persson <lars.persson@axis.com>
+
+description: |
+  Renesas usdhi6rol0 SD/SDIO host controller.
+
+  Additionally, any standard MMC bindings from mmc.txt can be used.
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - renesas,usdhi6rol0
+
+  reg:
+    items:
+      - description: register address
+      - description: register size
+
+  interrupts:
+    description: Interrupts for card detect, data, and SDIO
+    items:
+      - description: card detect interrupt
+      - description: data interrupt
+      - description: SDIO interrupt
+
+  interrupt-names:
+    description: Names for the interrupts
+    items:
+      - const: card detect
+      - const: data
+      - const: SDIO
+
+  clocks:
+    description: Clock for the IMCLK input
+    maxItems: 1
+
+  clock-names:
+    items:
+      - const: imclk
+
+  bus-width:
+    description: width of the SD bus in bits
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  max-frequency:
+    description: maximum bus frequency in Hz
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  cap-power-off-card:
+    type: boolean
+    description: indicates that the host can power off the card
+
+  vmmc-supply:
+    description: regulator supplying Vcc to the card
+
+  vqmmc-supply:
+    description: regulator supplying VccQ to the card
+
+  pinctrl-names:
+    description: names for pinctrl states
+    $ref: /schemas/types.yaml#/definitions/string-array
+    items:
+      - enum: [default]
+      - enum: [state_uhs]
+
+  pinctrl-0:
+    description: pin control for 'default' state
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  pinctrl-state_uhs:
+    description: pin control for 'state_uhs' state
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+additionalProperties: false
+
+examples:
+  - |
+    sd0: sd@ab000000 {
+        compatible = "renesas,usdhi6rol0";
+        reg = <0xab000000 0x200>;
+        interrupts = <0 23 0x4
+                      0 24 0x4
+                      0 25 0x4>;
+        interrupt-names = "card detect", "data", "SDIO";
+        bus-width = <4>;
+        max-frequency = <50000000>;
+        cap-power-off-card;
+        clocks = <&imclk>;
+        vmmc-supply = <&vcc_sd0>;
+        vqmmc-supply = <&vccq_sd0>;
+    };
