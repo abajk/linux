@@ -1,0 +1,168 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/lantiq,pinctrl-falcon.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Lantiq FALCON pinmux controller
+maintainers:
+  - Thomas Langer <thomas.langer@lantiq.com>
+description: |
+  Lantiq FALCON pinmux controller
+
+  Lantiq's pin configuration nodes act as a container for an arbitrary number of
+  subnodes. Each of these subnodes represents some desired configuration for a
+  pin, a group, or a list of pins or groups. This configuration can include the
+  mux function to select on those group(s), and two pin configuration parameters:
+  pull-up and open-drain
+
+  The name of each subnode is not important as long as it is unique; all subnodes
+  should be enumerated and processed purely based on their content.
+
+  Each subnode only affects those parameters that are explicitly listed. In
+  other words, a subnode that lists a mux function but no pin configuration
+  parameters implies no information about any pin configuration parameters.
+  Similarly, a pin subnode that describes a pullup parameter implies no
+  information about e.g. the mux function.
+
+  We support 2 types of nodes.
+
+  Definition of mux function groups:
+
+  Required subnode-properties:
+  - lantiq,groups : An array of strings. Each string contains the name of a
+    group. Valid values for these names are listed below.
+  - lantiq,function: A string containing the name of the function to mux to
+    the group. Valid values for function names are listed below.
+
+  Valid values for group names:
+    por
+    ntr
+    ntr8k
+    hrst
+    mdio
+    bootled
+    asc0
+    spi
+    spi cs0
+    spi cs1
+    i2c
+    jtag
+    slic
+    pcm
+    asc1
+
+  Valid values for function names:
+    rst
+    ntr
+    mdio
+    led
+    asc
+    spi
+    i2c
+    jtag
+    slic
+    pcm
+
+  Definition of pin configurations:
+
+  Required subnode-properties:
+  - lantiq,pins : An array of strings. Each string contains the name of a
+    pin. Valid values for these names are listed in hardware docs.
+
+  Optional subnode-properties:
+  - lantiq,pull: Integer, representing the pull-down/up to apply to the pin.
+      0: none, 1: down
+  - lantiq,drive-current: Boolean, enables drive-current
+  - lantiq,slew-rate: Boolean, enables slew-rate
+
+properties:
+  compatible:
+    items:
+      - const: lantiq,pinctrl-falcon
+
+  reg:
+    description: Register range for GPIO/pinmux controller
+    items:
+      - description: Base address
+      - description: Length
+
+patternProperties:
+  ".*":
+    oneOf:
+      - type: object
+        required:
+          - lantiq,groups
+          - lantiq,function
+        properties:
+          lantiq,groups:
+            description: One or more mux group names
+            $ref: /schemas/types.yaml#/definitions/string-array
+            items:
+              - enum: [por]
+              - enum: [ntr]
+              - enum: [ntr8k]
+              - enum: [hrst]
+              - enum: [mdio]
+              - enum: [bootled]
+              - enum: [asc0]
+              - enum: [spi]
+              - enum: [spi cs0]
+              - enum: [spi cs1]
+              - enum: [i2c]
+              - enum: [jtag]
+              - enum: [slic]
+              - enum: [pcm]
+              - enum: [asc1]
+          lantiq,function:
+            description: Function to mux to group
+            enum: [rst, ntr, mdio, led, asc, spi, i2c, jtag, slic, pcm]
+        additionalProperties: false
+
+      - type: object
+        required:
+          - lantiq,pins
+        properties:
+          lantiq,pins:
+            description: One or more pin names
+            $ref: /schemas/types.yaml#/definitions/string-array
+          lantiq,pull:
+            description: Pull-down/up to apply to the pin (0=none, 1=down)
+            $ref: /schemas/types.yaml#/definitions/uint32
+            enum: [0, 1]
+          lantiq,drive-current:
+            description: Enable drive-current
+            type: boolean
+          lantiq,slew-rate:
+            description: Enable slew-rate
+            type: boolean
+        additionalProperties: false
+
+additionalProperties: false
+
+examples:
+  - |
+    pinmux0 {
+        compatible = "lantiq,pinctrl-falcon";
+        reg = <0x... 0x...>;
+        pinctrl-names = "default";
+        pinctrl-0 = <&state_default>;
+
+        state_default: pinmux {
+            asc0 {
+                lantiq,groups = "asc0";
+                lantiq,function = "asc";
+            };
+            ntr {
+                lantiq,groups = "ntr8k";
+                lantiq,function = "ntr";
+            };
+            i2c {
+                lantiq,groups = "i2c";
+                lantiq,function = "i2c";
+            };
+            hrst {
+                lantiq,groups = "hrst";
+                lantiq,function = "rst";
+            };
+        };
+    };
