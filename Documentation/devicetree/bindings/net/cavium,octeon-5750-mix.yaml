@@ -1,0 +1,100 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Cavium, Inc.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/cavium,octeon-5750-mix.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: MIX Ethernet controller
+
+maintainers:
+  - David Daney <david.daney@cavium.com>
+  - Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+
+description: |
+  MIX Ethernet controller.
+
+  Compatibility with all cn5XXX and cn6XXX SoCs populated with MIX
+  devices.
+
+properties:
+  compatible:
+    items:
+      - const: cavium,octeon-5750-mix
+
+  reg:
+    description: |
+      Base addresses of four separate register banks.
+      The first bank contains the MIX registers.
+      The second bank the corresponding AGL registers.
+      The third bank are the AGL registers shared by all MIX devices present.
+      The fourth bank is the AGL_PRT_CTL shared by all MIX devices present.
+    items:
+      - description: MIX registers
+      - description: AGL registers
+      - description: AGL_SHARED registers
+      - description: AGL_PRT_CTL registers
+
+  cell-index:
+    description: >
+      Specifies which portion of the shared register banks
+      corresponds to this MIX device.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  interrupts:
+    description: |
+      Two interrupt specifiers.
+      The first is the MIX interrupt routing.
+      The second is the AGL interrupt routing.
+    items:
+      - description: MIX interrupt routing
+      - description: AGL interrupt routing
+
+  interrupt-names:
+    description: Interrupt names corresponding to the entries in 'interrupts'.
+    items:
+      - const: mix-irq
+      - const: agl-irq
+
+  local-mac-address:
+    description: MAC address of the Ethernet port.
+    $ref: /schemas/types.yaml#/definitions/string-array
+    items:
+      - minimum: 0
+        maximum: 255
+      - minimum: 0
+        maximum: 255
+      - minimum: 0
+        maximum: 255
+      - minimum: 0
+        maximum: 255
+      - minimum: 0
+        maximum: 255
+      - minimum: 0
+        maximum: 255
+
+  phy-handle:
+    description: Handle to the PHY device.
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+required:
+  - compatible
+  - reg
+  - cell-index
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    ethernet@1070000100800 {
+        compatible = "cavium,octeon-5750-mix";
+        reg = <0x10700 0x00100800 0x0 0x100>, /* MIX */
+              <0x11800 0xE0000800 0x0 0x300>, /* AGL */
+              <0x11800 0xE0000400 0x0 0x400>, /* AGL_SHARED  */
+              <0x11800 0xE0002008 0x0 0x8>;   /* AGL_PRT_CTL */
+        cell-index = <1>;
+        interrupts = <1 18>, <1 46>;
+        local-mac-address = [00 0f b7 10 63 54];
+        phy-handle = <&phy1>;
+    };
