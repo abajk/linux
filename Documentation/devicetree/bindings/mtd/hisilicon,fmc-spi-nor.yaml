@@ -1,0 +1,68 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mtd/hisilicon,fmc-spi-nor.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: HiSilicon SPI-NOR Flash Controller
+
+maintainers:
+  - Jiancheng Xue <xuejiancheng@hisilicon.com>
+  - Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+
+description: |
+  HiSilicon SPI-NOR Flash Controller
+
+properties:
+  compatible:
+    items:
+      - const: hisilicon,hi3519-spi-nor
+      - const: hisilicon,fmc-spi-nor
+    description: HiSilicon SPI-NOR controller compatible strings.
+
+  "#address-cells":
+    const: 1
+    description: Number of address cells expected by the controller.
+
+  "#size-cells":
+    const: 0
+    description: Number of size cells expected by the controller.
+
+  reg:
+    items:
+      - description: Offset of the register set.
+      - description: Length of the register set.
+    description: Register offset and size for the controller.
+
+  reg-names:
+    items:
+      - const: control
+      - const: memory
+    description: Names of each register entry.
+
+  clocks:
+    maxItems: 1
+    description: Handle to the SPI-NOR flash controller clock.
+
+required:
+  - compatible
+  - "#address-cells"
+  - "#size-cells"
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    spi-nor-controller@10000000 {
+      compatible = "hisilicon,hi3519-spi-nor", "hisilicon,fmc-spi-nor";
+      #address-cells = <1>;
+      #size-cells = <0>;
+      reg = <0x10000000 0x1000>, <0x14000000 0x1000000>;
+      reg-names = "control", "memory";
+      clocks = <&clock HI3519_FMC_CLK>;
+      flash@0 {
+        compatible = "jedec,spi-nor";
+        reg = <0>;
+      };
+    };
