@@ -1,0 +1,57 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/faraday,ftmac.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Faraday Ethernet Controller
+maintainers:
+  - Greentime Hu <green.hu@gmail.com>
+description: |
+  Faraday Ethernet Controller
+
+properties:
+  compatible:
+    description: Must contain "faraday,ftmac" and one SoC-specific identifier.
+    oneOf:
+      - items:
+          - const: faraday,ftmac
+          - enum:
+              - andestech,atmac100
+              - moxa,moxart-mac
+      - items:
+          - enum:
+              - andestech,atmac100
+              - moxa,moxart-mac
+          - const: faraday,ftmac
+
+  reg:
+    description: Register location and length.
+    items:
+      - description: Register location
+      - description: Length
+
+  interrupts:
+    description: The MAC interrupt number.
+    items:
+      - description: Interrupt number
+
+required:
+  - compatible
+  - reg
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    mac0: mac@90900000 {
+        compatible = "faraday,ftmac", "moxa,moxart-mac";
+        reg = <0x90900000 0x100>;
+        interrupts = <25>;
+    };
+    mac1: mac@92000000 {
+        compatible = "faraday,ftmac", "moxa,moxart-mac";
+        reg = <0x92000000 0x100>;
+        interrupts = <27>;
+    };
