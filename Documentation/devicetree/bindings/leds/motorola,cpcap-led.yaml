@@ -1,0 +1,66 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Sebastian Reichel <sre@kernel.org>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/leds/motorola,cpcap-led.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Motorola CPCAP PMIC LEDs
+
+maintainers:
+  - Sebastian Reichel <sre@kernel.org>
+
+description: |
+  Motorola CPCAP PMIC LEDs
+  ------------------------
+
+  This module is part of the CPCAP. For more details about the whole
+  chip see Documentation/devicetree/bindings/mfd/motorola-cpcap.txt.
+
+properties:
+  compatible:
+    description: |
+      Device compatibility string. Must be one of:
+      - "motorola,cpcap-led-mdl" (Main Display Lighting)
+      - "motorola,cpcap-led-kl" (Keyboard Lighting)
+      - "motorola,cpcap-led-adl" (Aux Display Lighting)
+      - "motorola,cpcap-led-red" (Red Triode)
+      - "motorola,cpcap-led-green" (Green Triode)
+      - "motorola,cpcap-led-blue" (Blue Triode)
+      - "motorola,cpcap-led-cf" (Camera Flash)
+      - "motorola,cpcap-led-bt" (Bluetooth)
+      - "motorola,cpcap-led-cp" (Camera Privacy LED)
+    items:
+      - enum:
+          - motorola,cpcap-led-mdl
+          - motorola,cpcap-led-kl
+          - motorola,cpcap-led-adl
+          - motorola,cpcap-led-red
+          - motorola,cpcap-led-green
+          - motorola,cpcap-led-blue
+          - motorola,cpcap-led-cf
+          - motorola,cpcap-led-bt
+          - motorola,cpcap-led-cp
+
+  label:
+    description: User-visible name for this LED.
+
+  vdd-supply:
+    description: Phandle to the regulator powering the LED.
+
+required:
+  - compatible
+  - label
+  - vdd-supply
+
+additionalProperties: false
+
+examples:
+  - |
+    &cpcap {
+        cpcap_led_red: red-led {
+            compatible = "motorola,cpcap-led-red";
+            label = "cpcap:red";
+            vdd-supply = <&sw5>;
+        };
+    };
