@@ -1,0 +1,63 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Grant Likely <grant.likely@secretlab.ca>
+# Copyright 2025 Rob Herring <robh@kernel.org>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/powerpc/fsl/fsl,diu.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Freescale Display Interface Unit
+
+maintainers:
+  - Grant Likely <grant.likely@secretlab.ca>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  The Freescale DIU is a LCD controller, with proper hardware, it can also
+  drive DVI monitors.
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - fsl,diu
+          - fsl,mpc5121-diu
+    description: List of supported device compatible strings.
+
+  reg:
+    items:
+      - description: Start address of the DIU register set.
+      - description: Size of the DIU register set.
+    description: Physical address and length of the DIU register region.
+
+  interrupts:
+    items:
+      - description: Interrupt number of the DIU controller.
+      - description: Trigger type and flags for the interrupt.
+    description: DIU interrupt specifier.
+
+  edid:
+    $ref: /schemas/types.yaml#/definitions/uint8-array
+    description: Verbatim EDID data block describing attached display.
+
+required:
+  - compatible
+  - reg
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    display@2c000 {
+      compatible = "fsl,diu";
+      reg = <0x2c000 100>;
+      interrupts = <72 2>;
+    };
+  - |
+    display@2100 {
+      compatible = "fsl,mpc5121-diu";
+      reg = <0x2100 0x100>;
+      interrupts = <64 0x8>;
+      edid = [edid-data];
+    };
