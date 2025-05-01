@@ -1,0 +1,62 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Cavium Inc.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mips/cavium/cavium,octeon-7130-cib.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Cavium Interrupt Bus widget
+
+maintainers:
+  - David Daney <david.daney@cavium.com>
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - cavium,octeon-7130-cib
+
+  reg:
+    description: Two elements consisting of the addresses of the RAW and EN registers of the CIB block.
+    items:
+      - description: RAW register address and size
+      - description: EN register address and size
+
+  interrupts:
+    description: |
+      The CIU line to which the CIB block is connected. Interrupts are specified by
+      two parts: 1) Bit number in the CIB* registers, 2) Triggering semantics of the
+      line.
+    items:
+      - description: Bit number in the CIB* registers
+      - description: |
+          Triggering semantics: 1 - edge rising, 2 - edge falling, 4 - level active high,
+          8 - level active low
+
+  interrupt-controller: true
+
+  '#interrupt-cells':
+    const: 2
+
+  cavium,max-bits:
+    description: The index (zero based) of the highest numbered bit in the CIB block.
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - interrupt-controller
+
+additionalProperties: false
+
+examples:
+  - |
+    interrupt-controller@107000000e000 {
+        compatible = "cavium,octeon-7130-cib";
+        reg = <0x10700 0x0000e000 0x0 0x8>,
+              <0x10700 0x0000e100 0x0 0x8>;
+        interrupts = <1 24>;
+        interrupt-controller;
+        #interrupt-cells = <2>;
+        cavium,max-bits = <23>;
+    };
