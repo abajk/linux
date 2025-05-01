@@ -1,0 +1,103 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/net/wireless/ti,wl1251.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI WL1251 wireless lan controller
+
+maintainers:
+  - H. Nikolaus Schaller <hns@goldelico.com>
+  - Rob Herring <robh@kernel.org>
+  - Sebastian Reichel <sre@kernel.org>
+
+description: |
+  Texas Instruments wl1251 wireless lan controller
+
+  The wl1251 chip can be connected via SPI or via SDIO. This
+  document describes the binding for the SPI connected chip.
+
+  Optional properties:
+  - ti,wl1251-has-eeprom: boolean, the wl1251 has an external EEPROM
+    for calibration and MAC
+  - ti,power-gpio: GPIO connected to chip's PMEN pin if operated in
+    SPI mode
+  - Please consult Documentation/devicetree/bindings/spi/spi-bus.txt for
+    optional SPI connection related properties.
+
+properties:
+  compatible:
+    description: Compatibility string for TI WL1251 controller
+    items:
+      - const: ti,wl1251
+  reg:
+    description: Chip select address of the SPI device
+    items:
+      - description: chip select index
+  spi-max-frequency:
+    description: Maximum SPI clocking speed of device in Hz
+    $ref: /schemas/types.yaml#/definitions/uint32
+  spi-cpol:
+    description: SPI clock polarity flag
+    type: boolean
+  spi-cpha:
+    description: SPI clock phase flag
+    type: boolean
+  interrupts:
+    description: Interrupt specifier for the device
+    items:
+      - description: IRQ line and trigger flags
+  interrupt-names:
+    description: Names for the IRQ cells
+    items:
+      - const: irq
+  vio-supply:
+    description: Regulator supplying VIO for the device
+  ti,wl1251-has-eeprom:
+    description: Indicates presence of external EEPROM for calibration and MAC
+    type: boolean
+  ti,power-gpio:
+    description: GPIO for power enable (PMEN) pin in SPI mode
+    maxItems: 1
+
+required:
+  - compatible
+  - reg
+  - spi-max-frequency
+  - interrupts
+  - vio-supply
+
+additionalProperties: false
+
+examples:
+  - |
+    &spi1 {
+      wl1251@0 {
+        compatible = "ti,wl1251";
+        reg = <0>;
+        spi-max-frequency = <48000000>;
+        spi-cpol;
+        spi-cpha;
+        interrupts = <10 IRQ_TYPE_NONE>; /* gpio line 42 */
+        vio-supply = <&vio>;
+        ti,power-gpio = <&gpio3 23 GPIO_ACTIVE_HIGH>; /* 87 */
+      };
+    };
+  - |
+    &mmc3 {
+      vmmc-supply = <&wlan_en>;
+      bus-width = <4>;
+      non-removable;
+      ti,non-removable;
+      cap-power-off-card;
+      pinctrl-names = "default";
+      pinctrl-0 = <&mmc3_pins>;
+      #address-cells = <1>;
+      #size-cells = <0>;
+      wlan: wifi@1 {
+        compatible = "ti,wl1251";
+        reg = <1>;
+        interrupts = <21 IRQ_TYPE_LEVEL_HIGH>; /* GPIO_21 */
+        ti,wl1251-has-eeprom;
+      };
+    };
