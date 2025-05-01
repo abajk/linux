@@ -1,0 +1,109 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Frank Rowand, Liu Gang
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/powerpc/fsl/fsl,srio-rmu.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Freescale SRIO RMU
+maintainers:
+  - Frank Rowand <frowand.list@gmail.com>
+  - Liu Gang <Gang.Liu@freescale.com>
+description: |
+  Message unit node:
+
+  For SRIO controllers that implement the message unit as part of the controller
+  this node is required.  For devices with RMAN this node should NOT exist.  The
+  node is composed of three types of sub-nodes ("fsl,srio-msg-unit",
+  "fsl,srio-dbell-unit" and "fsl,srio-port-write-unit").
+
+  See srio.txt for more details about generic SRIO controller details.
+
+  Sub-Nodes for RMU:
+  The RMU node is composed of multiple sub-nodes that correspond to the actual
+  sub-controllers in the RMU.  The manual for a given SoC will detail which and
+  how many of these sub-controllers are implemented.
+
+properties:
+  compatible:
+    oneOf:
+      - items:
+          - pattern: "^fsl,srio-rmu-v[0-9]+\\.[0-9]+$"
+          - const: fsl,srio-rmu
+      - items:
+          - const: fsl,srio-rmu
+
+  reg:
+    description: |
+      Physical address and length of the SRIO configuration registers for
+      message and doorbell units.
+    items:
+      - description: Base address
+      - description: Length
+
+  ranges:
+    description: RMU address window mappings to parent bus.
+    items:
+      - description: Child address
+      - description: Parent address
+      - description: Size
+
+  "fsl,liodn":
+    description: Logical I/O device number for the PAMU.
+    items:
+      - description: LIODN
+
+  # Sub-nodes for RMU
+  "fsl,srio-msg-unit":
+    description: SRIO message unit sub-node.
+    type: boolean
+
+  "fsl,srio-dbell-unit":
+    description: SRIO doorbell unit sub-node.
+    type: boolean
+
+  "fsl,srio-port-write-unit":
+    description: SRIO port-write unit sub-node.
+    type: boolean
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    rmu: rmu@d3000 {
+        compatible = "fsl,srio-rmu";
+        reg = <0xd3000 0x400>;
+        ranges = <0x0 0xd3000 0x400>;
+        fsl,liodn = <0xc8>;
+
+        message-unit@0 {
+            compatible = "fsl,srio-msg-unit";
+            reg = <0x0 0x100>;
+            interrupts = <
+                60 2 0 0  /* msg1_tx_irq */
+                61 2 0 0>;/* msg1_rx_irq */
+        };
+        message-unit@100 {
+            compatible = "fsl,srio-msg-unit";
+            reg = <0x100 0x100>;
+            interrupts = <
+                62 2 0 0  /* msg2_tx_irq */
+                63 2 0 0>;/* msg2_rx_irq */
+        };
+        doorbell-unit@400 {
+            compatible = "fsl,srio-dbell-unit";
+            reg = <0x400 0x80>;
+            interrupts = <
+                56 2 0 0  /* bell_outb_irq */
+                57 2 0 0>;/* bell_inb_irq */
+        };
+        port-write-unit@4e0 {
+            compatible = "fsl,srio-port-write-unit";
+            reg = <0x4e0 0x20>;
+            interrupts = <16 2 1 11>;
+        };
+    };
