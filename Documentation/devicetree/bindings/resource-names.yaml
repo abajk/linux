@@ -1,0 +1,53 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/resource-names.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Supplemental resource-names properties
+
+maintainers:
+  - Benoit Cousson <b-cousson@ti.com>
+
+description: |
+  Some properties contain an ordered list of 1 or more datum which are
+  normally accessed by index.  However, some devices will have multiple
+  values which are more naturally accessed by name.  Device nodes can
+  include a supplemental property for assigning names to each of the list
+  items.  The names property consists of a list of strings in the same
+  order as the data in the resource property.
+
+  Usage:
+
+  The ‑names property must be used in conjunction with the normal resource
+  property. If not it will be ignored.
+
+properties:
+  reg: {}
+  clocks: {}
+  reg-names:
+    $ref: /schemas/types.yaml#/definitions/string-array
+    description: Names for each of the reg entries, in order.
+
+  clock-names:
+    $ref: /schemas/types.yaml#/definitions/string-array
+    description: Names for each of the clocks entries, in order.
+
+  interrupt-names:
+    $ref: /schemas/types.yaml#/definitions/string-array
+    description: Names for each of the interrupts entries, in order.
+
+dependencies:
+  reg-names: [ reg ]
+  clock-names: [ clocks ]
+  interrupt-names: [ interrupts ]
+
+additionalProperties: false
+
+examples:
+  - |
+    node@0 {
+      reg-names = "core", "aux";
+      clock-names = "bus";
+      interrupt-names = "rx", "tx";
+    };
