@@ -1,0 +1,89 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/bindings/pinctrl/via,vt8500-pinctrl.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: VIA VT8500 and WM8xxx-series pinmux/gpio controller
+
+maintainers:
+  - Tony Prisk <linux@prisktech.co.nz>
+
+description: |
+  VIA VT8500 and Wondermedia WM8xxx-series pinmux/gpio controller
+
+  These SoCs contain a combined Pinmux/GPIO module. Each pin may operate as
+  either a GPIO in, GPIO out or as an alternate function (I2C, SPI etc).
+
+  Please refer to ../gpio/gpio.txt for a general description of GPIO bindings.
+
+  Please refer to pinctrl-bindings.txt in this directory for details of the
+  common pinctrl bindings used by client devices, including the meaning of the
+  phrase "pin configuration node".
+
+  Each pin configuration node lists the pin(s) to which it applies, and one or
+  more of the mux functions to select on those pin(s), and pull-up/down
+  configuration. Each subnode only affects those parameters that are explicitly
+  listed. In other words, a subnode that lists only a mux function implies no
+  information about any pull configuration. Similarly, a subnode that lists only
+  a pull parameter implies no information about the mux function.
+
+properties:
+  compatible:
+    items:
+      - const: via,vt8500-pinctrl
+      - const: wm,wm8505-pinctrl
+      - const: wm,wm8650-pinctrl
+      - const: wm,wm8750-pinctrl
+      - const: wm,wm8850-pinctrl
+
+  reg:
+    maxItems: 1
+
+  interrupt-controller: true
+
+  '#interrupt-cells':
+    const: 2
+
+  gpio-controller: true
+
+  '#gpio-cells':
+    const: 2
+
+  # Pin configuration subnodes
+  pin-configuration:
+    type: object
+    additionalProperties: false
+    properties:
+      wm,pins:
+        description: Array of pin IDs to configure.
+        $ref: /schemas/types.yaml#/definitions/uint32-array
+      wm,function:
+        description: "Function to mux to the pin(s): 0 = GPIO in, 1 = GPIO out, 2 = alternate."
+        $ref: /schemas/types.yaml#/definitions/uint32-array
+      wm,pull:
+        description: "Pull configuration for the pin(s): 0 = none, 1 = down, 2 = up."
+        $ref: /schemas/types.yaml#/definitions/uint32-array
+    required:
+      - wm,pins
+
+required:
+  - compatible
+  - reg
+  - interrupt-controller
+  - '#interrupt-cells'
+  - gpio-controller
+  - '#gpio-cells'
+
+additionalProperties: false
+
+examples:
+  - |
+    pinctrl: pinctrl {
+        compatible = "wm,wm8505-pinctrl";
+        reg = <0xD8110000 0x10000>;
+        interrupt-controller;
+        #interrupt-cells = <2>;
+        gpio-controller;
+        #gpio-cells = <2>;
+    };
