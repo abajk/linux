@@ -1,0 +1,148 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/regulator/ti,lm363x-regulator.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI LM363x regulator
+maintainers:
+  - Milo Kim <milo.kim@ti.com>
+
+description: |
+  TI LMU LM363x regulator device tree bindings
+
+  LM363x regulator driver supports LM3631 and LM3632.
+  LM3631 has five regulators and LM3632 supports three regulators.
+
+properties:
+  compatible:
+    items:
+      - const: ti,lm363x-regulator
+
+  enable-gpios:
+    description: Two GPIO specifiers for Vpos and Vneg control pins.
+    maxItems: 2
+
+  vboost:
+    description: Boost regulator subnode.
+    $ref: /schemas/regulator/regulator.yaml#
+    unevaluatedProperties: false
+
+    properties:
+      regulator-name:
+        const: lcd_boost
+    required:
+      - regulator-name
+
+  vcont:
+    description: Contrast voltage regulator subnode.
+    $ref: /schemas/regulator/regulator.yaml#
+    unevaluatedProperties: false
+
+    properties:
+      regulator-name:
+        const: lcd_vcont
+    required:
+      - regulator-name
+
+  voref:
+    description: Reference voltage regulator subnode.
+    $ref: /schemas/regulator/regulator.yaml#
+    unevaluatedProperties: false
+
+    properties:
+      regulator-name:
+        const: lcd_voref
+
+    required:
+      - regulator-name
+
+  vpos:
+    description: Positive output regulator subnode.
+    $ref: /schemas/regulator/regulator.yaml#
+    unevaluatedProperties: false
+
+    properties:
+      regulator-name:
+        const: lcd_vpos
+
+    required:
+      - regulator-name
+
+  vneg:
+    description: Negative output regulator subnode.
+    $ref: /schemas/regulator/regulator.yaml#
+    unevaluatedProperties: false
+
+    properties:
+      regulator-name:
+        const: lcd_vneg
+
+    required:
+      - regulator-name
+
+additionalProperties: false
+
+examples:
+  - |
+    lm3631@29 {
+        compatible = "ti,lm3631";
+        reg = <0x29>;
+        regulators {
+            compatible = "ti,lm363x-regulator";
+            vboost {
+                regulator-name = "lcd_boost";
+                regulator-min-microvolt = <4500000>;
+                regulator-max-microvolt = <6350000>;
+                regulator-always-on;
+            };
+            vcont {
+                regulator-name = "lcd_vcont";
+                regulator-min-microvolt = <1800000>;
+                regulator-max-microvolt = <3300000>;
+            };
+            voref {
+                regulator-name = "lcd_voref";
+                regulator-min-microvolt = <4000000>;
+                regulator-max-microvolt = <6000000>;
+            };
+            vpos {
+                regulator-name = "lcd_vpos";
+                regulator-min-microvolt = <4000000>;
+                regulator-max-microvolt = <6000000>;
+                regulator-boot-on;
+            };
+            vneg {
+                regulator-name = "lcd_vneg";
+                regulator-min-microvolt = <4000000>;
+                regulator-max-microvolt = <6000000>;
+                regulator-boot-on;
+            };
+        };
+    };
+  - |
+    lm3632@11 {
+        compatible = "ti,lm3632";
+        reg = <0x11>;
+        regulators {
+            compatible = "ti,lm363x-regulator";
+            enable-gpios = <&gpio1 16 GPIO_ACTIVE_HIGH>,
+                           <&gpio1 28 GPIO_ACTIVE_HIGH>;
+            vboost {
+                regulator-name = "lcd_boost";
+                regulator-min-microvolt = <4500000>;
+                regulator-max-microvolt = <6400000>;
+                regulator-always-on;
+            };
+            vpos {
+                regulator-name = "lcd_vpos";
+                regulator-min-microvolt = <4000000>;
+                regulator-max-microvolt = <6000000>;
+            };
+            vneg {
+                regulator-name = "lcd_vneg";
+                regulator-min-microvolt = <4000000>;
+                regulator-max-microvolt = <6000000>;
+            };
+        };
+    };
