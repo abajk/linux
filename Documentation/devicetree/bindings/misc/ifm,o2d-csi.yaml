@@ -1,0 +1,80 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/ifm,o2d-csi.yaml#
+# $schema is the meta-schema this schema should be validated with.
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: IFM camera sensor interface on mpc5200 LocalPlus bus
+
+maintainers:
+  - Anatolij Gustschin <agust@denx.de>
+
+description: |
+  IFM camera sensor interface on mpc5200 LocalPlus bus.
+
+  The base address of the used chip select is specified in the
+  ranges property of the parent localbus node.
+
+properties:
+  compatible:
+    items:
+      - const: ifm,o2d-csi
+  reg:
+    description: Sensor chip select number, address offset, and range size.
+    items:
+      - description: chip select number.
+      - description: address offset.
+      - description: range size.
+  interrupts:
+    description: External interrupt line number and interrupt sense mode of the frame valid event.
+    items:
+      - description: interrupt specifier (interrupt-parent, line number, flags).
+  gpios:
+    description: GPIO specifiers for capture, reset, and master enable.
+    items:
+      - description: capture GPIO.
+      - description: reset GPIO.
+      - description: master enable GPIO.
+  ifm,csi-clk-handle:
+    description: Phandle to the sensor clock generator.
+    $ref: /schemas/types.yaml#/definitions/phandle
+  ifm,csi-addr-bus-width:
+    description: Address bus width.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [16, 24, 25]
+  ifm,csi-data-bus-width:
+    description: Data bus width.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [8, 16]
+  ifm,csi-wait-cycles:
+    description: Sensor bus wait cycles.
+    $ref: /schemas/types.yaml#/definitions/uint32
+  ifm,csi-byte-swap:
+    description: Enable byte swapping on the bus.
+    type: boolean
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - gpios
+  - ifm,csi-clk-handle
+  - ifm,csi-addr-bus-width
+  - ifm,csi-data-bus-width
+  - ifm,csi-wait-cycles
+
+additionalProperties: false
+
+examples:
+  - |
+    csi@3,0 {
+        compatible = "ifm,o2d-csi";
+        reg = <3 0 0x00100000>;
+        interrupts = <1 1 2>;
+        gpios = <&gpio_simple 23 0 &gpio_simple 26 0 &gpio_simple 29 0>;
+        ifm,csi-clk-handle = <&timer7>;
+        ifm,csi-addr-bus-width = <24>;
+        ifm,csi-data-bus-width = <8>;
+        ifm,csi-wait-cycles = <0>;
+    };
