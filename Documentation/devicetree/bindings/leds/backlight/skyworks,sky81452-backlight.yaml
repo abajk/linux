@@ -1,0 +1,63 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/leds/backlight/skyworks,sky81452-backlight.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: SKY81452 backlight
+maintainers:
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  SKY81452-backlight bindings
+
+properties:
+  compatible:
+    items:
+      - const: skyworks,sky81452-backlight
+
+  gpios:
+    description: GPIO to use to EN pin.
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+
+  led-sources:
+    description: List of enabled channels (0–5).
+
+  skyworks,ignore-pwm:
+    description: Ignore both PWM inputs.
+    type: boolean
+
+  skyworks,dpwm-mode:
+    description: Enable DPWM dimming mode; otherwise analog dimming.
+    type: boolean
+
+  skyworks,phase-shift:
+    description: Enable phase-shift mode.
+    type: boolean
+
+  skyworks,short-detection-threshold-volt:
+    description: Short-detection threshold voltage.
+    enum:
+      - 4
+      - 5
+      - 6
+      - 7
+
+  skyworks,current-limit-mA:
+    description: Current limit in mA.
+    enum:
+      - 2300
+      - 2750
+
+additionalProperties: false
+
+examples:
+  - |
+    backlight {
+        compatible = "skyworks,sky81452-backlight";
+        name = "pwm-backlight";
+        led-sources = <0 1 2 5>;
+        skyworks,ignore-pwm;
+        skyworks,phase-shift;
+        skyworks,current-limit-mA = <2300>;
+    };
