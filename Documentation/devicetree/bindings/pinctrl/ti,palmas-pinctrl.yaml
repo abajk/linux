@@ -1,0 +1,91 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Texas Instruments
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pinctrl/ti,palmas-pinctrl.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI Palmas Pincontrol
+
+maintainers:
+  - Keerthy <j-keerthy@ti.com>
+  - Laxman Dewangan <ldewangan@nvidia.com>
+
+description: |
+  Palmas Pincontrol bindings
+
+  The pins of Palmas device can be set on different option and provides
+  the configuration for Pull UP/DOWN, open drain etc.
+
+  Please refer to pinctrl-bindings.txt in this directory for details of the
+  common pinctrl bindings used by client devices, including the meaning of the
+  phrase "pin configuration node".
+
+  Palmas's pin configuration nodes act as a container for an arbitrary number of
+  subnodes. Each of these subnodes represents some desired configuration for a
+  list of pins. This configuration can include the mux function to select on
+  those pin(s), and various pin configuration parameters, such as pull-up,
+  open drain.
+
+  The name of each subnode is not important; all subnodes should be enumerated
+  and processed purely based on their content.
+
+  Each subnode only affects those parameters that are explicitly listed. In
+  other words, a subnode that lists a mux function but no pin configuration
+  parameters implies no information about any pin configuration parameters.
+  Similarly, a pin subnode that describes a pullup parameter implies no
+  information about e.g. the mux function.
+
+  Note that many of these properties are only valid for certain specific
+  pins. See the Palmas device datasheet for complete details regarding which
+  pins support which functionality.
+
+  There are 4 special functions: opt0, opt1, opt2 and opt3. If any of these
+  functions is selected then directly pins register will be written with 0, 1,
+  2 or 3 respectively if it is valid for that pins or list of pins.
+
+properties:
+  compatible:
+    description: Must be one of the Palmas pincontrol compatible strings.
+    items:
+      - enum:
+          - "ti,palmas-pinctrl"
+          - "ti,tps65913-pinctrl"
+          - "ti,tps80036-pinctrl"
+
+  ti,palmas-enable-dvfs1:
+    type: boolean
+    description: Enable DVFS1 mode; configure pins for the DVFS1 I2C2_SCL_SCE and I2C2_SDA_SDO interface.
+
+  ti,palmas-enable-dvfs2:
+    type: boolean
+    description: Enable DVFS2 mode; configure pins for the DVFS2 GPADC_START and SYSEN2 interface.
+
+  ti,palmas-override-powerhold:
+    type: boolean
+    description: Override POWERHOLD setting on GPIO7 to allow PMIC shutdown in power-off scenarios.
+
+  pinctrl-names:
+    $ref: /schemas/types.yaml#/definitions/string-array
+    description: Names for the pin control states.
+
+patternProperties:
+  '^pinctrl-[0-9]+$':
+    maxItems: 1
+    description: Reference to a pin control state subnode.
+
+required:
+  - compatible
+
+additionalProperties: false
+
+examples:
+  - |
+    palmas: tps65913 {
+      pinctrl {
+        compatible = "ti,tps65913-pinctrl";
+        ti,palmas-enable-dvfs1;
+        pinctrl-names = "default";
+        pinctrl-0 = <&palmas_pins_state>;
+      };
+    };
