@@ -1,0 +1,66 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 James Hogan <jhogan@kernel.org>, Marco Franchi <marco.franchi@nxp.com>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/media/img-ir-rev1.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: ImgTec Infrared (IR) decoder version 1
+
+maintainers:
+  - James Hogan <jhogan@kernel.org>
+  - Marco Franchi <marco.franchi@nxp.com>
+
+description: |
+  * ImgTec Infrared (IR) decoder version 1
+
+  This binding is for Imagination Technologies' Infrared decoder block,
+  specifically major revision 1.
+
+properties:
+  compatible:
+    items:
+      - const: img,ir-rev1
+
+  reg:
+    description: Physical base address of the controller and length of memory mapped region.
+    items:
+      - description: Base address of the controller.
+      - description: Size of the memory mapped region.
+
+  interrupts:
+    description: The interrupt specifier to the CPU.
+    items:
+      - description: Interrupt number.
+      - description: Interrupt flags.
+
+  clocks:
+    description: List of controller clocks. Up to 3 clocks may be specified.
+    items:
+      - description: Core clock (defaults to 32.768 KHz if omitted).
+      - description: System side (fast) clock.
+      - description: Power modulation clock.
+
+  clock-names:
+    description: List of clock names corresponding to the clocks property.
+    items:
+      - const: core
+      - const: sys
+      - const: mod
+
+required:
+  - compatible
+  - reg
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    ir@2006200 {
+        compatible = "img,ir-rev1";
+        reg = <0x02006200 0x100>;
+        interrupts = <29 4>;
+        clocks = <&clk_32khz>;
+        clock-names = "core";
+    };
