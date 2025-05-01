@@ -1,0 +1,102 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/ti,davinci-dm6467-emac.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI Davinci EMAC
+maintainers:
+  - Heiko Schocher <hs@denx.de>
+  - Petr Štetiar <ynezz@true.cz>
+  - Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+  - Tony Lindgren <tony@atomide.com>
+
+description: |
+  Texas Instruments Davinci EMAC
+
+  This file provides information, what the device node
+  for the davinci_emac interface contains.
+
+  The MAC address will be determined using the optional properties
+  defined in ethernet.txt.
+
+properties:
+  compatible:
+    enum:
+      - "ti,davinci-dm6467-emac"
+      - "ti,am3517-emac"
+      - "ti,dm816-emac"
+
+  reg:
+    description: Base address and size of EMAC registers
+    items:
+      - description: Register base offset
+      - description: Register region size
+
+  interrupts:
+    description: |
+      Interrupt mapping for the Davinci EMAC, in order:
+      Receive Threshold, Receive, Transmit, Miscellaneous
+    items:
+      - description: Receive Threshold Interrupt
+      - description: Receive Interrupt
+      - description: Transmit Interrupt
+      - description: Miscellaneous Interrupt
+
+  ti,davinci-ctrl-reg-offset:
+    description: Offset to EMAC control register
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  ti,davinci-ctrl-mod-reg-offset:
+    description: Offset to EMAC control module register
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  ti,davinci-ctrl-ram-offset:
+    description: Offset to EMAC control RAM
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  ti,davinci-ctrl-ram-size:
+    description: Size of EMAC control RAM
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  phy-handle:
+    description: Phandle to external PHY; if absent, defaults to 100/FULL
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  local-mac-address:
+    description: Local MAC address for the EMAC interface
+    $ref: /schemas/types.yaml#/definitions/uint8-array
+    minItems: 6
+    maxItems: 6
+
+  ti,davinci-rmii-en:
+    description: Enable RMII interface when true
+    type: boolean
+
+  ti,davinci-no-bd-ram:
+    description: Indicates absence of BD RAM when true
+    type: boolean
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - ti,davinci-ctrl-reg-offset
+  - ti,davinci-ctrl-mod-reg-offset
+  - ti,davinci-ctrl-ram-offset
+  - ti,davinci-ctrl-ram-size
+
+additionalProperties: false
+
+examples:
+  - |
+    eth0: emac@1e20000 {
+        compatible = "ti,davinci-dm6467-emac";
+        reg = <0x220000 0x4000>;
+        ti,davinci-ctrl-reg-offset = <0x3000>;
+        ti,davinci-ctrl-mod-reg-offset = <0x2000>;
+        ti,davinci-ctrl-ram-offset = <0>;
+        ti,davinci-ctrl-ram-size = <0x2000>;
+        local-mac-address = [ 00 00 00 00 00 00 ];
+        interrupts = <33 34 35 36>;
+    };
