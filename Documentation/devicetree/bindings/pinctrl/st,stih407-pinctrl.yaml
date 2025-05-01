@@ -1,0 +1,119 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pinctrl/st,stih407-pinctrl.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: ST PIO-multiplexing pin controller
+
+maintainers:
+  - Geert Uytterhoeven <geert+renesas@glider.be>
+  - Marco Franchi <marco.franchi@nxp.com>
+  - Patrice Chotard <patrice.chotard@st.com>
+  - Peter Griffin <peter.griffin@linaro.org>
+  - Srinivas Kandagatla <srinivas.kandagatla@st.com>
+  - Srinivas KANDAGATLA <srinivas.kandagatla@st.com>
+
+description: |
+  ST pin controller
+
+  Each multi-function pin is controlled, driven and routed through the
+  PIO multiplexing block. Each pin supports GPIO functionality (ALT0) and
+  multiple alternate functions (ALT1–ALTx) that directly connect the pin
+  to different hardware blocks.
+
+  When a pin is in GPIO mode, Output Enable (OE), Open Drain (OD), and
+  Pull Up (PU) are driven by the related PIO block.
+
+  The ST pinctrl driver controls the PIO multiplexing block and also
+  interacts with the GPIO driver to configure pins.
+
+  A GPIO bank can have one of two interrupt wirings:
+  • Shared via irqmux: a single interrupt is used by multiple GPIO banks,
+    reducing the number of required interrupt lines.
+  • Dedicated per bank: each GPIO bank has its own interrupt line.
+
+  Related macros: include/dt-bindings/interrupt-controller/irq.h
+
+properties:
+  compatible:
+    items:
+      - pattern: "^st,stih407-[^,]+-pinctrl$"
+
+  st,syscfg:
+    description: Phandle of the syscfg controller
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  st,retime-pin-mask:
+    description: Mask specifying which pins can be retimed
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  ranges:
+    description: Map parent PIO address to child GPIO bank address and size
+
+  interrupts:
+    maxItems: 1
+
+  reg:
+    maxItems: 1
+
+  reg-names:
+    items:
+      - const: irqmux
+
+  interrupt-names:
+    items:
+      - const: irqmux
+
+definitions:
+  pinctrl-subnode:
+    description: A GPIO configuration subnode
+    type: object
+    additionalProperties: false
+    properties:
+      st,pins:
+        description: List of pin configurations (bank, offset, mux, mode, retime, delay, clk)
+        type: array
+        items:
+          type: array
+          items:
+            - description: Bank phandle
+              $ref: /schemas/types.yaml#/definitions/phandle
+            - description: Pin offset within bank
+              $ref: /schemas/types.yaml#/definitions/uint32
+            - description: Multiplexing mode index
+              $ref: /schemas/types.yaml#/definitions/uint32
+            - description: Direction/pull setting
+              enum: [IN, IN_PU, OUT, BIDIR, BIDIR_PU]
+            - description: Retiming type
+              enum: [NICLK, ICLK_IO, BYPASS, DE_IO, SE_ICLK_IO, SE_NICLK_IO]
+            - description: Retiming delay (ps)
+              $ref: /schemas/types.yaml#/definitions/uint32
+            - description: Retiming clock source
+              enum: [CLK_A, CLK_B, CLK_C, CLK_D]
+        minItems: 7
+    required:
+      - st,pins
+
+additionalProperties: false
+
+examples:
+  - |
+    pin-controller-sbc {
+        compatible = "st,stih407-sbc-pinctrl";
+        st,syscfg = <&syscfg_sbc>;
+        ranges = <0 0x09610000 0x6000>;
+        reg = <0x0961f080 0x4>;
+        reg-names = "irqmux";
+        interrupts = <GIC_SPI 188 IRQ_TYPE_NONE>;
+        interrupt-names = "irqmux";
+
+        pio0: gpio@9610000 {
+            gpio-controller;
+            #gpio-cells = <2>;
+            interrupt-controller;
+            #interrupt-cells = <2>;
+            reg = <0x0 0x100>;
+            st,bank-name = "PIO0";
+        };
+    };
