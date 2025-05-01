@@ -1,0 +1,41 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Krzysztof Kozlowski, Laurent Pinchart, Peter Ujfalusi
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pwm/ti,twl-pwmled.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Texas Instruments TWL series PWMLED
+maintainers:
+  - Krzysztof Kozlowski <krzk@kernel.org>
+  - Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+  - Peter Ujfalusi <peter.ujfalusi@ti.com>
+description: |
+  Texas Instruments TWL series PWM drivers connected to LED terminals
+
+  Supported PWMs:
+  On TWL4030 series: PWMA and PWMB (connected to LEDA and LEDB terminals)
+  On TWL6030 series: LED PWM (mainly used as charging indicator LED)
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - ti,twl4030-pwmled
+          - ti,twl6030-pwmled
+  '#pwm-cells':
+    description: Number of PWM cells; must be 2.
+    const: 2
+
+required:
+  - compatible
+  - '#pwm-cells'
+
+additionalProperties: false
+
+examples:
+  - |
+    twl_pwmled: pwmled {
+        compatible = "ti,twl6030-pwmled";
+        #pwm-cells = <2>;
+    };
