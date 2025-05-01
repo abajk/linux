@@ -1,0 +1,88 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Arnaud Ebalard
+# Copyright 2025 Mark Brown
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/regulator/isil,isl9305.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Intersil ISL9305/ISL9305H voltage regulator
+
+maintainers:
+  - Arnaud Ebalard <arno@natisbad.org>
+  - Mark Brown <broonie@kernel.org>
+
+description: |
+  Intersil ISL9305/ISL9305H voltage regulator
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - isil,isl9305
+          - isil,isl9305h
+
+  reg:
+    maxItems: 1
+
+  regulators:
+    description: Sub-node containing regulators for the device.
+    type: object
+    additionalProperties: false
+    properties:
+      dcd1:
+        description: DCDC converter 1 regulator sub-node.
+        $ref: /schemas/regulator/regulator.yaml#
+        unevaluatedProperties: false
+      dcd2:
+        description: DCDC converter 2 regulator sub-node.
+        $ref: /schemas/regulator/regulator.yaml#
+        unevaluatedProperties: false
+      ldo1:
+        description: LDO regulator 1 sub-node.
+        $ref: /schemas/regulator/regulator.yaml#
+        unevaluatedProperties: false
+      ldo2:
+        description: LDO regulator 2 sub-node.
+        $ref: /schemas/regulator/regulator.yaml#
+        unevaluatedProperties: false
+    required:
+      - dcd1
+      - dcd2
+      - ldo1
+      - ldo2
+
+  VINDCD1-supply:
+    description: Regulator supply phandle for VINDCD1.
+  VINDCD2-supply:
+    description: Regulator supply phandle for VINDCD2.
+  VINLDO1-supply:
+    description: Regulator supply phandle for VINLDO1.
+  VINLDO2-supply:
+    description: Regulator supply phandle for VINLDO2.
+
+required:
+  - compatible
+  - reg
+  - regulators
+
+additionalProperties: false
+
+examples:
+  - |
+    isl9305@68 {
+        compatible = "isil,isl9305";
+        reg = <0x68>;
+
+        VINDCD1-supply = <&system_power>;
+        VINDCD2-supply = <&system_power>;
+        VINLDO1-supply = <&system_power>;
+        VINLDO2-supply = <&system_power>;
+
+        regulators {
+            dcd1 {
+                regulator-name = "VDD_DSP";
+                regulator-always-on;
+            };
+        };
+    };
