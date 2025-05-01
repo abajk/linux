@@ -1,0 +1,92 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+---
+$id: http://devicetree.org/schemas/mips/brcm/brcm,bcm3368.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Broadcom STB SoC
+
+maintainers:
+  - Álvaro Fernández Rojas <noltari@gmail.com>
+  - Florian Fainelli <f.fainelli@gmail.com>
+  - Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+  - Kevin Cernekee <cernekee@gmail.com>
+
+description: |
+  * Broadcom cable/DSL/settop platforms
+
+  The experimental -viper variants are for running Linux on the 3384's
+  BMIPS4355 cable modem CPU instead of the BMIPS5000 application processor.
+
+  Power management
+  ----------------
+
+  For power management (particularly, S2/S3/S5 system suspend), the following SoC
+  components are needed:
+
+  Always-On control block (AON CTRL)
+
+  This hardware provides control registers for the "always-on" (even in low-power
+  modes) hardware, such as the Power Management State Machine (PMSM).
+
+  Memory controllers
+
+  A Broadcom STB SoC typically has a number of independent memory controllers,
+  each of which may have several associated hardware blocks, which are versioned
+  independently (control registers, DDR PHYs, etc.). One might consider
+  describing these controllers as a parent "memory controllers" block, which
+  contains N sub-nodes (one for each controller in the system), each of which is
+  associated with a number of hardware register resources (e.g., its PHY.
+
+  DDR PHY control
+
+  Control registers for this memory controller's DDR PHY.
+
+  DDR memory controller sequencer
+
+  Control registers for this memory controller's DDR memory sequencer
+
+  MEMC Arbiter
+
+  The memory controller arbiter is responsible for memory clients allocation
+  (bandwidth, priorities etc.) and needs to have its contents restored during
+  deep sleep states (S3).
+
+  Timers
+
+  The Broadcom STB chips contain a timer block with several general purpose
+  timers that can be used.
+
+properties:
+  compatible:
+    description: A list of compatible strings for Broadcom STB SoCs.
+    items:
+      - enum:
+          - brcm,bcm3368
+          - brcm,bcm3384
+          - brcm,bcm33843
+          - brcm,bcm3384-viper
+          - brcm,bcm33843-viper
+          - brcm,bcm6328
+          - brcm,bcm6358
+          - brcm,bcm6362
+          - brcm,bcm6368
+          - brcm,bcm63168
+          - brcm,bcm63268
+          - brcm,bcm7125
+          - brcm,bcm7346
+          - brcm,bcm7358
+          - brcm,bcm7360
+          - brcm,bcm7362
+          - brcm,bcm7420
+          - brcm,bcm7425
+
+required:
+  - compatible
+
+additionalProperties: false
+
+examples:
+  - |
+    soc {
+      compatible = "brcm,bcm3368";
+    };
