@@ -1,0 +1,67 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Microchip Technology Inc.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mips/pic32/microchip,pic32mzda.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Microchip PIC32MZDA
+
+maintainers:
+  - Joshua Henderson <joshua.henderson@microchip.com>
+
+description: |
+  * Microchip PIC32MZDA Platforms
+
+  PIC32MZDA Starter Kit
+
+  CPU nodes:
+  A "cpus" node is required.
+  A CPU sub-node is also required.
+
+  Boot protocol
+  --------------
+  In accordance with Unified Hosting Interface Reference Manual (MD01069), the
+  bootloader must pass the following arguments to the kernel:
+   - $a0: -2.
+   - $a1: KSEG0 address of the flattened device-tree blob.
+
+properties:
+  compatible:
+    # Primary and fallback compatible strings
+    items:
+      - const: microchip,pic32mzda-sk
+      - const: microchip,pic32mzda
+
+  cpus:
+    description: CPU container node
+    type: object
+    properties:
+      "#address-cells":
+        description: Number of address cells for CPUs node
+        const: 1
+      "#size-cells":
+        description: Number of size cells for CPUs node
+        const: 0
+    required:
+      - "#address-cells"
+      - "#size-cells"
+    additionalProperties:
+      description: CPU core sub-nodes
+      type: object
+      properties:
+        device_type:
+          const: cpu
+        compatible:
+          items:
+            - const: mti,mips14KEc
+      required:
+        - device_type
+        - compatible
+      additionalProperties: false
+
+required:
+  - compatible
+  - cpus
+
+additionalProperties: false
