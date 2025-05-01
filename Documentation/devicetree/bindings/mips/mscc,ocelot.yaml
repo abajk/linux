@@ -1,0 +1,93 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mips/mscc,ocelot.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Microsemi MIPS CPUs
+
+maintainers:
+  - Alexandre Belloni <alexandre.belloni@bootlin.com>
+  - Gregory CLEMENT <gregory.clement@bootlin.com>
+  - Quentin Schulz <quentin.schulz@bootlin.com>
+
+description: |
+  * Microsemi MIPS CPUs
+
+  Boards with a SoC of the Microsemi MIPS family shall have the following
+  properties:
+
+  * Other peripherals:
+
+  o CPU chip regs:
+
+  The SoC has a few registers (DEVCPU_GCB:CHIP_REGS) handling miscellaneous
+  functionalities: chip ID, general purpose register for software use, reset
+  controller, hardware status and configuration, efuses.
+
+  o HSIO regs:
+
+  The SoC has a few registers (HSIO) handling miscellaneous functionalities:
+  configuration and status of PLL5, RCOMP, SyncE, SerDes configurations and
+  status, SerDes muxing and a thermal sensor.
+
+properties:
+  compatible:
+    description: Hardware compatible string for the Microsemi MIPS SoC.
+    items:
+      - enum:
+          - mscc,ocelot
+          - mscc,luton
+          - mscc,serval
+          - mscc,jr2
+
+patternProperties:
+  "^syscon@[0-9a-fA-F]+$":
+    description: CPU chip or HSIO registers subnode.
+    anyOf:
+      - description: CPU chip registers
+        allOf:
+          - properties:
+              compatible:
+                items:
+                  - enum:
+                      - mscc,ocelot-chip-regs
+                      - simple-mfd
+                      - syscon
+              reg:
+                items:
+                  - description: Register location and length
+            required:
+              - compatible
+              - reg
+      - description: HSIO registers
+        allOf:
+          - properties:
+              compatible:
+                items:
+                  - enum:
+                      - mscc,ocelot-hsio
+                      - simple-mfd
+                      - syscon
+              reg:
+                items:
+                  - description: Register location and length
+            required:
+              - compatible
+              - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    node@0 {
+        compatible = "mscc,ocelot";
+        syscon@71070000 {
+            compatible = "mscc,ocelot-chip-regs", "simple-mfd", "syscon";
+            reg = <0x71070000 0x1c>;
+        };
+        syscon@10d0000 {
+            compatible = "mscc,ocelot-hsio", "simple-mfd", "syscon";
+            reg = <0x10d0000 0x10000>;
+        };
+    };
