@@ -1,0 +1,188 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/ti,cpsw.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI SoC Ethernet Switch Controller
+
+maintainers:
+  - Daniel Mack <zonque@gmail.com>
+  - David Rivshin <drivshin@allworx.com>
+  - David S. Miller <davem@davemloft.net>
+  - Grygorii Strashko <grygorii.strashko@ti.com>
+  - Heiko Schocher <hs@denx.de>
+  - Ivan Khoronzhuk <ivan.khoronzhuk@linaro.org>
+  - Markus Brunner <systemprogrammierung.brunner@gmail.com>
+  - Markus Schneider-Pargmann <msp@baylibre.com>
+  - Mugunthan V N <mugunthanvnm@ti.com>
+  - Petr Štetiar <ynezz@true.cz>
+  - Randy Dunlap <rdunlap@infradead.org>
+  - Richard Cochran <richardcochran@gmail.com>
+  - Rob Herring <robh@kernel.org>
+  - Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+  - Tony Lindgren <tony@atomide.com>
+
+description: |
+  TI SoC Ethernet Switch Controller Device Tree Bindings
+  ------------------------------------------------------
+
+properties:
+  compatible:
+    $ref: /schemas/types.yaml#/definitions/string-array
+    items:
+      - enum:
+          - ti,cpsw
+          - ti,am335x-cpsw
+          - ti,am4372-cpsw
+          - ti,dra7-cpsw
+
+  reg:
+    items:
+      - description: Physical base address of the CPSW registers map
+      - description: Size of the CPSW registers map
+
+  interrupts:
+    items:
+      - description: Interrupt number
+      - description: Interrupt flags
+
+  cpdma-channels:
+    description: Specifies number of channels in CPDMA
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  ale-entries:
+    description: Specifies number of ALE entries
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  bd-ram-size:
+    description: Specifies internal descriptor RAM size
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  rx-descs:
+    description: Specifies number of Rx descriptors
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  mac-control:
+    description: Specifies default MAC control register content
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  slaves:
+    description: Specifies number of slaves
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  active-slave:
+    description: Specifies the slave to use for time stamping, ethtool and SIOCGMIIPHY
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  cpsw-phy-sel:
+    description: Specifies the phandle to the CPSW PHY mode selection device
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  ti,hwmods:
+    description: Must be "cpgmac0"
+    const: cpgmac0
+
+  dual-emac:
+    description: Specifies switch to act as Dual EMAC
+    type: boolean
+
+  syscon:
+    description: Phandle to the system control device node
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  mode-gpios:
+    description: |
+      Should be added if one or multiple GPIO lines are required to be driven
+      so that CPSW data lines can be connected to the PHY via selective mux
+    items:
+      $ref: /schemas/types.yaml#/definitions/phandle
+
+  cpts-clock-mult:
+    description: Numerator to convert input clock ticks into nanoseconds
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  cpts-clock-shift:
+    description: Denominator to convert input clock ticks into nanoseconds
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+patternProperties:
+  "^cpsw_emac[0-9]+$":
+    description: CPSW slave sub-node properties
+    type: object
+    additionalProperties: false
+    properties:
+      phy-mode:
+        description: See ethernet.txt file in the same directory
+        $ref: /schemas/types.yaml#/definitions/string
+
+      phys:
+        description: Phandle on PHY (see phy/ti-phy-gmii-sel.txt)
+        items:
+          $ref: /schemas/types.yaml#/definitions/phandle
+
+      dual-emac-res-vlan:
+        description: Specifies VID to be used to segregate the ports
+        $ref: /schemas/types.yaml#/definitions/uint32
+
+      phy-id:
+        description: Specifies slave phy id (deprecated, use phy-handle)
+        $ref: /schemas/types.yaml#/definitions/uint32
+
+      phy-handle:
+        description: See ethernet.txt file in the same directory
+        $ref: /schemas/types.yaml#/definitions/phandle
+
+      fixed-link:
+        description: Fixed link sub-node (see fixed-link.txt)
+        type: object
+        additionalProperties: false
+
+    required:
+      - phy-mode
+      - phys
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - cpdma-channels
+  - ale-entries
+  - bd-ram-size
+  - mac-control
+  - slaves
+  - active-slave
+  - cpsw-phy-sel
+
+additionalProperties: false
+
+examples:
+  - |
+    mac: ethernet@4a100000 {
+      compatible = "ti,cpsw";
+      reg = <0x4A100000 0x1000>;
+      interrupts = <55 0x4>;
+      cpdma-channels = <8>;
+      ale-entries = <1024>;
+      bd-ram-size = <0x2000>;
+      rx-descs = <64>;
+      mac-control = <0x20>;
+      slaves = <2>;
+      active-slave = <0>;
+      cpts-clock-mult = <0x80000000>;
+      cpts-clock-shift = <29>;
+      syscon = <&cm>;
+      cpsw-phy-sel = <&phy_sel>;
+      cpsw_emac0: slave@0 {
+        /* Filled in by U-Boot */
+        mac-address = [00 00 00 00 00 00];
+        phy-mode = "rgmii-txid";
+        phys = <&phy_gmii_sel 1 0>;
+      };
+      cpsw_emac1: slave@1 {
+        /* Filled in by U-Boot */
+        mac-address = [00 00 00 00 00 00];
+        phy-mode = "rgmii-txid";
+        phys = <&phy_gmii_sel 2 0>;
+      };
+    };
