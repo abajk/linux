@@ -1,0 +1,145 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Claudiu Beznea <claudiu.beznea@tuxon.dev>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pinctrl/atmel,sama5d2-pinctrl.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Atmel AT91 PIO4 controller
+
+maintainers:
+  - Claudiu Beznea <claudiu.beznea@tuxon.dev>
+  - Dharma Balasubiramani <dharma.b@microchip.com>
+  - Eugen Hristev <eugen.hristev@linaro.org>
+  - Ludovic Desroches <ludovic.desroches@atmel.com>
+  - Ludovic Desroches <ludovic.desroches@microchip.com>
+  - Ryan Wanner <Ryan.Wanner@microchip.com>
+
+description: |
+  * Atmel PIO4 Controller
+
+  The Atmel PIO4 controller is used to select the function of a pin and to
+  configure it.
+
+  Please refer to ../gpio/gpio.txt and ../interrupt-controller/interrupts.txt for
+  a general description of GPIO and interrupt bindings.
+
+  Please refer to pinctrl-bindings.txt in this directory for details of the
+  common pinctrl bindings used by client devices.
+
+  Subnode format
+  Each node (or subnode) will list the pins it needs and how to configured these
+  pins.
+
+    node {
+        pinmux = <PIN_NUMBER_PINMUX>;
+        GENERIC_PINCONFIG;
+    };
+
+  Required properties:
+  - pinmux: integer array. Each integer represents a pin number plus mux and
+    ioset settings. Use the macros from boot/dts/<soc>-pinfunc.h file to get the
+    right representation of the pin.
+
+  Optional properties:
+  - GENERIC_PINCONFIG: generic pinconfig options to use:
+      - bias-disable, bias-pull-down, bias-pull-up, drive-open-drain,
+        drive-push-pull, input-schmitt-enable, input-debounce, output-low,
+        output-high.
+      - for microchip,sama7g5-pinctrl only:
+          - slew-rate: 0 - disabled, 1 - enabled (default)
+  - atmel,drive-strength: 0 or 1 for low drive, 2 for medium drive and 3 for
+    high drive. The default value is low drive.
+
+properties:
+  compatible:
+    items:
+      - const: atmel,sama5d2-pinctrl
+      - const: microchip,sama7g5-pinctrl
+      - const: microchip,sama7g5-pinctrl
+  reg:
+    items:
+      - description: Base address and length of the PIO controller register space.
+  interrupts:
+    description: Interrupt outputs from the controller, one for each bank.
+    items:
+      - description: Interrupt specifier (IRQ number, type, flags).
+  interrupt-controller: true
+  '#interrupt-cells':
+    const: 2
+  gpio-controller: true
+  '#gpio-cells':
+    const: 2
+  clocks:
+    maxItems: 1
+    description: PIO controller clock signal.
+
+patternProperties:
+  "^pinctrl-.*$":
+    description: Pin configuration subnodes.
+    type: object
+    properties:
+      pinmux:
+        description: Pin multiplexer settings.
+        items:
+          $ref: /schemas/types.yaml#/definitions/uint32
+      bias-disable:
+        description: Disable pin bias.
+        type: boolean
+      bias-pull-down:
+        description: Enable pull-down bias.
+        type: boolean
+      bias-pull-up:
+        description: Enable pull-up bias.
+        type: boolean
+      drive-open-drain:
+        description: Open-drain output.
+        type: boolean
+      drive-push-pull:
+        description: Push-pull output.
+        type: boolean
+      input-schmitt-enable:
+        description: Enable Schmitt trigger at input.
+        type: boolean
+      input-debounce:
+        description: Enable input debounce.
+        type: boolean
+      output-low:
+        description: Force output low.
+        type: boolean
+      output-high:
+        description: Force output high.
+        type: boolean
+      slew-rate:
+        description: Slew rate control (microchip,sama7g5-pinctrl only).
+        enum:
+          - 0
+          - 1
+      atmel,drive-strength:
+        description: Drive strength.
+        enum:
+          - 0
+          - 1
+          - 2
+          - 3
+    required:
+      - pinmux
+    additionalProperties: false
+
+additionalProperties: false
+
+examples:
+  - |
+    pinctrl@fc038000 {
+        compatible = "atmel,sama5d2-pinctrl";
+        reg = <0xfc038000 0x600>;
+        interrupts = <18 IRQ_TYPE_LEVEL_HIGH 7>,
+                     <68 IRQ_TYPE_LEVEL_HIGH 7>,
+                     <69 IRQ_TYPE_LEVEL_HIGH 7>,
+                     <70 IRQ_TYPE_LEVEL_HIGH 7>;
+        interrupt-controller;
+        #interrupt-cells = <2>;
+        gpio-controller;
+        #gpio-cells = <2>;
+        clocks = <&pioA_clk>;
+    };
