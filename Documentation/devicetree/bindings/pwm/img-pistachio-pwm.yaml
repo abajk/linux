@@ -1,0 +1,63 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pwm/img-pistachio-pwm.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: img,pistachio-pwm
+maintainers:
+  - Krzysztof Kozlowski <krzk@kernel.org>
+  - Naidu Tellapati <naidu.tellapati@gmail.com>
+
+description: |
+  *Imagination Technologies PWM DAC driver
+
+properties:
+  compatible:
+    items:
+      - const: img,pistachio-pwm
+
+  reg:
+    items:
+      - description: Physical base address of PWM registers
+      - description: Length of PWM registers
+
+  clocks:
+    items:
+      - description: PWM operating clock
+      - description: PWM system interface clock
+
+  clock-names:
+    items:
+      - const: pwm
+      - const: sys
+
+  '#pwm-cells':
+    const: 2
+
+  img,cr-periph:
+    description: |
+      Must contain a phandle to the peripheral control syscon node which contains
+      PWM control registers
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+required:
+  - compatible
+  - reg
+  - clocks
+  - clock-names
+  - '#pwm-cells'
+  - img,cr-periph
+
+additionalProperties: false
+
+examples:
+  - |
+    pwm: pwm@18101300 {
+        compatible = "img,pistachio-pwm";
+        reg = <0x18101300 0x100>;
+        clocks = <&pwm_clk>, <&system_clk>;
+        clock-names = "pwm", "sys";
+        #pwm-cells = <2>;
+        img,cr-periph = <&cr_periph>;
+    };
