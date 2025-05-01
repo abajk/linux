@@ -1,0 +1,50 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 STMicroelectronics
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/media/st,st-delta.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: STMicroelectronics DELTA multi-format video decoder
+
+maintainers:
+  - Hugues Fruchet <hugues.fruchet@st.com>
+
+description: |
+  STMicroelectronics DELTA multi-format video decoder
+
+properties:
+  compatible:
+    items:
+      - const: st,st-delta
+
+  clocks:
+    description: Clocks for the DELTA decoder; the number and type depend on the SoC.
+    items:
+      - description: delta master clock
+      - description: ST231 DMU clock
+      - description: flash PROMIP clock
+
+  clock-names:
+    description: Names of the clocks in the same order as clocks.
+    items:
+      - const: delta
+      - const: delta-st231
+      - const: delta-flash-promip
+
+required:
+  - compatible
+  - clocks
+  - clock-names
+
+additionalProperties: false
+
+examples:
+  - |
+    delta0 {
+        compatible = "st,st-delta";
+        clock-names = "delta", "delta-st231", "delta-flash-promip";
+        clocks = <&clk_s_c0_flexgen CLK_VID_DMU>,
+                <&clk_s_c0_flexgen CLK_ST231_DMU>,
+                <&clk_s_c0_flexgen CLK_FLASH_PROMIP>;
+    };
