@@ -1,0 +1,96 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/qcom,ipq806x-gmac.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: IPQ806x DWMAC Ethernet controller
+
+maintainers:
+  - Mathieu Olivari <mathieu@codeaurora.org>
+
+description: |
+  * IPQ806x DWMAC Ethernet controller
+
+  The device inherits all the properties of the dwmac/stmmac devices
+  described in the file net/stmmac.txt with the following changes.
+
+properties:
+  compatible:
+    oneOf:
+      - items:
+          - const: snps,dwmac
+          - const: qcom,ipq806x-gmac
+        additionalItems: false
+      - items:
+          - const: qcom,ipq806x-gmac
+        additionalItems: false
+
+  device_type:
+    enum: [network]
+    description: Device type, must be "network".
+
+  reg:
+    items:
+      - description: Base address and size of the GMAC registers.
+
+  interrupts:
+    items:
+      - description: Interrupt specifier for the MAC controller.
+
+  interrupt-names:
+    items:
+      - const: macirq
+
+  clocks:
+    maxItems: 1
+    description: Clock for the GMAC core.
+
+  clock-names:
+    items:
+      - const: stmmaceth
+
+  resets:
+    items:
+      - description: Reset control for the GMAC core.
+
+  reset-names:
+    items:
+      - const: stmmaceth
+
+  qcom,nss-common:
+    description: phandle to a syscon device mapping the nss-common registers.
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  qcom,qsgmii-csr:
+    description: phandle to a syscon device mapping the qsgmii-csr registers.
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+required:
+  - compatible
+  - device_type
+  - reg
+  - interrupts
+  - qcom,nss-common
+  - qcom,qsgmii-csr
+
+additionalProperties: false
+
+examples:
+  - |
+    gmac: ethernet@37000000 {
+        device_type = "network";
+        compatible = "qcom,ipq806x-gmac";
+        reg = <0x37000000 0x200000>;
+        interrupts = <GIC_SPI 220 IRQ_TYPE_LEVEL_HIGH>;
+        interrupt-names = "macirq";
+
+        qcom,nss-common = <&nss_common>;
+        qcom,qsgmii-csr = <&qsgmii_csr>;
+
+        clocks = <&gcc GMAC_CORE1_CLK>;
+        clock-names = "stmmaceth";
+
+        resets = <&gcc GMAC_CORE1_RESET>;
+        reset-names = "stmmaceth";
+    };
