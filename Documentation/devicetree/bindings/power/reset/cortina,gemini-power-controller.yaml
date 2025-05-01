@@ -1,0 +1,38 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Linus Walleij <linus.walleij@linaro.org>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/power/reset/cortina,gemini-power-controller.yaml#
+# $schema is the meta-schema this schema should be validated with.
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Cortina Systems Gemini Poweroff
+maintainers:
+  - Linus Walleij <linus.walleij@linaro.org>
+description: |
+  * Device-Tree bindings for Cortina Systems Gemini Poweroff
+
+  This is a special IP block in the Cortina Gemini SoC that only
+  deals with different ways to power the system down.
+properties:
+  compatible:
+    items:
+      - const: cortina,gemini-power-controller
+  reg:
+    items:
+      - description: Physical memory base address of the controller registers
+      - description: Size of the controller register space
+  interrupts:
+    items:
+      - description: Power management interrupt
+required:
+  - compatible
+  - reg
+  - interrupts
+additionalProperties: false
+examples:
+  - |
+    power-controller@4b000000 {
+        compatible = "cortina,gemini-power-controller";
+        reg = <0x4b000000 0x100>;
+        interrupts = <26 IRQ_TYPE_EDGE_FALLING>;
+    };
