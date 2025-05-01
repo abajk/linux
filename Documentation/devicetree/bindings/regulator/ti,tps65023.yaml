@@ -1,0 +1,74 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/regulator/ti,tps65023.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TPS65023 family of regulators
+
+maintainers:
+  - Thomas Elste <thomas.elste@imms.de>
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - ti,tps65020
+          - ti,tps65021
+          - ti,tps65023
+  reg:
+    description: I2C slave address of the device.
+    maxItems: 1
+  regulators:
+    description: >
+      Child nodes specifying regulator initialization data for
+      VDCDC[1-3] and LDO[1-2] regulators.
+    type: object
+    additionalProperties: false
+    patternProperties:
+      "^VDCDC[1-3]$|^LDO[1-2]$":
+        $ref: /schemas/regulator/regulator.yaml
+        
+required:
+  - compatible
+  - reg
+  - regulators
+additionalProperties: false
+examples:
+  - |
+    tps65023@48 {
+        compatible = "ti,tps65023";
+        reg = <0x48>;
+        regulators {
+            VDCDC1 {
+                regulator-name = "vdd_mpu";
+                regulator-always-on;
+                regulator-min-microvolt = <1200000>;
+                regulator-max-microvolt = <1200000>;
+            };
+            VDCDC2 {
+                regulator-name = "vdd_core";
+                regulator-always-on;
+                regulator-min-microvolt = <3300000>;
+                regulator-max-microvolt = <3300000>;
+            };
+            VDCDC3 {
+                regulator-name = "vdd_io";
+                regulator-always-on;
+                regulator-min-microvolt = <1800000>;
+                regulator-max-microvolt = <1800000>;
+            };
+            LDO1 {
+                regulator-name = "vdd_usb18";
+                regulator-always-on;
+                regulator-min-microvolt = <1800000>;
+                regulator-max-microvolt = <1800000>;
+            };
+            LDO2 {
+                regulator-name = "vdd_usb33";
+                regulator-always-on;
+                regulator-min-microvolt = <3300000>;
+                regulator-max-microvolt = <3300000>;
+            };
+        };
+    };
