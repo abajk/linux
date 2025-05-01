@@ -1,0 +1,171 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pinctrl/actions,s700-pinctrl.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: actions,s700-pinctrl
+
+maintainers:
+  - Saravanan Sekar <sravanhome@gmail.com>
+
+description: |
+  Actions Semi S700 Pin Controller
+
+  This binding describes the pin controller found in the S700 SoC.
+
+  Please refer to pinctrl-bindings.txt in this directory for details of the
+  common pinctrl bindings used by client devices, including the meaning of the
+  phrase "pin configuration node".
+
+  The pin configuration nodes act as a container for an arbitrary number of
+  subnodes. Each of these subnodes represents some desired configuration for a
+  pin, a group, or a list of pins or groups. This configuration can include the
+  mux function to select on those group(s), and various pin configuration
+  parameters, such as pull-up, drive strength, etc.
+
+  PIN CONFIGURATION NODES:
+
+  The name of each subnode is not important; all subnodes should be enumerated
+  and processed purely based on their content.
+
+  Each subnode only affects those parameters that are explicitly listed. In
+  other words, a subnode that lists a mux function but no pin configuration
+  parameters implies no information about any pin configuration parameters.
+  Similarly, a pin subnode that describes a pull-up parameter implies no
+  information about the mux function.
+
+  Pinmux functions are available only for the pin groups while pinconf
+  parameters are available for both pin groups and individual pins.
+
+  The following generic properties as defined in pinctrl-bindings.txt are valid
+  to specify in a pin configuration subnode:
+
+properties:
+  compatible:
+    contains:
+      const: actions,s700-pinctrl
+    description: Must contain "actions,s700-pinctrl".
+  reg:
+    items:
+      - description: Register base address
+      - description: Register size
+    description: Register base address and size of the pin controller.
+  clocks:
+    maxItems: 1
+    description: phandle of the clock feeding the pin controller.
+  gpio-controller: true
+  gpio-ranges:
+    description: Specifies the mapping between gpio controller and pin-controller pins.
+    items:
+      - description: phandle to pin controller
+      - description: GPIO controller pin offset
+      - description: pin-controller pin offset
+      - description: number of pins
+  '#gpio-cells':
+    const: 2
+  interrupt-controller: true
+  '#interrupt-cells':
+    const: 2
+  interrupts:
+    # Cases that have only a single entry just need to express that with maxItems
+    maxItems: 1
+    description: >
+      The interrupt outputs from the controller. There is one GPIO interrupt per
+      GPIO bank. The number of interrupts listed depends on the number of GPIO
+      banks on the SoC. The interrupts must be ordered by bank, starting with
+      bank 0.
+  bias-pull-down:
+    type: boolean
+    description: Configure the specified pins as pull-down.
+  bias-pull-up:
+    type: boolean
+    description: Configure the specified pins as pull-up.
+  input-schmitt-enable:
+    type: boolean
+    description: Enable schmitt trigger for the specified pins.
+  input-schmitt-disable:
+    type: boolean
+    description: Disable schmitt trigger for the specified pins.
+  drive-strength:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [2, 4, 8, 12]
+    description: Selects the drive strength for the specified pins in mA.
+
+$defs:
+  pin-config-node:
+    description: Pin configuration subnode.
+    type: object
+    properties:
+      pinmux:
+        description: Configure pin multiplexing.
+        type: object
+        properties:
+          groups:
+            $ref: /schemas/types.yaml#/definitions/string-array
+          function:
+            type: string
+        required:
+          - groups
+          - function
+        additionalProperties: false
+      pinconf:
+        description: Configure pin-specific parameters.
+        type: object
+        properties:
+          groups:
+            $ref: /schemas/types.yaml#/definitions/string-array
+          drive-strength:
+            description: Selects the drive strength for the specified pins in mA.
+            $ref: /schemas/types.yaml#/definitions/uint32
+            enum: [2, 4, 8, 12]
+        required:
+          - groups
+        additionalProperties: false
+    anyOf:
+      - required: [pinmux]
+      - required: [pinconf]
+    additionalProperties: false
+
+required:
+  - compatible
+  - reg
+  - clocks
+  - gpio-controller
+  - gpio-ranges
+  - '#gpio-cells'
+  - interrupt-controller
+  - '#interrupt-cells'
+  - interrupts
+
+additionalProperties:
+  $ref: '#/$defs/pin-config-node'
+
+examples:
+  - |
+    pinctrl: pinctrl@e01b0000 {
+        compatible = "actions,s700-pinctrl";
+        reg = <0x0 0xe01b0000 0x0 0x1000>;
+        clocks = <&cmu CLK_GPIO>;
+        gpio-controller;
+        gpio-ranges = <&pinctrl 0 0 136>;
+        #gpio-cells = <2>;
+        interrupt-controller;
+        #interrupt-cells = <2>;
+        interrupts = <GIC_SPI 36 IRQ_TYPE_LEVEL_HIGH>,
+                     <GIC_SPI 37 IRQ_TYPE_LEVEL_HIGH>,
+                     <GIC_SPI 38 IRQ_TYPE_LEVEL_HIGH>,
+                     <GIC_SPI 39 IRQ_TYPE_LEVEL_HIGH>,
+                     <GIC_SPI 40 IRQ_TYPE_LEVEL_HIGH>;
+
+        uart3-default: uart3-default {
+            pinmux {
+                groups = "uart3_rtsb_mfp", "uart3_ctsb_mfp";
+                function = "uart3";
+            };
+            pinconf {
+                groups = "uart3_all_drv";
+                drive-strength = <2>;
+            };
+        };
+    };
