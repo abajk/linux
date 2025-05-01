@@ -1,0 +1,122 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Jacek Anaszewski <jacek.anaszewski@gmail.com>
+# Copyright 2025 Sakari Ailus <sakari.ailus@linux.intel.com>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/leds/ams,as3645a.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Analog Devices AS3645A flash LED controller
+
+maintainers:
+  - Jacek Anaszewski <jacek.anaszewski@gmail.com>
+  - Sakari Ailus <sakari.ailus@linux.intel.com>
+
+description: |
+  Analog devices AS3645A device tree bindings
+
+  The AS3645A flash LED controller can drive two LEDs, one high current
+  flash LED and one indicator LED. The high current flash LED can be
+  used in torch mode as well.
+
+  Ranges below noted as [a, b] are closed ranges between a and b, i.e. a
+  and b are included in the range.
+
+  Please also see common.txt in the same directory.
+
+properties:
+  compatible:
+    items:
+      - const: ams,as3645a
+
+  reg:
+    items:
+      - description: I2C address of the device
+
+  "#address-cells":
+    const: 1
+
+  "#size-cells":
+    const: 0
+
+  led@0:
+    description: Flash child node
+    $ref: /schemas/leds/common.yaml#
+    unevaluatedProperties: false
+    properties:
+      reg:
+        const: 0
+      flash-timeout-us:
+        description: Flash timeout in microseconds
+        minimum: 100000
+        maximum: 850000
+        multipleOf: 50000
+      flash-max-microamp:
+        description: Maximum flash current in microamperes
+        minimum: 200000
+        maximum: 500000
+        multipleOf: 20000
+      led-max-microamp:
+        description: Maximum torch (assist) current in microamperes
+        minimum: 20000
+        maximum: 160000
+        multipleOf: 20000
+      ams,input-max-microamp:
+        description: Maximum flash controller input current in microamperes
+        minimum: 1250000
+        maximum: 2000000
+        multipleOf: 50000
+
+    required:
+      - reg
+      - flash-timeout-us
+      - flash-max-microamp
+      - led-max-microamp
+      - ams,input-max-microamp
+
+  led@1:
+    description: Indicator child node
+    $ref: /schemas/leds/common.yaml#
+    unevaluatedProperties: false
+    properties:
+      reg:
+        const: 1
+      led-max-microamp:
+        description: Maximum indicator current in microamperes
+        enum: [2500, 5000, 7500, 10000]
+
+    required:
+      - reg
+      - led-max-microamp
+
+required:
+  - "#address-cells"
+  - "#size-cells"
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    #include <dt-bindings/leds/common.h>
+
+    as3645a@30 {
+        #address-cells = <1>;
+        #size-cells = <0>;
+        compatible = "ams,as3645a";
+        reg = <0x30>;
+        led@0 {
+            reg = <0x0>;
+            flash-timeout-us = <150000>;
+            flash-max-microamp = <320000>;
+            led-max-microamp = <60000>;
+            ams,input-max-microamp = <1750000>;
+            function = LED_FUNCTION_FLASH;
+        };
+        led@1 {
+            reg = <0x1>;
+            led-max-microamp = <10000>;
+            function = LED_FUNCTION_INDICATOR;
+        };
+    };

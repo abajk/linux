@@ -1,0 +1,35 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Siemens AG
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/jailhouse,cell.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Jailhouse non-root cell
+
+maintainers:
+  - Jan Kiszka <jan.kiszka@siemens.com>
+
+description: |
+  Jailhouse non-root cell device tree bindings
+
+  When running in a non-root Jailhouse cell (partition), the device tree of this
+  platform shall have a top-level "hypervisor" node with the following
+  properties:
+
+properties:
+  compatible:
+    description: Device compatible string for the Jailhouse hypervisor node.
+    items:
+      - const: jailhouse,cell
+
+required:
+  - compatible
+
+additionalProperties: false
+
+examples:
+  - |
+    hypervisor {
+        compatible = "jailhouse,cell";
+    };
