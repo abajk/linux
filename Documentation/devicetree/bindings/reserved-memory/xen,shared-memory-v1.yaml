@@ -1,0 +1,49 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Xilinx Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/reserved-memory/xen,shared-memory-v1.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Xen hypervisor shared memory
+maintainers:
+  - Stefano Stabellini <stefanos@xilinx.com>
+
+description: |
+  * Xen hypervisor reserved-memory binding
+
+  Expose one or more memory regions as reserved-memory to the guest
+  virtual machine. Typically, a region is configured at VM creation time
+  to be a shared memory area across multiple virtual machines for
+  communication among them.
+
+  For each of these pre-shared memory regions, a range is exposed under
+  the /reserved-memory node as a child node. Each range sub-node is named
+  xen-shmem@<address> and has the following properties:
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - xen,shared-memory-v1
+
+  reg:
+    items:
+      - description: base guest physical address
+      - description: size of the shared memory region
+
+  xen,offset:
+    description: 64 bit integer offset within the owner virtual machine's shared
+      memory region used for the mapping in the borrower VM.
+    $ref: /schemas/types.yaml#/definitions/uint64
+
+  xen,id:
+    description: A string that identifies the shared memory region as specified in the VM config file.
+    $ref: /schemas/types.yaml#/definitions/string
+
+required:
+  - compatible
+  - reg
+  - xen,id
+
+additionalProperties: false
