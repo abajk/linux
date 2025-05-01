@@ -1,0 +1,105 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/powerpc/fsl/mpc5121-psc.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: MPC5121 PSC
+maintainers:
+  - Grant Likely <grant.likely@secretlab.ca>
+  - Rob Herring <robh@kernel.org>
+  - Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+
+description: |
+  MPC5121 PSC Device Tree Bindings
+
+  PSC in UART mode
+
+  For PSC in UART mode the needed PSC serial devices
+  are specified by fsl,mpc5121-psc-uart nodes in the
+  fsl,mpc5121-immr SoC node. Additionally the PSC FIFO
+  Controller node fsl,mpc5121-psc-fifo is required there:
+
+  fsl,mpc512x-psc-uart nodes
+
+  PSC in SPI mode
+
+  Similar to the UART mode a PSC can be operated in SPI mode. The compatible used
+  for that is fsl,mpc5121-psc-spi. It requires a fsl,mpc5121-psc-fifo as well.
+  The required and recommended properties are identical to the
+  fsl,mpc5121-psc-uart nodes, just use spi instead of uart in the compatible
+  string.
+
+  fsl,mpc512x-psc-fifo node
+
+properties:
+  compatible:
+    oneOf:
+      - items:
+          - const: "fsl,mpc5121-psc-uart"
+          - const: "fsl,mpc5121-psc"
+      - items:
+          - const: "fsl,mpc5121-psc-spi"
+          - const: "fsl,mpc5121-psc"
+      - items:
+          - const: "fsl,mpc5121-psc-fifo"
+
+  reg:
+    items:
+      - description: PSC register offset
+      - description: PSC register block size
+
+  interrupts:
+    items:
+      - description: PSC FIFO controller interrupt number
+      - description: interrupt trigger encoding
+    description: PSC FIFO controller interrupt number and trigger encoding
+
+  fsl,rx-fifo-size:
+    description: The size of the RX FIFO slice; a multiple of 4
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  fsl,tx-fifo-size:
+    description: The size of the TX FIFO slice; a multiple of 4
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  clocks:
+    maxItems: 1
+    description: Clock input for the PSC FIFO controller
+
+  clock-names:
+    items:
+      - const: bus
+
+additionalProperties: false
+
+required:
+  - compatible
+  - reg
+  - interrupts
+
+examples:
+  - |
+    serial@11000 {
+        compatible = "fsl,mpc5121-psc-uart", "fsl,mpc5121-psc";
+        cell-index = <0>;
+        reg = <0x11000 0x100>;
+        interrupts = <40 0x8>;
+        fsl,rx-fifo-size = <16>;
+        fsl,tx-fifo-size = <16>;
+    };
+  - |
+    serial@11100 {
+        compatible = "fsl,mpc5121-psc-uart", "fsl,mpc5121-psc";
+        cell-index = <1>;
+        reg = <0x11100 0x100>;
+        interrupts = <40 0x8>;
+        fsl,rx-fifo-size = <16>;
+        fsl,tx-fifo-size = <16>;
+    };
+  - |
+    pscfifo@11f00 {
+        compatible = "fsl,mpc5121-psc-fifo";
+        reg = <0x11f00 0x100>;
+        interrupts = <40 0x8>;
+    };
