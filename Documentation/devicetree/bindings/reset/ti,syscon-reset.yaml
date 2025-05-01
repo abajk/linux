@@ -1,0 +1,77 @@
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/reset/ti,syscon-reset.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI SysCon Reset Controller
+
+maintainers:
+  - Andrew F. Davis <afd@ti.com>
+  - Bjorn Helgaas <bhelgaas@google.com>
+  - Marco Franchi <marco.franchi@nxp.com>
+  - Suman Anna <s-anna@ti.com>
+
+description: |
+  Almost all SoCs have hardware modules that require reset control in addition
+  to clock and power control for their functionality. The reset control is
+  typically provided by means of memory-mapped I/O registers. These registers are
+  sometimes a part of a larger register space region implementing various
+  functionalities. This register range is best represented as a syscon node to
+  allow multiple entities to access their relevant registers in the common
+  register space.
+
+  A SysCon Reset Controller node defines a device that uses a syscon node and
+  provides reset management functionality for various hardware modules present
+  on the SoC.
+
+properties:
+  compatible:
+    description: Supported compatible strings.
+    items:
+      - enum:
+          - ti,k2e-pscrst
+          - ti,k2l-pscrst
+          - ti,k2hk-pscrst
+          - ti,syscon-reset
+
+  '#reset-cells':
+    description: Number of reset cells. Must be 1.
+    const: 1
+
+  ti,reset-bits:
+    description: |
+      Contains the reset control register information. Each reset specifier
+      consists of seven 32-bit cells:
+        * Cell 1: offset of the reset assert control register from the syscon base
+        * Cell 2: bit position in the reset assert control register
+        * Cell 3: offset of the reset deassert control register from the syscon base
+        * Cell 4: bit position in the reset deassert control register
+        * Cell 5: offset of the reset status register from the syscon base
+        * Cell 6: bit position in the reset status register
+        * Cell 7: flags controlling reset behavior (see dt-bindings/reset/ti-syscon.h)
+    items:
+      - description: offset of the reset assert control register
+      - description: bit position in the reset assert control register
+      - description: offset of the reset deassert control register
+      - description: bit position in the reset deassert control register
+      - description: offset of the reset status register
+      - description: bit position in the reset status register
+      - description: flags controlling reset behavior
+
+required:
+  - compatible
+  - '#reset-cells'
+  - ti,reset-bits
+
+additionalProperties: false
+
+examples:
+  - |
+    reset-controller@2350000 {
+        compatible = "ti,k2e-pscrst", "ti,syscon-reset";
+        #reset-cells = <1>;
+        ti,reset-bits = <
+            0xa3c 8 0xa3c 8 0x83c 8 (ASSERT_CLEAR | DEASSERT_SET | STATUS_CLEAR)
+            0xa40 5 0xa44 3 0     0 (ASSERT_SET   | DEASSERT_CLEAR | STATUS_NONE)
+        >;
+    };
