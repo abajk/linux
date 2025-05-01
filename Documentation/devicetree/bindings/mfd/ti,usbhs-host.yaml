@@ -1,0 +1,162 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+---
+$id: http://devicetree.org/schemas/mfd/ti,usbhs-host.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: OMAP HS USB Host
+
+maintainers:
+  - Rob Herring <robh@kernel.org>
+  - Roger Quadros <rogerq@ti.com>
+  - Yegor Yefremov <yegorslists@googlemail.com>
+
+description: |
+  OMAP HS USB Host
+
+  The OMAP HS USB Host subsystem contains EHCI and OHCI controllers.
+  See Documentation/devicetree/bindings/usb/generic-ehci.yaml and
+  Documentation/devicetree/bindings/usb/generic-ohci.yaml.
+
+properties:
+  compatible:
+    items:
+      - const: "ti,usbhs-host"
+  reg:
+    description: Register region for the USB host controller (base address and length).
+    items:
+      - description: "Register block: start and length"
+  ti,hwmods:
+    description: Hardware module names required by the controller.
+    $ref: /schemas/types.yaml#/definitions/string-array
+    items:
+      - enum: [usb_host_hs]
+  '#address-cells':
+    const: 1
+    description: Number of address cells for child nodes.
+  '#size-cells':
+    const: 1
+    description: Number of size cells for child nodes.
+  ranges:
+    description: Empty ranges property for child address mapping.
+  clocks:
+    description: Phandles and clock specifiers for controller clocks.
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+  clock-names:
+    description: Names of clocks listed in the 'clocks' property.
+    $ref: /schemas/types.yaml#/definitions/string-array
+    items:
+      - const: usbhost_120m_fck
+      - const: refclk_60m_int
+      - const: refclk_60m_ext_p1
+      - const: refclk_60m_ext_p2
+      - const: utmi_p1_gfclk
+      - const: utmi_p2_gfclk
+      - const: usb_host_hs_utmi_p1_clk
+      - const: usb_host_hs_utmi_p2_clk
+      - const: usb_host_hs_utmi_p3_clk
+      - const: usb_host_hs_hsic480m_p1_clk
+      - const: usb_host_hs_hsic480m_p2_clk
+      - const: usb_host_hs_hsic480m_p3_clk
+      - const: usb_host_hs_hsic60m_p1_clk
+      - const: usb_host_hs_hsic60m_p2_clk
+      - const: usb_host_hs_hsic60m_p3_clk
+  num-ports:
+    description: Number of USB ports; defaults to hardware detection, maximum is 3.
+    $ref: /schemas/types.yaml#/definitions/uint32
+  port1-mode:
+    description: Port 1 mode.
+    enum:
+      - ehci-phy
+      - ehci-tll
+      - ehci-hsic
+      - ohci-phy-6pin-datse0
+      - ohci-phy-6pin-dpdm
+      - ohci-phy-3pin-datse0
+      - ohci-phy-4pin-dpdm
+      - ohci-tll-6pin-datse0
+      - ohci-tll-6pin-dpdm
+      - ohci-tll-3pin-datse0
+      - ohci-tll-4pin-dpdm
+      - ohci-tll-2pin-datse0
+      - ohci-tll-2pin-dpdm
+  port2-mode:
+    description: Port 2 mode.
+    enum:
+      - ehci-phy
+      - ehci-tll
+      - ehci-hsic
+      - ohci-phy-6pin-datse0
+      - ohci-phy-6pin-dpdm
+      - ohci-phy-3pin-datse0
+      - ohci-phy-4pin-dpdm
+      - ohci-tll-6pin-datse0
+      - ohci-tll-6pin-dpdm
+      - ohci-tll-3pin-datse0
+      - ohci-tll-4pin-dpdm
+      - ohci-tll-2pin-datse0
+      - ohci-tll-2pin-dpdm
+  port3-mode:
+    description: Port 3 mode.
+    enum:
+      - ehci-phy
+      - ehci-tll
+      - ehci-hsic
+      - ohci-phy-6pin-datse0
+      - ohci-phy-6pin-dpdm
+      - ohci-phy-3pin-datse0
+      - ohci-phy-4pin-dpdm
+      - ohci-tll-6pin-datse0
+      - ohci-tll-6pin-dpdm
+      - ohci-tll-3pin-datse0
+      - ohci-tll-4pin-dpdm
+      - ohci-tll-2pin-datse0
+      - ohci-tll-2pin-dpdm
+  single-ulpi-bypass:
+    description: Enables ULPI bypass when only a single control bit is present.
+    type: boolean
+
+patternProperties:
+  "^.+$":
+    anyOf:
+      - $ref: /schemas/usb/generic-ohci.yaml#
+      - $ref: /schemas/usb/generic-ehci.yaml#
+
+required:
+  - compatible
+  - reg
+  - ti,hwmods
+
+additionalProperties: false
+
+examples:
+  - |
+    usbhshost: usbhshost@4a064000 {
+      compatible = "ti,usbhs-host";
+      reg = <0x4a064000 0x800>;
+      ti,hwmods = "usb_host_hs";
+      #address-cells = <1>;
+      #size-cells = <1>;
+      ranges;
+
+      usbhsohci: ohci@4a064800 {
+        compatible = "ti,ohci-omap3";
+        reg = <0x4a064800 0x400>;
+        interrupts = <0 76 0x4>;
+      };
+
+      usbhsehci: ehci@4a064c00 {
+        compatible = "ti,ehci-omap";
+        reg = <0x4a064c00 0x400>;
+        interrupts = <0 77 0x4>;
+      };
+    };
+  - |
+    &usbhshost {
+      port1-mode = "ehci-phy";
+      port2-mode = "ehci-tll";
+      port3-mode = "ehci-phy";
+    };
+  - |
+    &usbhsehci {
+      phys = <&hsusb1_phy 0 &hsusb3_phy>;
+    };
