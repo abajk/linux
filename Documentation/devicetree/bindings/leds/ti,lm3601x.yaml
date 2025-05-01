@@ -1,0 +1,86 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright (C) 2025 Texas Instruments Incorporated
+
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/leds/ti,lm3601x.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI LM3601X Single-LED Flash Driver
+
+maintainers:
+  - Alexander A. Klimov <grandmaster@al2klimov.de>
+  - Dan Murphy <dmurphy@ti.com>
+  - Jacek Anaszewski <jacek.anaszewski@gmail.com>
+
+description: |
+  * Texas Instruments - lm3601x Single-LED Flash Driver
+
+  The LM3601X are ultra-small LED flash drivers that
+  provide a high level of adjustability.
+
+  For more product information please see the links below:
+  https://www.ti.com/product/LM36010
+  https://www.ti.com/product/LM36011
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - ti,lm36010
+          - ti,lm36011
+
+  reg:
+    items:
+      - description: I2C slave address of the LM3601X device.
+
+  '#address-cells':
+    const: 1
+
+  '#size-cells':
+    const: 0
+
+patternProperties:
+  '^led@.*':
+    $ref: /schemas/leds/common.yaml#
+    unevaluatedProperties: false
+    properties:
+      reg:
+        description: "0 for IR mode, 1 for Torch (white LED) mode"
+        enum: [0, 1]
+      flash-max-microamp:
+        description: Maximum flash current in microamperes (11 mA–1.5 A).
+      flash-max-timeout-us:
+        description: Maximum flash timeout in microseconds (40 ms–1600 ms).
+      led-max-microamp:
+        description: Maximum LED (torch) current in microamperes (2.4 mA–376 mA).
+
+    required:
+      - reg
+      - flash-max-microamp
+      - flash-max-timeout-us
+      - led-max-microamp
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    led-controller@64 {
+        compatible = "ti,lm36010";
+        #address-cells = <1>;
+        #size-cells = <0>;
+        reg = <0x64>;
+
+        led@0 {
+            reg = <1>;
+            function = LED_FUNCTION_TORCH;
+            color = <LED_COLOR_ID_WHITE>;
+            led-max-microamp = <376000>;
+            flash-max-microamp = <1500000>;
+            flash-max-timeout-us = <1600000>;
+        };
+    };
