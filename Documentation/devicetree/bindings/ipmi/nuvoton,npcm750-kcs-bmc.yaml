@@ -1,0 +1,51 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/ipmi/nuvoton,npcm750-kcs-bmc.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Nuvoton NPCM KCS BMC
+
+maintainers:
+  - Geert Uytterhoeven <geert+renesas@glider.be>
+  - Haiyue Wang <haiyue.wang@linux.intel.com>
+  - Tomer Maimon <tmaimon77@gmail.com>
+
+description: |
+  * Nuvoton NPCM KCS (Keyboard Controller Style) IPMI interface
+
+  The Nuvoton SOCs (NPCM) are commonly used as BMCs
+  (Baseboard Management Controllers) and the KCS interface can be
+  used to perform in-band IPMI communication with their host.
+
+properties:
+  compatible:
+    items:
+      - enum: [nuvoton, npcm750-kcs-bmc]
+      - enum: [nuvoton, npcm845-kcs-bmc]
+  reg:
+    maxItems: 1
+
+  interrupts:
+    maxItems: 1
+
+  kcs_chan:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: The KCS channel number in the controller
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - kcs_chan
+
+additionalProperties: false
+
+examples:
+  - |
+    kcs1: kcs1@0 {
+      compatible = "nuvoton,npcm750-kcs-bmc";
+      reg = <0x0 0x40>;
+      interrupts = <9 4>;
+      kcs_chan = <1>;
+    };
