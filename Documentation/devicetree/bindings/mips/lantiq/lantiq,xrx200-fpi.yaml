@@ -1,0 +1,77 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Linaro Ltd.
+
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/lantiq,xrx200-fpi.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Lantiq XWAY SoC FPI bus
+
+maintainers:
+  - Hauke Mehrtens <hauke@hauke-m.de>
+
+description: |
+  Lantiq XWAY SoC FPI BUS binding
+  ============================
+
+properties:
+  compatible:
+    items:
+      - const: lantiq,xrx200-fpi
+    description: |
+      Compatible string for the Lantiq XWAY SoC FPI bus.
+  reg:
+    description: |
+      The address and length of the XBAR configuration register (first entry),
+      and the FPI bus itself (second entry).
+    items:
+      - description: XBAR configuration register
+      - description: FPI bus window
+  ranges:
+    description: |
+      A mapping from child bus addresses to parent addresses.
+      Each tuple is: <child address> <parent address> <size>.
+    items:
+      - description: child bus address
+      - description: parent bus address
+      - description: range length
+  lantiq,rcu:
+    description: |
+      A phandle to the RCU syscon.
+    $ref: /schemas/types.yaml#/definitions/phandle
+  lantiq,offset-endianness:
+    description: |
+      Offset of the endianness configuration register.
+    $ref: /schemas/types.yaml#/definitions/uint32
+  '#address-cells':
+    const: 1
+    description: |
+      Number of address cells.
+  '#size-cells':
+    const: 1
+    description: |
+      Number of size cells.
+
+required:
+  - compatible
+  - reg
+  - lantiq,rcu
+  - lantiq,offset-endianness
+
+additionalProperties: false
+
+examples:
+  - |
+    fpi@10000000 {
+      compatible = "lantiq,xrx200-fpi";
+      ranges = <0x0 0x10000000 0xf000000>;
+      reg = <0x1f400000 0x1000>,
+            <0x10000000 0xf000000>;
+      lantiq,rcu = <&rcu0>;
+      lantiq,offset-endianness = <0x4c>;
+      #address-cells = <1>;
+      #size-cells = <1>;
+
+      gptu@e100a00 { /* ... */ };
+    };
