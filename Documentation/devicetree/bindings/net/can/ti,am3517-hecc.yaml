@@ -1,0 +1,63 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2018 Linaro Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/ti,am3517-hecc.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Texas Instruments High End CAN Controller (HECC)
+
+maintainers:
+  - Yegor Yefremov <yegorslists@googlemail.com>
+
+description: |
+  Texas Instruments High End CAN Controller (HECC)
+
+  This file provides information, what the device node
+  for the hecc interface contains.
+
+properties:
+  compatible:
+    items:
+      - const: ti,am3517-hecc
+  reg:
+    items:
+      - description: HECC control registers
+      - description: HECC shared RAM
+      - description: mailbox registers
+  reg-names:
+    items:
+      - const: hecc
+      - const: hecc-ram
+      - const: mbx
+  interrupts:
+    items:
+      - description: HECC interrupt
+  clocks:
+    items:
+      - description: HECC clock
+  ti,use-hecc1int:
+    description: Switches HECC to produce interrupts on the HECC1INT line rather than the default HECC0INT.
+    type: boolean
+  xceiver-supply: true
+
+required:
+  - compatible
+  - reg
+  - reg-names
+  - interrupts
+  - clocks
+
+additionalProperties: false
+
+examples:
+  - |
+    hecc: can@5c050000 {
+        compatible = "ti,am3517-hecc";
+        reg = <0x5c050000 0x80>,
+              <0x5c053000 0x180>,
+              <0x5c052000 0x200>;
+        reg-names = "hecc", "hecc-ram", "mbx";
+        interrupts = <24>;
+        clocks = <&hecc_ck>;
+    };
