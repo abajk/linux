@@ -1,0 +1,84 @@
+---
+$id: http://devicetree.org/schemas/regulator/dlg,da9211.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Dialog Semiconductor DA9211/DA9212/DA9213/DA9223/DA9214/DA9224/DA9215/DA9225 Voltage Regulator
+
+maintainers:
+  - Anand K Mistry <amistry@google.com>
+  - James Ban <james.ban.opensource@diasemi.com>
+  - James Ban <James.Ban.opensource@diasemi.com>
+
+description: |
+  Dialog Semiconductor DA9211/DA9212/DA9213/DA9223/DA9214/DA9224/DA9215/DA9225 Voltage Regulator
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - dlg,da9211
+          - dlg,da9212
+          - dlg,da9213
+          - dlg,da9223
+          - dlg,da9214
+          - dlg,da9224
+          - dlg,da9215
+          - dlg,da9225
+
+  reg:
+    maxItems: 1
+
+  interrupts:
+    maxItems: 1
+
+  regulators:
+    description: |
+      A node that houses a sub-node for each regulator within the
+      device. Each sub-node is identified using the node's name, with valid
+      values listed below. The content of each sub-node is defined by the
+      standard binding for regulators; see regulator.txt.
+    type: object
+    additionalProperties: false
+    properties:
+      BUCKA:
+        $ref: /schemas/regulator/regulator.yaml#
+        unevaluatedProperties: false
+      BUCKB:
+        $ref: /schemas/regulator/regulator.yaml#
+        unevaluatedProperties: false
+    required:
+      - BUCKA
+      - BUCKB
+
+  enable-gpios:
+    description:
+      platform gpio for control of BUCKA/BUCKB.
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - regulators
+
+additionalProperties: false
+
+examples:
+  - |
+    pmic: da9211@68 {
+        compatible = "dlg,da9211";
+        reg = <0x68>;
+        interrupts = <3 27>;
+
+        regulators {
+            BUCKA {
+                regulator-name = "VBUCKA";
+                regulator-min-microvolt = < 300000>;
+                regulator-max-microvolt = <1570000>;
+                regulator-min-microamp = <2000000>;
+                regulator-max-microamp = <5000000>;
+                enable-gpios = <&gpio 27 0>;
+                regulator-allowed-modes = <DA9211_BUCK_MODE_SYNC
+                                           DA9211_BUCK_MODE_AUTO>;
+            };
+        };
+    };
