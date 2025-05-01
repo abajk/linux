@@ -1,0 +1,54 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/leds/lltc,lt3593.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Linear Technologies LT3593 LED controller
+
+maintainers:
+  - Daniel Mack <daniel@zonque.org>
+  - Jacek Anaszewski <jacek.anaszewski@gmail.com>
+
+description: |
+  Bindings for Linear Technologies LT3593 LED controller
+
+  The hardware supports only one LED. The properties of this LED are
+  configured in a sub-node in the device node.
+
+  If multiple chips of this type are found in a design, each one needs to
+  be handled by its own device node.
+
+properties:
+  compatible:
+    const: lltc,lt3593
+
+  lltc,ctrl-gpios:
+    description:
+      A handle to the GPIO that is connected to the 'CTRL' pin of the chip.
+    maxItems: 1
+
+  led:
+    $ref: /schemas/leds/common.yaml#
+    unevaluatedProperties: false
+
+required:
+  - compatible
+  - lltc,ctrl-gpios
+
+additionalProperties: false
+
+examples:
+  - |
+    #include <dt-bindings/leds/common.h>
+
+    ltc:led-controller {
+        compatible = "lltc,lt3593";
+        lltc,ctrl-gpios = <&gpio 0 GPIO_ACTIVE_HIGH>;
+
+        led {
+            function = LED_FUNCTION_BACKLIGHT;
+            color = <LED_COLOR_ID_WHITE>;
+            default-state = "on";
+        };
+    };
