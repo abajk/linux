@@ -1,0 +1,91 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Rajat Jain <rajatja@google.com>
+# Copyright 2025 Rob Herring <robh@kernel.org>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/net/marvell,sd8897-bt.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Marvell Bluetooth 8897/8997
+maintainers:
+  - Rajat Jain <rajatja@google.com>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  Marvell 8897/8997 (sd8897/sd8997) bluetooth devices (SDIO or USB based)
+  ------
+  The 8997 devices supports multiple interfaces. When used on SDIO interfaces,
+  the btmrvl driver is used and when used on USB interface, the btusb driver is
+  used.
+
+properties:
+  compatible:
+    enum:
+      - marvell,sd8897-bt
+      - marvell,sd8997-bt
+      - usb1286,204e
+
+  reg:
+    description: Interface register index for the device.
+    items:
+      - description: Index of the data register for this device.
+
+  interrupts:
+    maxItems: 1
+    description: |
+      Interrupt pin and type used by the device.
+      For SDIO the first interrupt is used by btmrvl; for USB the 'wakeup' interrupt is used.
+
+  interrupt-names:
+    items:
+      - const: wakeup
+
+  marvell,cal-data:
+    description: Calibration data downloaded to the device during initialization.
+    $ref: /schemas/types.yaml#/definitions/uint8-array
+    minItems: 28
+    maxItems: 28
+
+  marvell,wakeup-pin:
+    description: Wakeup pin number of the Bluetooth chip.
+    $ref: /schemas/types.yaml#/definitions/uint16
+
+  marvell,wakeup-gap-ms:
+    description: Wakeup latency of the host platform in milliseconds.
+
+additionalProperties: false
+
+examples:
+  - |
+      &mmc3 {
+          vmmc-supply = <&wlan_en_reg>;
+          bus-width = <4>;
+          cap-power-off-card;
+          keep-power-in-suspend;
+
+          btmrvl: bluetooth@2 {
+              compatible = "marvell,sd8897-bt";
+              reg = <2>;
+              interrupts = <119 IRQ_TYPE_LEVEL_LOW>;
+              marvell,cal-data = /bits/ 8 <
+                  0x37 0x01 0x1c 0x00 0xff 0xff 0xff 0xff 0x01 0x7f 0x04 0x02
+                  0x00 0x00 0xba 0xce 0xc0 0xc6 0x2d 0x00 0x00 0x00 0x00 0x00
+                  0x00 0x00 0xf0 0x00>;
+              marvell,wakeup-pin = /bits/ 16 <0x0d>;
+              marvell,wakeup-gap-ms = /bits/ 16 <0x64>;
+          };
+      };
+  - |
+      &usb_host1_ohci {
+          #address-cells = <1>;
+          #size-cells = <0>;
+
+          mvl_bt1: bt@1 {
+              compatible = "usb1286,204e";
+              reg = <1>;
+              interrupt-names = "wakeup";
+              interrupts = <119 IRQ_TYPE_LEVEL_LOW>;
+              marvell,wakeup-pin = /bits/ 16 <0x0d>;
+              marvell,wakeup-gap-ms = /bits/ 16 <0x64>;
+          };
+      };
