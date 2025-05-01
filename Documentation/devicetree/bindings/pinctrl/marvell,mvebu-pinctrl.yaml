@@ -1,0 +1,82 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Sebastian Hesselbarth
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pinctrl/marvell,mvebu-pinctrl.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Marvell MVEBU SoC pinctrl controller
+maintainers:
+  - Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+
+description: |
+  * Marvell SoC pinctrl core driver for mpp
+
+  The pinctrl driver enables Marvell SoCs to configure the multi-purpose pins
+  (mpp) to a specific function. For each SoC family there is a SoC specific
+  driver using this core driver.
+
+  Please refer to pinctrl-bindings.txt in this directory for details of the
+  common pinctrl bindings used by client devices, including the meaning of the
+  phrase "pin configuration node".
+
+  A Marvell SoC pin configuration node is a node of a group of pins which can
+  be used for a specific device or function. Each node requires one or more
+  mpp pins or group of pins and a mpp function common to all pins.
+
+properties:
+  compatible:
+    items:
+      - pattern: '^marvell,[a-z0-9-]+-pinctrl$'
+    description: Device compatible string for the SoC pinctrl controller.
+
+  reg:
+    # The core schema already checks that reg values are numbers, so device
+    # specific schema don't need to do those checks.
+    # The description of each element defines the order and implicitly defines
+    # the number of reg entries.
+    items:
+      - description: MPP controller register bank 0.
+      - description: MPP controller register bank 1.
+      - description: MPP controller register bank 2.
+    # minItems/maxItems equal to 3 is implied
+
+  child-nodes:
+    description: Pin configuration subnodes defining groups of MPP pins and their function.
+    type: object
+    additionalProperties: false
+    patternProperties:
+      "^[a-zA-Z0-9,_+-]+$":
+        type: object
+        description: Pin configuration node.
+        additionalProperties: false
+        required:
+          - marvell,pins
+          - marvell,function
+        properties:
+          marvell,pins:
+            description: List of MPP pins or pin groups to be muxed.
+            $ref: /schemas/types.yaml#/definitions/string-array
+            items:
+              - description: MPP pin or pin group to be muxed.
+          marvell,function:
+            description: Function name to mux onto the pins.
+            $ref: /schemas/types.yaml#/definitions/string
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    pinctrl: pinctrl@d0200 {
+        compatible = "marvell,dove-pinctrl";
+        reg = <0xd0200 0x14>, <0xd0440 0x04>, <0xd802c 0x08>;
+
+        pmx_uart1_sw: pmx-uart1-sw {
+            marvell,pins = "mpp_uart1";
+            marvell,function = "uart1";
+        };
+    };
