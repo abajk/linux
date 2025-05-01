@@ -1,0 +1,81 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/leds/brcm,bcm6358-leds.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Broadcom BCM6358 LEDs
+
+maintainers:
+  - Álvaro Fernández Rojas <noltari@gmail.com>
+  - Christian Marangi <ansuelsmth@gmail.com>
+  - Linus Walleij <linus.walleij@linaro.org>
+  - Wan Jiabing <wanjiabing@vivo.com>
+
+description: |
+  LEDs connected to Broadcom BCM6358 controller
+
+  This controller is present on BCM6358 and BCM6368.
+  In these SoCs there are Serial LEDs (LEDs connected to a 74x164 controller),
+  which can either be controlled by software (exporting the 74x164 as spi-gpio.
+  See Documentation/devicetree/bindings/gpio/fairchild,74hc595.yaml), or
+  by hardware using this driver.
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - brcm,bcm6358-leds
+  '#address-cells':
+    const: 1
+  '#size-cells':
+    const: 0
+  reg:
+    maxItems: 1
+
+  brcm,clk-div:
+    description: SCK signal divider.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum:
+      - 1
+      - 2
+      - 4
+      - 8
+    default: 1
+  brcm,clk-dat-low:
+    description: Makes clock and data signals active low.
+    type: boolean
+    default: false
+
+patternProperties:
+  '^[a-zA-Z0-9,_-]+$':
+    description: Each LED sub-node.
+    type: object
+    properties:
+      reg:
+        description: LED pin number (only LEDs 0 to 31 are valid)
+        minimum: 0
+        maximum: 31
+      label:
+        description: See Documentation/devicetree/bindings/leds/common.txt
+        $ref: /schemas/types.yaml#/definitions/string
+      active-low:
+        description: Active low output.
+        type: boolean
+      default-state:
+        description: See Documentation/devicetree/bindings/leds/common.txt
+        $ref: /schemas/types.yaml#/definitions/string
+      linux,default-trigger:
+        description: See Documentation/devicetree/bindings/leds/common.txt
+        $ref: /schemas/types.yaml#/definitions/string
+    required:
+      - reg
+    additionalProperties: false
+
+required:
+  - compatible
+  - '#address-cells'
+  - '#size-cells'
+  - reg
+
+additionalProperties: false
