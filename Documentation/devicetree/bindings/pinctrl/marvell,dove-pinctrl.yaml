@@ -1,0 +1,97 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pinctrl/marvell,dove-pinctrl.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Marvell Dove pinctrl
+
+maintainers:
+  - Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+
+description: |
+  Marvell Dove SoC pinctrl driver for mpp
+
+  Please refer to marvell,mvebu-pinctrl.txt in this directory for common binding
+  part and usage.
+
+  Notes:
+  Note: brackets (x) are not part of the mpp name for marvell,function and given
+  only for more detailed description in this document.
+  Note: pmu* also allows for Power Management functions listed below
+
+  Power Management functions (pmu*):
+    pmu-nc               Pin not driven by any PM function
+    pmu-low              Pin driven low (0)
+    pmu-high             Pin driven high (1)
+    pmic(sdi)            Pin is used for PMIC SDI
+    cpu-pwr-down         Pin is used for CPU_PWRDWN
+    standby-pwr-down     Pin is used for STBY_PWRDWN
+    core-pwr-good        Pin is used for CORE_PWR_GOOD (Pins 0-7 only)
+    cpu-pwr-good         Pin is used for CPU_PWR_GOOD (Pins 8-15 only)
+    bat-fault            Pin is used for BATTERY_FAULT
+    ext0-wakeup          Pin is used for EXT0_WU
+    ext1-wakeup          Pin is used for EXT1_WU
+    ext2-wakeup          Pin is used for EXT2_WU
+    pmu-blink            Pin is used for blink function
+
+  Notes:
+  * group "mpp_audio1" allows the following functions and gpio pins:
+    - gpio          : gpio on pins 52-57
+    - i2s1/spdifo   : audio1 i2s on pins 52-55 and spdifo on 57, no gpios
+    - i2s1          : audio1 i2s on pins 52-55, gpio on pins 56,57
+    - spdifo        : spdifo on pin 57, gpio on pins 52-55
+    - twsi          : twsi on pins 56,57, gpio on pins 52-55
+    - ssp/spdifo    : ssp on pins 52-55, spdifo on pin 57, no gpios
+    - ssp           : ssp on pins 52-55, gpio on pins 56,57
+    - ssp/twsi      : ssp on pins 52-55, twsi on pins 56,57, no gpios
+  * group "audio0" internally muxes i2s0 or ac97 controller to the dedicated
+    audio0 pins.
+  * group "twsi" internally muxes twsi controller to the dedicated or option
+    pins.
+
+properties:
+  compatible:
+    oneOf:
+      - items:
+          - enum:
+              - marvell,dove-pinctrl
+
+  clocks:
+    description: Optional pdma clock
+    items:
+      $ref: /schemas/types.yaml#/definitions/phandle
+
+  clock-names:
+    items:
+      - const: pdma
+
+  reg:
+    description: Register specifiers of MPP, MPP4, and PMU MPP registers
+    items:
+      - description: MPP registers
+      - description: MPP4 registers
+      - description: PMU MPP registers
+
+  reg-names:
+    items:
+      - const: mpp
+      - const: mpp4
+      - const: pmu-mpp
+
+required:
+  - compatible
+  - reg
+
+examples:
+  - |
+    pinctrl: pinctrl@ff400000 {
+        compatible = "marvell,dove-pinctrl";
+        clocks = <&pdma_clk>;
+        clock-names = "pdma";
+        reg = <0x0 0x100>, <0x100 0x100>, <0x200 0x100>;
+        reg-names = "mpp", "mpp4", "pmu-mpp";
+    };
+
+additionalProperties: false
