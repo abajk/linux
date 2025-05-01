@@ -1,0 +1,46 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Alexander Shiyan
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/net/cirrus,cs89x0.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Cirrus Logic CS8900/CS8920 Network Controller
+
+maintainers:
+  - Alexander Shiyan <shc_work@mail.ru>
+
+description: |
+  Cirrus Logic CS8900/CS8920 Network Controller
+
+properties:
+  compatible:
+    items:
+      - const: cirrus,cs8900
+      - const: cirrus,cs8920
+
+  reg:
+    description: Address and length of the IO space
+    items:
+      - description: Address of the IO space
+      - description: Length of the IO space
+
+  interrupts:
+    description: Controller interrupt line
+    items:
+      - description: Interrupt line
+
+required:
+  - compatible
+  - reg
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    eth0: eth@10000000 {
+        compatible = "cirrus,cs8900";
+        reg = <0x10000000 0x400>;
+        interrupts = <10>;
+    };
