@@ -1,0 +1,184 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 David Daney <david.daney@cavium.com>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mips/cavium/cavium,octeon-3860-bootbus.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Octeon Boot Bus
+maintainers:
+  - David Daney <david.daney@cavium.com>
+description: |
+  * Boot Bus
+
+  The Octeon Boot Bus is a configurable parallel bus with 8 chip
+  selects.  Each chip select is independently configurable.
+
+  Compatibility with all cn3XXX, cn5XXX and cn6XXX SOCs.
+
+properties:
+  compatible:
+    items:
+      - const: cavium,octeon-3860-bootbus
+  reg:
+    description: The base address of the Boot Bus' register bank
+    items:
+      - description: hi bits of base address
+      - description: lo bits of base address
+      - description: register bank offset
+      - description: register bank size
+  "#address-cells":
+    const: 2
+    description: >
+      The first cell is the chip select within the bootbus;
+      the second is the offset from the chip select
+  "#size-cells":
+    const: 1
+    description: The size of the chip select region
+  ranges:
+    description: Triplets of (child-bus-address, parent-bus-address, length) for each active chip select
+    items:
+      - description: child-bus address
+      - description: parent-bus address
+      - description: length
+
+patternProperties:
+  "^cavium,cs-config@":
+    description: Configuration parameters for each chip select
+    type: object
+    properties:
+      compatible:
+        items:
+          - const: cavium,octeon-3860-bootbus-config
+      cavium,cs-index:
+        $ref: /schemas/types.yaml#/definitions/uint32
+        description: A cell indicating the chip select index
+      cavium,t-adr:
+        $ref: /schemas/types.yaml#/definitions/uint32
+        description: ADR timing (in nS)
+      cavium,t-ce:
+        $ref: /schemas/types.yaml#/definitions/uint32
+        description: CE timing (in nS)
+      cavium,t-oe:
+        $ref: /schemas/types.yaml#/definitions/uint32
+        description: OE timing (in nS)
+      cavium,t-we:
+        $ref: /schemas/types.yaml#/definitions/uint32
+        description: WE timing (in nS)
+      cavium,t-rd-hld:
+        $ref: /schemas/types.yaml#/definitions/uint32
+        description: RD_HLD timing (in nS)
+      cavium,t-wr-hld:
+        $ref: /schemas/types.yaml#/definitions/uint32
+        description: WR_HLD timing (in nS)
+      cavium,t-pause:
+        $ref: /schemas/types.yaml#/definitions/uint32
+        description: PAUSE timing (in nS)
+      cavium,t-wait:
+        $ref: /schemas/types.yaml#/definitions/uint32
+        description: WAIT timing (in nS)
+      cavium,t-page:
+        $ref: /schemas/types.yaml#/definitions/uint32
+        description: PAGE timing (in nS)
+      cavium,t-rd-dly:
+        $ref: /schemas/types.yaml#/definitions/uint32
+        description: RD_DLY timing (in nS)
+      cavium,pages:
+        $ref: /schemas/types.yaml#/definitions/uint32
+        description: Parameter selecting page size (0 = 8 bytes, 1 = 2 bytes, 2 = 4 bytes, 3 = 8 bytes)
+      cavium,wait-mode:
+        type: boolean
+        description: If present, wait mode (WAITM) is selected
+      cavium,page-mode:
+        type: boolean
+        description: If present, page mode (PAGEM) is selected
+      cavium,bus-width:
+        $ref: /schemas/types.yaml#/definitions/uint32
+        description: Width of the bus in bits for this chip select
+      cavium,ale-mode:
+        type: boolean
+        description: If present, ALE mode is selected
+      cavium,sam-mode:
+        type: boolean
+        description: If present, SAM mode is selected
+      cavium,or-mode:
+        type: boolean
+        description: If present, OR mode is selected
+    required:
+      - compatible
+      - cavium,cs-index
+      - cavium,t-adr
+      - cavium,t-ce
+      - cavium,t-oe
+      - cavium,t-we
+      - cavium,t-rd-hld
+      - cavium,t-wr-hld
+      - cavium,t-pause
+      - cavium,t-wait
+      - cavium,t-page
+      - cavium,t-rd-dly
+      - cavium,pages
+      - cavium,bus-width
+    additionalProperties: false
+
+required:
+  - compatible
+  - reg
+  - "#address-cells"
+  - "#size-cells"
+  - ranges
+
+additionalProperties: false
+
+examples:
+  - |
+    bootbus: bootbus@1180000000000 {
+      compatible = "cavium,octeon-3860-bootbus";
+      reg = <0x11800 0x00000000 0x0 0x200>;
+      #address-cells = <2>;
+      #size-cells = <1>;
+      ranges = <0 0  0x0 0x1f400000  0xc00000>,
+               <1 0  0x10000 0x30000000  0>,
+               <2 0  0x10000 0x40000000  0>,
+               <3 0  0x10000 0x50000000  0>,
+               <4 0  0x0 0x1d020000  0x10000>,
+               <5 0  0x0 0x1d040000  0x10000>,
+               <6 0  0x0 0x1d050000  0x10000>,
+               <7 0  0x10000 0x90000000  0>;
+      cavium,cs-config@0 {
+        compatible = "cavium,octeon-3860-bootbus-config";
+        cavium,cs-index = <0>;
+        cavium,t-adr  = <20>;
+        cavium,t-ce   = <60>;
+        cavium,t-oe   = <60>;
+        cavium,t-we   = <45>;
+        cavium,t-rd-hld = <35>;
+        cavium,t-wr-hld = <45>;
+        cavium,t-pause  = <0>;
+        cavium,t-wait   = <0>;
+        cavium,t-page   = <35>;
+        cavium,t-rd-dly = <0>;
+        cavium,pages     = <0>;
+        cavium,bus-width = <8>;
+      };
+      .
+      .
+      .
+      cavium,cs-config@6 {
+        compatible = "cavium,octeon-3860-bootbus-config";
+        cavium,cs-index = <6>;
+        cavium,t-adr  = <5>;
+        cavium,t-ce   = <300>;
+        cavium,t-oe   = <270>;
+        cavium,t-we   = <150>;
+        cavium,t-rd-hld = <100>;
+        cavium,t-wr-hld = <70>;
+        cavium,t-pause  = <0>;
+        cavium,t-wait   = <0>;
+        cavium,t-page   = <320>;
+        cavium,t-rd-dly = <0>;
+        cavium,pages     = <0>;
+        cavium,wait-mode;
+        cavium,bus-width = <16>;
+      };
+    };
