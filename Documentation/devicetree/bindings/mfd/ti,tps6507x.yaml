@@ -1,0 +1,106 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mfd/ti,tps6507x.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI TPS6507x Power Management IC
+
+maintainers:
+  - Joe Perches <joe@perches.com>
+  - Vishwanathrao Badarkhe, Manish <manishv.b@ti.com>
+
+description: |
+  TPS6507x Power Management Integrated Circuit
+
+properties:
+  compatible:
+    const: ti,tps6507x
+
+  reg:
+    description: I2C slave address
+    items:
+      - description: I2C slave address
+
+  vindcdc1_2-supply:
+    description: VDCDC1 and VDCDC2 input supply
+
+  vindcdc3-supply:
+    description: VDCDC3 input supply
+
+  vldo1_2-supply:
+    description: VLDO1 and VLDO2 input supply
+
+  regulators:
+    description: Regulator initialization data subnodes
+    type: object
+    additionalProperties: false
+    patternProperties:
+      "^[^/]+$":
+        $ref: /schemas/regulator/regulator.yaml
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    pmu: tps6507x@48 {
+        compatible = "ti,tps6507x";
+        reg = <0x48>;
+
+        vindcdc1_2-supply = <&vbat>;
+        vindcdc3-supply = <...>;
+        vldo1_2-supply = <...>;
+
+        regulators {
+            #address-cells = <1>;
+            #size-cells = <0>;
+
+            vdcdc1_reg: regulator@0 {
+                regulator-compatible = "VDCDC1";
+                reg = <0>;
+                regulator-min-microvolt = <3150000>;
+                regulator-max-microvolt = <3450000>;
+                regulator-always-on;
+                regulator-boot-on;
+            };
+            vdcdc2_reg: regulator@1 {
+                regulator-compatible = "VDCDC2";
+                reg = <1>;
+                regulator-min-microvolt = <1710000>;
+                regulator-max-microvolt = <3450000>;
+                regulator-always-on;
+                regulator-boot-on;
+                defdcdc_default = <1>;
+            };
+            vdcdc3_reg: regulator@2 {
+                regulator-compatible = "VDCDC3";
+                reg = <2>;
+                regulator-min-microvolt = <9500000>;
+                regulator-max-microvolt = <1350000>;
+                regulator-always-on;
+                regulator-boot-on;
+                defdcdc_default = <1>;
+            };
+            ldo1_reg: regulator@3 {
+                regulator-compatible = "LDO1";
+                reg = <3>;
+                regulator-min-microvolt = <1710000>;
+                regulator-max-microvolt = <1890000>;
+                regulator-always-on;
+                regulator-boot-on;
+            };
+            ldo2_reg: regulator@4 {
+                regulator-compatible = "LDO2";
+                reg = <4>;
+                regulator-min-microvolt = <1140000>;
+                regulator-max-microvolt = <1320000>;
+                regulator-always-on;
+                regulator-boot-on;
+            };
+        };
+
+    };
