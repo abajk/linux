@@ -1,0 +1,42 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Matt Ranostay
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/media/i2c/panasonic,amg88xx.yaml#
+# $schema is the meta-schema this schema should be validated with.
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Panasonic AMG88xx
+
+maintainers:
+  - Matt Ranostay <matt@ranostay.sg>
+
+description: |
+  The Panasonic family of AMG88xx Grid-Eye sensors allow recording
+  8x8 10Hz video which consists of thermal datapoints.
+
+properties:
+  compatible:
+    description: Must be "panasonic,amg88xx".
+    items:
+      - const: panasonic,amg88xx
+
+  reg:
+    description: I2C address of the device.
+    items:
+      - description: I2C address of the device.
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    i2c0@1c22000 {
+        amg88xx@69 {
+            compatible = "panasonic,amg88xx";
+            reg = <0x69>;
+        };
+    };
