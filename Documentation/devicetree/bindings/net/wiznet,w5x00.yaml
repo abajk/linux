@@ -1,0 +1,73 @@
+---
+$id: http://devicetree.org/schemas/net/wiznet,w5x00.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Wiznet W5x00 Ethernet Controller
+
+maintainers:
+  - Nicolas Saenz Julienne <nsaenz@kernel.org>
+
+description: |
+  A standalone 10/100 MBit Ethernet controller with SPI interface.
+
+  For each device connected to a SPI bus, define a child node within
+  the SPI master node.
+
+properties:
+  compatible:
+    description: Device compatibility strings.
+    $ref: /schemas/types.yaml#/definitions/string-array
+    items:
+      - enum:
+          - wiznet,w5100
+          - wiznet,w5200
+          - wiznet,w5500
+
+  reg:
+    description: SPI chip select the chip is wired to.
+    items:
+      - description: Chip select number
+
+  interrupts:
+    description: 'Interrupt specifier: index and type.'
+    items:
+      - description: Index of the interrupt within the controller
+      - description: Interrupt trigger type (e.g. IRQ_TYPE_EDGE_FALLING)
+
+  pinctrl-names:
+    description: Pin control state names for the interrupt line.
+    $ref: /schemas/types.yaml#/definitions/string-array
+
+  pinctrl-0:
+    description: Phandle references to configure the GPIO pin for interrupts.
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+
+  spi-max-frequency:
+    description: Maximum SPI bus frequency for the controller (Hz).
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  local-mac-address:
+    description: Local MAC address.
+    $ref: /schemas/types.yaml#/definitions/string
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - pinctrl-names
+  - pinctrl-0
+
+additionalProperties: false
+
+examples:
+  - |
+    &spi {
+      ethernet@0: w5500@0 {
+        compatible = "wiznet,w5500";
+        reg = <0>;
+        pinctrl-names = "default";
+        pinctrl-0 = <&eth1_pins>;
+        interrupts = <25 IRQ_TYPE_EDGE_FALLING>;
+        spi-max-frequency = <30000000>;
+      };
+    };
