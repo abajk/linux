@@ -1,0 +1,57 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/powerpc/4xx/ibm,476gtr-hsta-msi.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: ppc476gtr High Speed Serial Assist (HSTA) node
+
+maintainers:
+  - Alistair Popple <alistair@popple.id.au>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  The 476gtr SoC contains a high speed serial assist module attached
+  between the plb4 and plb6 system buses to provide high speed data
+  transfer between memory and system peripherals as well as support for
+  PCI message signalled interrupts.
+
+  Currently only the MSI support is used by Linux using the following
+  device tree entries:
+
+properties:
+  compatible:
+    oneOf:
+      - items:
+          - const: ibm,476gtr-hsta-msi
+      - items:
+          - const: ibm,hsta-msi
+    description: Node compatible strings for HSTA MSI support.
+
+  reg:
+    description: Register mapping for the HSTA MSI space.
+    items:
+      - description: HSTA MSI register space
+
+  interrupts:
+    description: |
+      Ordered interrupt mapping for each MSI in the register space. The first
+      interrupt should be associated with a register offset of 0x00, the second
+      to be 0x10, etc.
+    minItems: 1
+    maxItems: 2
+
+required:
+  - compatible
+  - reg
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    hsta@1000 {
+        compatible = "ibm,476gtr-hsta-msi";
+        reg = <0x1000 0x100>;
+        interrupts = <32>;
+    };
