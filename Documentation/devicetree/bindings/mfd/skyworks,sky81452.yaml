@@ -1,0 +1,66 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Skyworks Solutions Inc.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mfd/skyworks,sky81452.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: SKY81452 multi-function backlight and regulator
+maintainers:
+  - Gyungoh Yoo <jack.yoo@skyworksinc.com>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  SKY81452 bindings
+
+properties:
+  compatible:
+    items:
+      - enum: [ skyworks, sky81452 ]
+
+  reg:
+    maxItems: 1
+
+  backlight:
+    description: Backlight controller sub-node
+    $ref: /schemas/leds/backlight/skyworks,sky81452-backlight.yaml#
+
+  regulator:
+    type: object
+    additionalProperties: false
+    properties:
+      lout:
+        $ref: /schemas/regulator/regulator.yaml#
+        unevaluatedProperties: false
+
+required:
+  - compatible
+  - reg
+  - backlight
+  - regulator
+
+additionalProperties: false
+
+examples:
+  - |
+    sky81452@2c {
+      compatible = "skyworks,sky81452";
+      reg = <0x2c>;
+
+      backlight {
+        compatible = "skyworks,sky81452-backlight";
+        name = "pwm-backlight";
+        led-sources = <0 1 2 3 6>;
+        skyworks,ignore-pwm;
+        skyworks,phase-shift;
+        skyworks,current-limit = <2300>;
+      };
+
+      regulator {
+        lout {
+          regulator-name = "sky81452-lout";
+          regulator-min-microvolt = <4500000>;
+          regulator-max-microvolt = <8000000>;
+        };
+      };
+    };
