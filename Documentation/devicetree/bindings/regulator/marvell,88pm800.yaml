@@ -1,0 +1,61 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/regulator/marvell,88pm800.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Marvell 88PM800 regulator
+
+maintainers:
+  - Chao Xie <chao.xie@marvell.com>
+
+description: |
+  Marvell 88PM800 regulator
+
+properties:
+  compatible:
+    description: Device compatible with marvell,88pm800
+    items:
+      - const: marvell,88pm800
+
+  reg:
+    description: I2C slave address
+    items:
+      - description: I2C slave address
+
+  regulators:
+    description: A node that houses a sub-node for each regulator within the device.
+    type: object
+    additionalProperties: false
+    patternProperties:
+      '^(buck[1-5]|ldo([1-9]|1[0-9]))$':
+        $ref: /schemas/regulator/regulator.yaml
+
+required:
+  - compatible
+  - reg
+  - regulators
+
+additionalProperties: false
+
+examples:
+  - |
+    pmic: 88pm800@31 {
+        compatible = "marvell,88pm800";
+        reg = <0x31>;
+
+        regulators {
+            buck1 {
+                regulator-min-microvolt = <600000>;
+                regulator-max-microvolt = <3950000>;
+                regulator-boot-on;
+                regulator-always-on;
+            };
+            ldo1 {
+                regulator-min-microvolt = <600000>;
+                regulator-max-microvolt = <15000000>;
+                regulator-boot-on;
+                regulator-always-on;
+            };
+        };
+    };
