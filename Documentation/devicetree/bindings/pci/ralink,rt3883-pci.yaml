@@ -1,0 +1,204 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/ralink,rt3883-pci.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Mediatek/Ralink RT3883 PCI controller
+
+maintainers:
+  - Bjorn Helgaas <bhelgaas@google.com>
+  - Gabor Juhos <juhosg@openwrt.org>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  Mediatek/Ralink RT3883 PCI controller.
+
+  The main node defines the PCI controller with its memory map and
+  address translation. It has two mandatory child nodes: an interrupt
+  controller for PCI interrupts and a PCI host bridge node which defines
+  the bus range, memory and I/O mappings, and interrupt mappings.
+  The host bridge node may include subnodes for onboard PCI bridges
+  and device slots.
+
+properties:
+  compatible:
+    const: ralink,rt3883-pci
+
+  reg:
+    maxItems: 1
+
+  '#address-cells':
+    const: 1
+
+  '#size-cells':
+    const: 1
+
+  ranges: true
+
+patternProperties:
+  ".*":
+    anyOf:
+      - description: Interrupt controller child node.
+        properties:
+          interrupt-controller:
+            type: boolean
+          '#address-cells':
+            const: 0
+          '#interrupt-cells':
+            const: 1
+          interrupts:
+            description: Interrupt from the parent interrupt controller.
+            items:
+              - description: interrupt line number
+        required:
+          - interrupt-controller
+          - '#address-cells'
+          - '#interrupt-cells'
+          - interrupts
+        additionalProperties: false
+
+      - description: PCI host bridge and its subnodes.
+        properties:
+          '#address-cells':
+            const: 0
+          '#size-cells':
+            const: 2
+          '#interrupt-cells':
+            const: 1
+          device_type:
+            const: pci
+          bus-range:
+            description: Range of PCI bus numbers.
+            items:
+              - description: first bus number
+              - description: last bus number
+          ranges:
+            description: PCI memory and I/O mappings.
+          interrupt-map-mask:
+            description: Mask for PCI interrupt specifiers.
+          interrupt-map:
+            description: Mapping from PCI interrupts to parent interrupts.
+        required:
+          - '#address-cells'
+          - '#size-cells'
+          - '#interrupt-cells'
+          - device_type
+          - bus-range
+          - ranges
+          - interrupt-map-mask
+          - interrupt-map
+        additionalProperties: false
+        patternProperties:
+          "^pci-bridge@.*":
+            description: On-chip PCI bridge.
+            type: object
+            properties:
+              reg:
+                description: Bridge identifier for interrupt mapping.
+                items:
+                  - description: bus/device/function/bridge number
+              device_type:
+                const: pci
+              '#address-cells':
+                const: 3
+              '#size-cells':
+                const: 2
+              '#interrupt-cells':
+                const: 1
+              interrupt-map-mask:
+                description: Mask for bridge interrupts.
+              interrupt-map:
+                description: Mapping for bridge interrupts.
+            required:
+              - reg
+              - device_type
+              - '#address-cells'
+              - '#size-cells'
+              - '#interrupt-cells'
+              - interrupt-map-mask
+              - interrupt-map
+            additionalProperties: false
+
+          "^pci-slot@.*":
+            description: Onboard PCI device slot.
+            type: object
+            properties:
+              reg:
+                description: Slot identifier for interrupt mapping.
+                items:
+                  - description: bus/device/function/slot number
+              device_type:
+                const: pci
+            required:
+              - reg
+              - device_type
+            additionalProperties: false
+
+additionalProperties: false
+
+examples:
+  - |
+    pci@10140000 {
+      compatible = "ralink,rt3883-pci";
+      reg = <0x10140000 0x20000>;
+      #address-cells = <1>;
+      #size-cells = <1>;
+      ranges; /* direct mapping */
+      status = "disabled";
+
+      pciintc: interrupt-controller {
+        interrupt-controller;
+        #address-cells = <0>;
+        #interrupt-cells = <1>;
+        interrupts = <4>;
+      };
+
+      host-bridge {
+        #address-cells = <0>;
+        #size-cells = <2>;
+        #interrupt-cells = <1>;
+        device_type = "pci";
+        bus-range = <0 255>;
+        ranges = <
+          0x02000000 0 0x00000000 0x20000000 0 0x10000000 /* pci memory */
+          0x01000000 0 0x00000000 0x10160000 0 0x00010000 /* I/O space */
+        >;
+        interrupt-map-mask = <0xf800 0 0 7>;
+        interrupt-map = <
+          /* IDSEL 17 */
+          0x8800 0 0 1 &pciintc 18
+          0x8800 0 0 2 &pciintc 18
+          0x8800 0 0 3 &pciintc 18
+          0x8800 0 0 4 &pciintc 18
+          /* IDSEL 18 */
+          0x9000 0 0 1 &pciintc 19
+          0x9000 0 0 2 &pciintc 19
+          0x9000 0 0 3 &pciintc 19
+          0x9000 0 0 4 &pciintc 19
+        >;
+
+        pci-bridge@1 {
+          reg = <0x0800 0 0 0 0>;
+          device_type = "pci";
+          #address-cells = <3>;
+          #size-cells = <2>;
+          #interrupt-cells = <1>;
+          interrupt-map-mask = <0x0 0 0 0>;
+          interrupt-map = <0x0 0 0 0 &pciintc 20>;
+          status = "disabled";
+        };
+
+        pci-slot@17 {
+          reg = <0x8800 0 0 0 0>;
+          device_type = "pci";
+          status = "disabled";
+        };
+
+        pci-slot@18 {
+          reg = <0x9000 0 0 0 0>;
+          device_type = "pci";
+          status = "disabled";
+        };
+      };
+    };
