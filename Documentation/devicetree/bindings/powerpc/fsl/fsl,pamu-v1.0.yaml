@@ -1,0 +1,109 @@
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/fsl,pamu-v1.0.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Freescale PAMU I/O MMU
+
+maintainers:
+  - Diana Craciun <Diana.Craciun@freescale.com>
+  - Rob Herring <robh@kernel.org>
+  - Timur Tabi <timur@freescale.com>
+
+description: |
+  The Freescale Peripheral Management Access Unit (PAMU) is an I/O MMU that
+  provides device-to-memory access control and address translation capabilities.
+
+properties:
+  compatible:
+    oneOf:
+      - items:
+          - enum:
+              - fsl,pamu-v1.0
+          - const: fsl,pamu
+      - items:
+          - const: fsl,pamu
+
+  reg:
+    items:
+      - description: CCSR registers of all combined PAMU controllers
+
+  ranges:
+    description: Translation window definitions
+    items:
+      - description: Parent bus address
+      - description: PAMU bus address
+      - description: Size of the window
+
+  fsl,portid-mapping:
+    description: Bitmask to select bits in port mapping registers for snooping
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  '#address-cells':
+    const: 1
+
+  '#size-cells':
+    const: 1
+
+  interrupts:
+    description: Interrupt mappings
+    items:
+      - description: PAMU access violation interrupt spec
+      - description: PAMU hardware error interrupt spec
+
+patternProperties:
+  "^pamu@.*":
+    type: object
+    properties:
+      reg:
+        items:
+          - description: Configuration registers of this PAMU controller
+      fsl,primary-cache-geometry:
+        description: Primary PAMU cache geometry (lines, ways)
+        $ref: /schemas/types.yaml#/definitions/uint32-array
+        items:
+          - description: Number of cache lines
+          - description: Number of ways
+      fsl,secondary-cache-geometry:
+        description: Secondary PAMU cache geometry (lines, ways)
+        $ref: /schemas/types.yaml#/definitions/uint32-array
+        items:
+          - description: Number of cache lines
+          - description: Number of ways
+    required:
+      - reg
+      - fsl,primary-cache-geometry
+      - fsl,secondary-cache-geometry
+    additionalProperties: false
+
+required:
+  - compatible
+  - ranges
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    iommu@20000 {
+        compatible = "fsl,pamu-v1.0", "fsl,pamu";
+        reg = <0x20000 0x5000>;
+        ranges = <0 0x20000 0x5000>;
+        fsl,portid-mapping = <0xf80000>;
+        #address-cells = <1>;
+        #size-cells = <1>;
+        interrupts = <
+            24 2 0 0
+            16 2 1 30>;
+        pamu0: pamu@0 {
+            reg = <0 0x1000>;
+            fsl,primary-cache-geometry = <32 1>;
+            fsl,secondary-cache-geometry = <128 2>;
+        };
+        pamu1: pamu@1000 {
+            reg = <0x1000 0x1000>;
+            fsl,primary-cache-geometry = <32 1>;
+            fsl,secondary-cache-geometry = <128 2>;
+        };
+        /* ... additional pamu controllers ... */
+    };
