@@ -1,0 +1,120 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Axis AB
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pinctrl/axis,artpec6-pinctrl.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Axis ARTPEC-6 Pin Controller
+maintainers:
+  - Jesper Nilsson <jesper.nilsson@axis.com>
+  - Niklas Cassel <niklas.cassel@axis.com>
+
+description: |
+  Axis ARTPEC-6 Pin Controller
+
+  A pinctrl node should contain at least one subnode representing the pinctrl
+  groups available on the machine. Each subnode will list the mux function
+  required and what pin group it will use. Each subnode will also configure the
+  drive strength and bias pull-up of the pin group. If either of these options
+  is not set, its actual value will be unspecified.
+
+properties:
+  compatible:
+    const: axis,artpec6-pinctrl
+
+  reg:
+    items:
+      - description: Base physical address of the pin controller registers
+      - description: Length of the register region
+
+  pinctrl-names:
+    items:
+      - const: default
+
+patternProperties:
+  ".*":
+    $ref: "#/$defs/group"
+
+additionalProperties: false
+
+$defs:
+  group:
+    description: Pin controller group settings
+    type: object
+    additionalProperties: false
+    properties:
+      function:
+        description: Function to mux.
+        enum:
+          - gpio
+          - cpuclkout
+          - udlclkout
+          - i2c1
+          - i2c2
+          - i2c3
+          - i2s0
+          - i2s1
+          - i2srefclk
+          - spi0
+          - spi1
+          - pciedebug
+          - uart0
+          - uart1
+          - uart2
+          - uart3
+          - uart4
+          - uart5
+          - nand
+          - sdio0
+          - sdio1
+          - ethernet
+      groups:
+        description: Name of the pin group to use for the function.
+        enum:
+          - cpuclkoutgrp0
+          - udlclkoutgrp0
+          - i2c1grp0
+          - i2c2grp0
+          - i2c3grp0
+          - i2s0grp0
+          - i2s1grp0
+          - i2srefclkgrp0
+          - spi0grp0
+          - spi1grp0
+          - pciedebuggrp0
+          - uart0grp0
+          - uart0grp1
+          - uart0grp2
+          - uart1grp0
+          - uart1grp1
+          - uart2grp0
+          - uart2grp1
+          - uart2grp2
+          - uart3grp0
+          - uart4grp0
+          - uart4grp1
+          - uart5grp0
+          - uart5grp1
+          - uart5nocts
+          - nandgrp0
+          - sdio0grp0
+          - sdio1grp0
+          - ethernetgrp0
+      drive-strength:
+        description: Drive strength in mA.
+        $ref: /schemas/types.yaml#/definitions/uint32
+        enum:
+          - 4
+          - 6
+          - 8
+          - 9
+      bias-pull-up:
+        description: Enable bias pull-up.
+        type: boolean
+      bias-disable:
+        description: Disable bias.
+        type: boolean
+    required:
+      - function
+      - groups
