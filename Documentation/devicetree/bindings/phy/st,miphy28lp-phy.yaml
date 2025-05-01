@@ -1,0 +1,156 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 STMicroelectronics
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/phy/st,miphy28lp-phy.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: STMicroelectronics STi MIPHY28LP PHY
+
+maintainers:
+  - Gabriel FERNANDEZ <gabriel.fernandez@st.com>
+
+description: |
+  STMicroelectronics STi MIPHY28LP PHY binding
+
+  This binding describes a miphy device that is used to control PHY hardware
+  for SATA, PCIe or USB3.
+
+  Specifying phy control of devices
+  ==================================
+
+  Device nodes should specify the configuration required in their "phys"
+  property, containing a phandle to the miphy device node and an index
+  specifying which configuration to use, as described in phy-bindings.txt.
+
+definitions:
+  port:
+    description: MIPHY channel controller sub-node.
+    type: object
+    properties:
+      reg:
+        items:
+          - description: SATA PHY register range.
+          - description: PCIe PHY register range.
+          - description: PIPEW PHY register range.
+        description: Register ranges for the PHY channel.
+      reg-names:
+        items:
+          - const: sata-up
+          - const: pcie-up
+          - const: pipew
+        description: Names for the register ranges.
+#      st,syscfg:
+#        $ref: /schemas/types.yaml#/definitions/uint32-array
+#        description: Offset of the parent configuration register.
+      "#phy-cells":
+        const: 1
+        description: Number of cells after port phandle specifying PHY type.
+      st,osc-rdy:
+        type: boolean
+        description: Check the MIPHY0_OSC_RDY status in the glue logic.
+      st,osc-force-ext:
+        type: boolean
+        description: Select the external oscillator.
+      st,sata_gen:
+        $ref: /schemas/types.yaml#/definitions/uint32
+        description: SATA_SPDMODE setting for the SATA system config.
+      st,px_rx_pol_inv:
+        type: boolean
+        description: Invert polarity of RXn/RXp.
+      st,scc-on:
+        type: boolean
+        description: Enable SSC to reduce EMI effects.
+      st,tx-impedance-comp:
+        $ref: /schemas/types.yaml#/definitions/uint32
+        description: Compensate TX impedance.
+      resets:
+        items:
+          - $ref: /schemas/types.yaml#/definitions/phandle
+        description: Phandle to the parent reset controller.
+      reset-names:
+        items:
+          - const: miphy-sw-rst
+        description: Associated name for the reset.
+    required:
+      - reg
+      - reg-names
+      - st,syscfg
+      - "#phy-cells"
+      - resets
+      - reset-names
+    additionalProperties: false
+
+properties:
+  compatible:
+    const: st,miphy28lp-phy
+    description: Device compatible string.
+  st,syscfg:
+    $ref: /schemas/types.yaml#/definitions/phandle
+    description: Phandle of the system configuration register group
+      which contain the SATA, PCIe or USB3 mode setting bits.
+
+patternProperties:
+  "^port@[0-9A-Fa-f]+$":
+    $ref: "#/definitions/port"
+additionalProperties: false
+
+examples:
+  - |
+    miphy28lp_phy: miphy28lp@9b22000 {
+        compatible = "st,miphy28lp-phy";
+        st,syscfg = <&syscfg_core>;
+        #address-cells = <1>;
+        #size-cells = <1>;
+        ranges;
+
+        phy_port0: port@9b22000 {
+            reg = <0x9b22000 0xff>,
+                  <0x9b09000 0xff>,
+                  <0x9b04000 0xff>;
+            reg-names = "sata-up",
+                        "pcie-up",
+                        "pipew";
+
+            st,syscfg = <0x114 0x818 0xe0 0xec>;
+            #phy-cells = <1>;
+            st,osc-rdy;
+            reset-names = "miphy-sw-rst";
+            resets = <&softreset STIH407_MIPHY0_SOFTRESET>;
+        };
+
+        phy_port1: port@9b2a000 {
+            reg = <0x9b2a000 0xff>,
+                  <0x9b19000 0xff>,
+                  <0x9b14000 0xff>;
+            reg-names = "sata-up",
+                        "pcie-up",
+                        "pipew";
+
+            st,syscfg = <0x118 0x81c 0xe4 0xf0>;
+
+            #phy-cells = <1>;
+            st,osc-force-ext;
+            reset-names = "miphy-sw-rst";
+            resets = <&softreset STIH407_MIPHY1_SOFTRESET>;
+        };
+
+        phy_port2: port@8f95000 {
+            reg = <0x8f95000 0xff>,
+                  <0x8f90000 0xff>;
+            reg-names = "pipew",
+                        "usb3-up";
+
+            st,syscfg = <0x11c 0x820>;
+
+            #phy-cells = <1>;
+            reset-names = "miphy-sw-rst";
+            resets = <&softreset STIH407_MIPHY2_SOFTRESET>;
+        };
+    };
+  - |
+    sata0: sata@9b20000  {
+        ...
+        phys = <&phy_port0 PHY_TYPE_SATA>;
+        ...
+    };
