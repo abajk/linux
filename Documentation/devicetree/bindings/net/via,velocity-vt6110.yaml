@@ -1,0 +1,49 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/net/via,velocity-vt6110.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: VIA Velocity 10/100/1000 Network Controller
+
+maintainers:
+  - Tony Prisk <linux@prisktech.co.nz>
+
+description: |
+  VIA Velocity 10/100/1000 Network Controller
+
+properties:
+  compatible:
+    items:
+      - const: via,velocity-vt6110
+
+  reg:
+    items:
+      - description: Address and length of the I/O space
+
+  interrupts:
+    items:
+      - description: Controller interrupt line
+
+  no-eeprom:
+    type: boolean
+    description: |
+      PCI network cards use an external EEPROM to store data.
+      Embedded devices quite often set this data in uboot and do not provide an eeprom.
+      Specify this option if you have no external eeprom.
+
+required:
+  - compatible
+  - reg
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    eth0@d8004000 {
+        compatible = "via,velocity-vt6110";
+        reg = <0xd8004000 0x400>;
+        interrupts = <10>;
+        no-eeprom;
+    };
