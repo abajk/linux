@@ -1,0 +1,153 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mfd/toshiba,tc3589x.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Toshiba TC3589x multi-purpose expander
+
+maintainers:
+  - Dmitry Torokhov <dmitry.torokhov@gmail.com>
+  - Linus Walleij <linus.walleij@linaro.org>
+  - Rob Herring <robh@kernel.org>
+  - Sudeep Holla <sudeep.holla@arm.com>
+
+description: |
+  Toshiba TC3589x multi-purpose expander
+
+  The Toshiba TC3589x series are I2C-based MFD devices which may expose the
+  following built-in devices: gpio, keypad, rotator (vibrator), PWM (for
+  e.g. LEDs or vibrators).
+
+  The included models are:
+    - TC35890
+    - TC35892
+    - TC35893
+    - TC35894
+    - TC35895
+    - TC35896
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - "toshiba,tc35890"
+          - "toshiba,tc35892"
+          - "toshiba,tc35893"
+          - "toshiba,tc35894"
+          - "toshiba,tc35895"
+          - "toshiba,tc35896"
+    description: Device compatibility list
+
+  reg:
+    description: I2C address of the device
+    items:
+      - description: I2C bus address
+
+  interrupts:
+    description: Interrupt on the parent the controller is connected to
+    items:
+      - description: Interrupt specifier (IRQ number and type)
+
+  interrupt-controller: true
+
+  '#interrupt-cells':
+    const: 1
+
+  tc3589x_gpio:
+    description: GPIO controller inside the TC3589x
+    type: object
+    additionalProperties: false
+    properties:
+      compatible:
+        items:
+          - const: "toshiba,tc3589x-gpio"
+      interrupts:
+        description: Interrupt on the parent, which must be the TC3589x MFD device
+        items:
+          - description: Interrupt specifier (IRQ number and type)
+      interrupt-controller: true
+      '#interrupt-cells':
+        # A simple case where the value must always be '2'.
+        const: 2
+      gpio-controller: true
+      '#gpio-cells':
+        # A simple case where the value must always be '2'.
+        const: 2
+    required:
+      - compatible
+      - interrupts
+      - interrupt-controller
+      - '#interrupt-cells'
+      - gpio-controller
+      - '#gpio-cells'
+
+  tc3589x_keypad:
+    description: Keypad controller inside the TC3589x
+    type: object
+    additionalProperties: false
+    properties:
+      compatible:
+        items:
+          - const: "toshiba,tc3589x-keypad"
+      interrupts:
+        description: Interrupt on the parent, which must be the TC3589x MFD device
+        items:
+          - description: Interrupt specifier (IRQ number and type)
+      debounce-delay-ms:
+        description: Debounce interval in milliseconds
+      keypad,num-columns:
+        description: Number of columns in the matrix
+        $ref: /schemas/types.yaml#/definitions/uint32
+      keypad,num-rows:
+        description: Number of rows in the matrix
+        $ref: /schemas/types.yaml#/definitions/uint32
+      linux,no-autorepeat: true
+      linux,keymap:
+        description: Keymap definition, see bindings/input/matrix-keymap.txt
+        $ref: /schemas/types.yaml#/definitions/uint32-array
+      wakeup-source: true
+    required:
+      - compatible
+      - interrupts
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - interrupt-controller
+  - '#interrupt-cells'
+
+additionalProperties: false
+
+examples:
+  - |
+    tc35893@44 {
+      compatible = "toshiba,tc35893";
+      reg = <0x44>;
+      interrupts = <26 IRQ_TYPE_EDGE_RISING>;
+      interrupt-controller;
+      #interrupt-cells = <1>;
+      tc3589x_gpio {
+        compatible = "toshiba,tc3589x-gpio";
+        interrupts = <0>;
+        interrupt-controller;
+        #interrupt-cells = <2>;
+        gpio-controller;
+        #gpio-cells = <2>;
+      };
+      tc3589x_keypad {
+        compatible = "toshiba,tc3589x-keypad";
+        interrupts = <6>;
+        debounce-delay-ms = <4>;
+        keypad,num-columns = <8>;
+        keypad,num-rows = <8>;
+        linux,no-autorepeat;
+        linux,keymap = <
+          0x0301006b 0x04010066 0x06040072 0x040200d7 0x0303006a 0x0205000e 0x0607008b
+          0x0500001c 0x0403000b 0x03040034 0x05020067 0x0305006c 0x040500e7 0x0005009e
+          0x06020073 0x01030039 0x07060069 0x050500d9
+        >;
+        wakeup-source;
+      };
+    };
