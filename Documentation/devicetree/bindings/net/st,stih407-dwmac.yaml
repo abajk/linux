@@ -1,0 +1,150 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 STMicroelectronics
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/net/st,stih407-dwmac.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: STMicroelectronics SoC DWMAC glue layer controller
+
+maintainers:
+  - Alain Volmat <avolmat@me.com>
+  - Bjorn Helgaas <bhelgaas@google.com>
+  - Giuseppe CAVALLARO <peppe.cavallaro@st.com>
+  - Peter Griffin <peter.griffin@linaro.org>
+  - Rob Herring <robh@kernel.org>
+  - Srinivas Kandagatla <srinivas.kandagatla@st.com>
+
+description: |
+  STMicroelectronics SoC DWMAC glue layer controller
+
+  This file documents differences between the core properties in
+  Documentation/devicetree/bindings/net/stmmac.txt
+  and what is needed on STi platforms to program the stmmac glue logic.
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - st,stih407-dwmac
+          - snps,dwmac
+          - snps,dwmac-3.710
+
+  reg:
+    items:
+      - description: MAC register region (base address and size)
+
+  reg-names:
+    items:
+      - const: stmmaceth
+
+  clocks:
+    description: Clocks controlling MAC and PHY interfaces
+    items:
+      - description: stmmac interface clock
+      - description: PHY interface clock
+
+  clock-names:
+    items:
+      - const: stmmaceth
+      - const: sti-ethclk
+
+  interrupts:
+    description: Interrupts for the MAC, wake, and low power idle events
+    items:
+      - description: MAC interrupt
+      - description: Ethernet wake interrupt
+      - description: Ethernet low power idle interrupt
+
+  interrupt-names:
+    items:
+      - const: macirq
+      - const: eth_wake_irq
+      - const: eth_lpi
+
+  st,syscon:
+    description: syscon for MAC glue logic control registers
+    items:
+      - description: phandle to syscon register bank
+      - description: offset of the control register
+
+  st,gmac_en:
+    description: Enable GMAC via dedicated sysctl control register
+    type: boolean
+
+  pinctrl-0:
+    description: pin-control for MII mode
+    items:
+      - description: phandle to pin control state
+
+  resets:
+    description: Reset controller phandle for Ethernet reset
+    items:
+      - description: phandle to reset controller
+
+  reset-names:
+    items:
+      - const: stmmaceth
+
+  st,ext-phyclk:
+    description: External PHY clock phandle for RMII mode
+    items:
+      - description: phandle to external PHY clock
+
+  st,tx-retime-src:
+    description: TX retiming source for MAC TX lines
+    enum:
+      - txclk
+      - clk_125
+      - clkgen
+
+  sti-ethclk:
+    description: PHY clock phandle
+    items:
+      - description: phandle to PHY clock
+
+  sti-clkconf:
+    description: Extra sysconfig register for clock retiming
+    items:
+      - description: phandle to sysconfig register bank
+      - description: offset of clock retiming register
+
+  snps,pbl:
+    description: Programmable burst length
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  snps,mixed-burst:
+    description: Enable mixed burst transfers
+    type: boolean
+
+additionalProperties: false
+
+required:
+  - compatible
+  - st,syscon
+  - st,gmac_en
+  - pinctrl-0
+
+examples:
+  - |
+    ethernet0: dwmac@9630000 {
+        device_type = "network";
+        compatible = "st,stih407-dwmac", "snps,dwmac", "snps,dwmac-3.710";
+        reg = <0x9630000 0x8000>;
+        reg-names = "stmmaceth";
+        st,syscon = <&syscfg_sbc_reg 0x80>;
+        st,gmac_en;
+        resets = <&softreset STIH407_ETH1_SOFTRESET>;
+        reset-names = "stmmaceth";
+        interrupts = <GIC_SPI 98 IRQ_TYPE_NONE>,
+                     <GIC_SPI 99 IRQ_TYPE_NONE>,
+                     <GIC_SPI 100 IRQ_TYPE_NONE>;
+        interrupt-names = "macirq", "eth_wake_irq", "eth_lpi";
+        snps,pbl = <32>;
+        snps,mixed-burst;
+        pinctrl-names = "default";
+        pinctrl-0 = <&pinctrl_rgmii1>;
+        clock-names = "stmmaceth", "sti-ethclk";
+        clocks = <&CLK_S_C0_FLEXGEN CLK_EXT2F_A9>,
+                 <&CLK_S_C0_FLEXGEN CLK_ETH_PHY>;
+    };
