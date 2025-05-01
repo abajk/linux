@@ -1,0 +1,41 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/reset/snps,hsdk-reset.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: Synopsys HSDK reset controller
+maintainers:
+  - Vineet Gupta <Vineet.Gupta1@synopsys.com>
+description: |
+  Binding for the Synopsys HSDK reset controller
+
+  This binding uses the common reset binding[1].
+
+  [1] Documentation/devicetree/bindings/reset/reset.txt
+
+  The index could be found in <dt-bindings/reset/snps,hsdk-reset.h>
+properties:
+  compatible:
+    items:
+      - const: snps,hsdk-reset
+  reg:
+    description: |
+      Register pairs where first is reset configuration register and second is
+      software reset and status bits register
+    items:
+      - description: reset configuration register
+      - description: software reset and status bits register
+  '#reset-cells':
+    const: 1
+required:
+  - compatible
+  - reg
+  - '#reset-cells'
+additionalProperties: false
+examples:
+  - |
+    reset: reset@880 {
+        compatible = "snps,hsdk-reset";
+        #reset-cells = <1>;
+        reg = <0x8A0 0x4>, <0xFF0 0x4>;
+    };
