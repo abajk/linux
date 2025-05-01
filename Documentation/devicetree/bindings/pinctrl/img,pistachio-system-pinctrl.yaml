@@ -1,0 +1,214 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pinctrl/img,pistachio-system-pinctrl.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Imagination Technologies Pistachio SoC system pin controller
+
+maintainers:
+  - Andrew Bresticker <abrestic@chromium.org>
+  - Govindraj Raja <Govindraj.Raja@imgtec.com>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  Imagination Technologies Pistachio SoC pin controllers
+
+  The pin controllers on Pistachio are a combined GPIO controller, (GPIO)
+  interrupt controller, and pinmux + pinconf device. The system ("east") pin
+  controller on Pistachio has 99 pins, 90 of which are MFIOs which can be
+  configured as GPIOs. The 90 GPIOs are divided into 6 banks of up to 16 GPIOs
+  each. The GPIO banks are represented as sub-nodes of the pad controller node.
+
+  Please refer to pinctrl-bindings.txt, ../gpio/gpio.txt, and
+  ../interrupt-controller/interrupts.txt for generic information regarding
+  pin controller, GPIO, and interrupt bindings.
+
+properties:
+  compatible:
+    const: img,pistachio-system-pinctrl
+
+  reg:
+    maxItems: 1
+
+patternProperties:
+  '^gpio[0-9]+$':
+    description: GPIO bank sub-nodes.
+    type: object
+    properties:
+      interrupts:
+        maxItems: 1
+
+      gpio-controller: true
+
+      '#gpio-cells':
+        const: 2
+
+      interrupt-controller: true
+
+      '#interrupt-cells':
+        const: 2
+        description: >
+          Must be two: the first cell is the GPIO pin number; the second cell encodes the interrupt flags.
+    required:
+      - interrupts
+      - gpio-controller
+      - '#gpio-cells'
+      - interrupt-controller
+      - '#interrupt-cells'
+    additionalProperties: false
+
+  '^.*$':
+    description: Pin configuration sub-nodes.
+    type: object
+    $ref: /schemas/pinctrl/pincfg-node.yaml#
+
+    properties:
+      pins:
+        $ref: /schemas/types.yaml#/definitions/string-array
+        description: List of pins to which the configuration applies.
+        items:
+          pattern: "^(mfio([0-9]|[1-8][0-9])|tck|trstn|tdi|tms|tdo|jtag_comply|safe_mode|por_disable|resetn)$"
+
+      function:
+        $ref: /schemas/types.yaml#/definitions/string
+        description: Mux function for the specified pins.
+        enum:
+          - spim1
+          - spim0
+          - uart1
+          - spis
+          - sdhost
+          - mips_trace_clk
+          - mips_trace_data
+          - mips_trace_dint
+          - mips_trace_trigout
+          - mips_trace_trigin
+          - mips_trace_dm
+          - mips_trace_probe_n
+          - i2c0
+          - i2c1
+          - i2c2
+          - i2c3
+          - i2s_out
+          - audio_clk_in
+          - debug_raw_cca_ind
+          - debug_ed_sec20_cca_ind
+          - debug_ed_sec40_cca_ind
+          - debug_agc_done_0
+          - debug_agc_done_1
+          - debug_ed_cca_ind
+          - debug_s2l_done
+          - i2s_dac_clk
+          - audio_sync
+          - audio_trigger
+          - i2s_in
+          - spdif_in
+          - uart0
+          - spdif_out
+          - eth
+          - ir
+          - pwmpdm
+          - sram_debug
+          - rom_debug
+          - mdc_debug
+          - rpu_debug
+          - ddr_debug
+          - mips_debug
+          - eth_debug
+          - mips_pll_lock
+          - usb_debug
+          - audio_pll_lock
+          - rpu_v_pll_lock
+          - rpu_l_pll_lock
+          - sys_pll_lock
+          - wifi_pll_lock
+          - bt_pll_lock
+          - dreq0
+          - dreq1
+          - dreq2
+          - dreq3
+          - dreq4
+          - dreq5
+
+      bias-high-impedance: true
+      bias-pull-up: true
+      bias-pull-down: true
+      bias-bus-hold: true
+
+      drive-strength:
+        description: Drive strength in mA.
+        enum:
+          - 2
+          - 4
+          - 8
+          - 12
+
+      input-schmitt-enable: true
+      input-schmitt-disable: true
+
+      slew-rate:
+        description: Slew rate control. 0 for slow, 1 for fast.
+        enum:
+          - 0
+          - 1
+
+    required:
+      - pins
+
+    additionalProperties: false
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    pinctrl@18101c00 {
+      compatible = "img,pistachio-system-pinctrl";
+      reg = <0x18101C00 0x400>;
+
+      gpio0: gpio0 {
+        interrupts = <GIC_SHARED 71 IRQ_TYPE_LEVEL_HIGH>;
+
+        gpio-controller;
+        #gpio-cells = <2>;
+
+        interrupt-controller;
+        #interrupt-cells = <2>;
+      };
+
+      gpio5: gpio5 {
+        interrupts = <GIC_SHARED 76 IRQ_TYPE_LEVEL_HIGH>;
+
+        gpio-controller;
+        #gpio-cells = <2>;
+
+        interrupt-controller;
+        #interrupt-cells = <2>;
+      };
+
+      uart0_xfer: uart0-xfer {
+        uart0-rxd {
+          pins = "mfio55";
+          function = "uart0";
+        };
+        uart0-txd {
+          pins = "mfio56";
+          function = "uart0";
+        };
+      };
+
+      uart0_rts_cts: uart0-rts-cts {
+        uart0-rts {
+          pins = "mfio57";
+          function = "uart0";
+        };
+        uart0-cts {
+          pins = "mfio58";
+          function = "uart0";
+        };
+      };
+    };
