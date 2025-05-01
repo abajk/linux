@@ -1,0 +1,90 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/net/ieee802154/ti,cc2520.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: ti,cc2520
+
+maintainers:
+  - Brad Campbell <bradjc5@gmail.com>
+  - Varka Bhadram <varkab@cdac.in>
+
+description: |
+  *CC2520 IEEE 802.15.4 Compatible Radio*
+
+properties:
+  compatible:
+    items:
+      - const: ti,cc2520
+  spi-max-frequency:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |
+      Maximal bus speed (max 8000000), should be set to 4000000 depending on sync or
+      async operation mode.
+    maximum: 8000000
+  reg:
+    description: The chip-select index for the SPI controller.
+    items:
+      - description: Chip-select index
+  pinctrl-names:
+    $ref: /schemas/types.yaml#/definitions/string-array
+    description: Must contain a default entry.
+    items:
+      - enum: [default]
+  pinctrl-0:
+    $ref: /schemas/types.yaml#/definitions/phandle
+    description: Pin control group to be used by this controller.
+  fifo-gpio:
+    maxItems: 1
+    description: GPIO spec for the FIFO pin.
+  fifop-gpio:
+    maxItems: 1
+    description: GPIO spec for the FIFOP pin.
+  sfd-gpio:
+    maxItems: 1
+    description: GPIO spec for the SFD pin.
+  cca-gpio:
+    maxItems: 1
+    description: GPIO spec for the CCA pin.
+  vreg-gpio:
+    maxItems: 1
+    description: GPIO spec for the VREG pin.
+  reset-gpio:
+    maxItems: 1
+    description: GPIO spec for the RESET pin.
+  amplified:
+    type: boolean
+    description: Include if the CC2520 is connected to a CC2591 amplifier.
+
+required:
+  - compatible
+  - spi-max-frequency
+  - reg
+  - pinctrl-names
+  - pinctrl-0
+  - fifo-gpio
+  - fifop-gpio
+  - sfd-gpio
+  - cca-gpio
+  - vreg-gpio
+  - reset-gpio
+
+additionalProperties: false
+
+examples:
+  - |
+    cc2520@0 {
+      compatible = "ti,cc2520";
+      reg = <0>;
+      spi-max-frequency = <4000000>;
+      amplified;
+      pinctrl-names = "default";
+      pinctrl-0 = <&cc2520_cape_pins>;
+      fifo-gpio = <&gpio1 18 0>;
+      fifop-gpio = <&gpio1 19 0>;
+      sfd-gpio = <&gpio1 13 0>;
+      cca-gpio = <&gpio1 16 0>;
+      vreg-gpio = <&gpio0 31 0>;
+      reset-gpio = <&gpio1 12 0>;
+    };
