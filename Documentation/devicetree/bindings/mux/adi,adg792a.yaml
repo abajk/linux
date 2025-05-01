@@ -1,0 +1,95 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Axentia Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mux/adi,adg792a.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Analog Devices ADG792A/G Triple 4:1 Multiplexers
+
+maintainers:
+  - Peter Rosin <peda@axentia.se>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  Bindings for Analog Devices ADG792A/G Triple 4:1 Multiplexers
+
+  States 0 through 3 correspond to signals A through D in the datasheet.
+
+properties:
+  compatible:
+    description: Device compatible string.
+    oneOf:
+      - items:
+          - enum: [adi, adg792a]
+      - items:
+          - enum: [adi, adg792g]
+
+  reg:
+    description: |
+      I2C bus address of the device.
+    items:
+      - description: I2C slave address (7-bit).
+
+  '#mux-control-cells':
+    description: |
+      Number of control cells: 0 if parallel (single mux controller for all three muxes),
+      or 1 if independent (one mux controller per mux).
+    enum: [0, 1]
+
+  gpio-controller: true
+  # GPIO controller, required for ADG792G.
+
+  '#gpio-cells':
+    description: >
+      Number of GPIO cells (should be 2). First cell is the GPO line number (0 or 1);
+      second cell specifies active high (0) or active low (1).
+    const: 2
+
+  idle-state:
+    description: |
+      Array of idle states for the multiplexers.
+      The default state is MUX_IDLE_AS_IS, and MUX_IDLE_DISCONNECT will disconnect the channel.
+      Numeric values 0–3 correspond to signals A–D in the datasheet.
+    items:
+      oneOf:
+        - enum: [MUX_IDLE_DISCONNECT, MUX_IDLE_AS_IS]
+        - enum: [0, 1, 2, 3]
+
+dependencies:
+  gpio-controller: ['#gpio-cells']
+
+required:
+  - compatible
+  - reg
+  - '#mux-control-cells'
+
+additionalProperties: false
+
+examples:
+  - |
+    /* Three independent mux controllers (of which one is used).
+     * Mux 0 is disconnected when idle, mux 1 idles in the previously
+     * selected state and mux 2 idles with signal B.
+     */
+    &i2c0 {
+      mux: mux-controller@50 {
+        compatible = "adi,adg792a";
+        reg = <0x50>;
+        #mux-control-cells = <1>;
+        idle-state = <MUX_IDLE_DISCONNECT MUX_IDLE_AS_IS 1>;
+      };
+    };
+
+    /* Three parallel muxes with one mux controller, useful e.g. if
+     * the adc is differential, thus needing two signals to be muxed
+     * simultaneously for correct operation.
+     */
+    &i2c0 {
+      pmux: mux-controller@50 {
+        compatible = "adi,adg792a";
+        reg = <0x50>;
+        #mux-control-cells = <0>;
+        idle-state = <1>;
+      };
+    };
