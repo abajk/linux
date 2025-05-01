@@ -1,0 +1,80 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mfd/ti,tps61050.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI TPS61050/TPS61052 Boost Converters
+
+maintainers:
+  - Javier Martinez Canillas <javier@dowhile0.org>
+  - Sven Van Asbroeck <thesven73@gmail.com>
+
+description: |
+  * Device tree bindings for TI TPS61050/61052 Boost Converters
+
+  The TP61050/TPS61052 is a high-power "white LED driver". The
+  device provides LED, GPIO and regulator functionalities.
+
+  Optional sub-node:
+
+  This subnode selects the chip's operational mode.
+  There can be at most one single available subnode.
+
+properties:
+  compatible:
+    description: Must be "ti,tps61050" or "ti,tps61052" for this device.
+    enum:
+      - ti,tps61050
+      - ti,tps61052
+
+  reg:
+    description: I2C slave address of the device.
+    items:
+      - description: I2C slave address
+
+  regulator:
+    description: Presence of this sub-node puts the chip in regulator mode.
+    $ref: /schemas/regulator/regulator.yaml
+    unevaluatedProperties: false
+
+  led:
+    description: Presence of this sub-node puts the chip in LED mode.
+    $ref: /schemas/leds/common.yaml#
+
+additionalProperties: false
+
+examples:
+  - |
+    i2c0 {
+        tps61052@33 {
+            compatible = "ti,tps61052";
+            reg = <0x33>;
+        };
+    };
+  - |
+    i2c0 {
+        tps61052@33 {
+            compatible = "ti,tps61052";
+            reg = <0x33>;
+
+            regulator {
+                regulator-min-microvolt = <5000000>;
+                regulator-max-microvolt = <5000000>;
+                regulator-always-on;
+            };
+        };
+    };
+  - |
+    #include <dt-bindings/leds/common.h>
+
+    i2c0 {
+        tps61052@33 {
+            compatible = "ti,tps61052";
+            reg = <0x33>;
+
+            led {
+                color = <LED_COLOR_ID_WHITE>;
+            };
+        };
+    };
