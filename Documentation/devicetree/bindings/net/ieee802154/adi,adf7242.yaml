@@ -1,0 +1,55 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Michael Hennerich <michael.hennerich@analog.com>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/adi,adf7242.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: ADF7242 IEEE 802.15.4
+
+maintainers:
+  - Michael Hennerich <michael.hennerich@analog.com>
+
+description: |
+  * ADF7242 IEEE 802.15.4 *
+
+properties:
+  compatible:
+    description: Device compatibility.
+    $ref: /schemas/types.yaml#/definitions/string-array
+    items:
+      - enum:
+          - adi,adf7242
+          - adi,adf7241
+
+  spi-max-frequency:
+    description: Maximum SPI bus speed.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  reg:
+    description: Chip select index.
+    items:
+      - description: Chip select index.
+
+  interrupts:
+    description: Interrupt for device via pin IRQ1. IRQ_TYPE_LEVEL_HIGH (4) or IRQ_TYPE_EDGE_FALLING (1).
+    items:
+      - description: Interrupt number.
+      - description: Interrupt trigger type.
+
+required:
+  - compatible
+  - spi-max-frequency
+  - reg
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    adf7242@0 {
+        compatible = "adi,adf7242";
+        spi-max-frequency = <10000000>;
+        reg = <0>;
+        interrupts = <98 IRQ_TYPE_LEVEL_HIGH>;
+    };
