@@ -1,0 +1,197 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Texas Instruments.
+
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pci/ti,dra7-pcie.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI PCI Controllers
+
+maintainers:
+  - Bjorn Helgaas <bhelgaas@google.com>
+  - Kishon Vijay Abraham I <kishon@kernel.org>
+  - Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+  - Vignesh R <vigneshr@ti.com>
+
+description: |
+  TI PCI Controllers
+
+  PCIe DesignWare Controller
+
+  NOTE: Two DT nodes may be added for each PCI controller; one for host
+  mode and another for device mode. So in order for PCI to work in host mode,
+  EP mode DT node should be disabled and in order to PCI to work in EP mode,
+  host mode DT node should be disabled. Host mode and EP mode are mutually
+  exclusive.
+
+properties:
+  compatible:
+    $ref: /schemas/types.yaml#/definitions/string-array
+    items:
+      - enum:
+          - "ti,dra7-pcie"
+          - "ti,dra7-pcie-ep"
+          - "ti,dra746-pcie-rc"
+          - "ti,dra746-pcie-ep"
+          - "ti,dra726-pcie-rc"
+          - "ti,dra726-pcie-ep"
+
+  phys:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    description: |
+      List of PHY specifiers used by the generic PHY framework.
+
+  phy-names:
+    items:
+      - const: pcie-phy0
+        description: First PHY specifier name.
+      - const: pcie-phy1
+        description: Second PHY specifier name.
+      - const: pcie-phyN
+        description: Subsequent PHY specifier names.
+
+  ti,hwmods:
+    $ref: /schemas/types.yaml#/definitions/string-array
+    items:
+      - description: Name of the hwmod associated with this PCIe instance.
+    description: |
+      Hardware module names for this PCIe controller.
+
+  ti,syscon-lane-sel:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    items:
+      - description: Phandle to the syscon node.
+      - description: Register offset and bitfield for lane selection.
+    description: |
+      System controller register and bitfield to select PCIe lanes.
+
+  reg:
+    oneOf:
+      - items:
+          - description: TI-specific registers (ti-conf).
+          - description: DesignWare DBICS registers (rc-dbics).
+          - description: PCIe configuration space registers.
+      - items:
+          - description: TI-specific registers (ti-conf).
+          - description: Standard config registers in DIF CS space (ep_dbics).
+          - description: Standard config registers in DIF CS2 space (ep_dbics2).
+          - description: Address translation window for remote RC (addr_space).
+    description: |
+      Register ranges for the TI-specific and DesignWare PCIe controllers.
+
+  reg-names:
+    oneOf:
+      - items:
+          - const: ti-conf
+          - const: rc-dbics
+          - const: config
+      - items:
+          - const: ti-conf
+          - const: ep_dbics
+          - const: ep_dbics2
+          - const: addr_space
+
+  interrupts:
+    oneOf:
+      - items:
+          - description: Main interrupt line.
+          - description: MSI interrupt line.
+      - items:
+          - description: Main interrupt line.
+    description: |
+      Interrupt entries for main and MSI interrupt lines.
+
+  "#address-cells":
+    $ref: /schemas/types.yaml#/definitions/uint32
+    const: 3
+    description: |
+      Number of address cells for child nodes.
+
+  "#size-cells":
+    $ref: /schemas/types.yaml#/definitions/uint32
+    const: 2
+    description: |
+      Number of size cells for child nodes.
+
+  device_type:
+    const: pci
+    description: |
+      Must be set to "pci".
+
+  ranges:
+    description: |
+      Address mapping ranges for the PCI bus.
+
+  "#interrupt-cells":
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |
+      Number of interrupt cells for this interrupt controller.
+
+  interrupt-controller: true
+
+  ti,syscon-unaligned-access:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    items:
+      - description: Phandle to the syscon node.
+      - description: Bitfield to enable unaligned access.
+    description: |
+      Enable unaligned access control in the system controller.
+
+  num-ib-windows:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |
+      Number of inbound address translation windows.
+
+  num-ob-windows:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |
+      Number of outbound address translation windows.
+
+  gpios:
+    maxItems: 1
+    description: |
+      GPIO line for driving the PERST# reset signal.
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - interrupt-controller
+
+additionalProperties: false
+
+examples:
+  - |
+    axi {
+      compatible = "simple-bus";
+      #size-cells = <1>;
+      #address-cells = <1>;
+      ranges = <0x51000000 0x51000000 0x3000
+                0x0         0x20000000 0x10000000>;
+      pcie@51000000 {
+        compatible = "ti,dra7-pcie";
+        reg = <0x51000000 0x2000>, <0x51002000 0x14c>, <0x1000 0x2000>;
+        reg-names = "ti-conf", "rc-dbics", "config";
+        interrupts = <0 232 0x4>, <0 233 0x4>;
+        #address-cells = <3>;
+        #size-cells = <2>;
+        device_type = "pci";
+        ranges = <0x81000000 0 0          0x03000 0 0x00010000
+                  0x82000000 0 0x20013000 0x13000 0 0xffed000>;
+        num-lanes = <1>;
+        ti,hwmods = "pcie1";
+        phys = <&pcie1_phy>;
+        phy-names = "pcie-phy0";
+        interrupt-map-mask = <0 0 0 7>;
+        interrupt-map = <0 0 0 1 &pcie_intc 1>,
+                         <0 0 0 2 &pcie_intc 2>,
+                         <0 0 0 3 &pcie_intc 3>,
+                         <0 0 0 4 &pcie_intc 4>;
+        pcie_intc: interrupt-controller {
+          interrupt-controller;
+          #address-cells = <0>;
+          #interrupt-cells = <1>;
+        };
+      };
+    };
