@@ -1,0 +1,121 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Bjorn Helgaas <bhelgaas@google.com>
+# Copyright 2025 Xuelin Shi <b29237@freescale.com>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/powerpc/fsl/fsl,raideng-v1.0.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Freescale 85xx RAID Engine
+maintainers:
+  - Bjorn Helgaas <bhelgaas@google.com>
+  - Xuelin Shi <b29237@freescale.com>
+description: |
+  Freescale 85xx RAID Engine nodes
+
+  RAID Engine nodes are defined to describe on-chip RAID accelerators. Each RAID
+  Engine should have a separate node.
+
+  Supported chips:
+  P5020, P5040
+
+properties:
+  compatible:
+    enum:
+      - fsl,raideng-v1.0
+    description: Identifies RAID Engine hardware IP version
+  reg:
+    description: Offset and length of the register set for the RAID Engine
+    items:
+      - description: Base address
+      - description: Size of register region
+  ranges:
+    description: Translation between child address space and parent address space
+    items:
+      - description: Child address
+      - description: Parent address and size
+
+required:
+  - compatible
+  - reg
+  - ranges
+
+definitions:
+  raideng-job-queue:
+    description: Job queue sub-node of RAID Engine
+    type: object
+    properties:
+      compatible:
+        enum:
+          - fsl,raideng-v1.0-job-queue
+        description: Identifies the job queue interface
+      reg:
+        description: Offset and length of the register set for job queue
+        items:
+          - description: Base address
+          - description: Size of register region
+      ranges:
+        description: Translation between child address space and parent address space for job queue
+        items:
+          - description: Child address
+          - description: Parent address and size
+    required:
+      - compatible
+      - reg
+      - ranges
+    additionalProperties: false
+
+  raideng-job-ring:
+    description: Job ring sub-node of RAID Engine job queue
+    type: object
+    properties:
+      compatible:
+        enum:
+          - fsl,raideng-v1.0-job-ring
+          - fsl,raideng-v1.0-hp-ring
+          - fsl,raideng-v1.0-lp-ring
+        description: Identifies job ring and priority
+      reg:
+        description: Offset and length of the register set for job ring
+        items:
+          - description: Base address
+          - description: Size of register region
+      interrupts:
+        description: Interrupt mapping for job ring IRQ
+        items:
+          - description: IRQ number and flags
+      fsl,liodn:
+        description: LIODN to be used for Job Ring
+        $ref: /schemas/types.yaml#/definitions/uint32
+    required:
+      - compatible
+      - reg
+      - interrupts
+    additionalProperties: false
+
+patternProperties:
+  "^[^/]+$":
+    anyOf:
+      - $ref: '#/definitions/raideng-job-queue'
+      - $ref: '#/definitions/raideng-job-ring'
+
+additionalProperties: false
+
+examples:
+  - |
+    raideng: raideng@320000 {
+        compatible = "fsl,raideng-v1.0";
+        reg = <0x320000 0x10000>;
+        ranges = <0 0x320000 0x10000>;
+        raideng_jq0@1000 {
+            compatible = "fsl,raideng-v1.0-job-queue";
+            reg = <0x1000 0x1000>;
+            ranges = <0x0 0x1000 0x1000>;
+            raideng_jr0: jr@0 {
+                compatible = "fsl,raideng-v1.0-job-ring", "fsl,raideng-v1.0-hp-ring";
+                reg = <0x0 0x400>;
+                interrupts = <139 2 0 0>;
+                fsl,liodn = <0x41>;
+            };
+        };
+    };
