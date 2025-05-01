@@ -1,0 +1,178 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/remoteproc/qcom,ipq8074-wcss-pil.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Qualcomm Hexagon Peripheral Image Loader
+
+maintainers:
+  - Avaneesh Kumar Dwivedi <quic_akdwived@quicinc.com>
+  - Bjorn Andersson <andersson@kernel.org>
+  - Govind Singh <govinds@codeaurora.org>
+  - Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+  - Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+  - Luca Weiss <luca@lucaweiss.eu>
+  - Sibi Sankar <quic_sibis@quicinc.com>
+  - Slark Xiao <slark_xiao@163.com>
+  - Sricharan Ramabadhran <quic_srichara@quicinc.com>
+  - Stephan Gerhold <stephan.gerhold@kernkonzept.com>
+  - Stephan Gerhold <stephan@gerhold.net>
+
+description: |
+  Qualcomm Hexagon Peripheral Image Loader
+
+  This document defines the binding for a component that loads and boots firmware
+  on the Qualcomm Hexagon core.
+
+  The Hexagon node may also have a subnode named either "smd-edge" or
+  "glink-edge" that describes the communication edge, channels and devices
+  related to the Hexagon. See ../soc/qcom/qcom,smd.yaml and
+  ../soc/qcom/qcom,glink.txt for details on how to describe these.
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - qcom,ipq8074-wcss-pil
+          - qcom,qcs404-wcss-pil
+    description: Identifies this node as a Qualcomm Hexagon PIL.
+
+  reg:
+    items:
+      - description: Base address and size of the QDSP6 register block.
+      - description: Base address and size of the RMB register block.
+    description: Register ranges for the QDSP6 and RMB blocks.
+
+  reg-names:
+    items:
+      - const: q6dsp
+      - const: rmb
+    description: Names corresponding to the register ranges.
+
+  interrupts-extended:
+    items:
+      - description: Phandle and specifier for the watchdog interrupt.
+      - description: Phandle and specifier for the fatal interrupt.
+      - description: Phandle and specifier for the ready interrupt.
+      - description: Phandle and specifier for the handover interrupt.
+      - description: Phandle and specifier for the stop-ack interrupt.
+    description: References to interrupts matching interrupt-names.
+
+  interrupt-names:
+    items:
+      - const: wdog
+      - const: fatal
+      - const: ready
+      - const: handover
+      - const: stop-ack
+    description: Names of the interrupts for the Hexagon core.
+
+  clocks:
+    items:
+      - description: Phandle to the clock required by the Hexagon core.
+    description: Reference to the clocks matching clock-names.
+
+  clock-names:
+    items:
+      - const: xo
+      - const: gcc_abhs_cbcr
+      - const: gcc_abhs_cbcr
+      - const: gcc_axim_cbcr
+      - const: lcc_ahbfabric_cbc
+      - const: tcsr_lcc_cbc
+      - const: lcc_abhs_cbc
+      - const: lcc_tcm_slave_cbc
+      - const: lcc_abhm_cbc
+      - const: lcc_axim_cbc
+      - const: lcc_bcr_sleep
+    description: Names of clocks required by qcom,qcs404-wcss-pil.
+
+  resets:
+    items:
+      - description: Reset controller for the WCSS AON domain.
+      - description: Reset controller for the WCSS core.
+      - description: Reset controller for the WCSS Q6 core.
+    description: Reset controllers for the WCSS sub-system.
+
+  reset-names:
+    items:
+      - const: wcss_aon_reset
+      - const: wcss_reset
+      - const: wcss_q6_reset
+    description: Names corresponding to the reset controllers.
+
+  memory-region:
+    description: Reference to the reserved-memory region for the WCSS subsystem.
+
+  cx-supply:
+    description: Reference to regulators held during Hexagon core boot.
+
+  qcom,smem-states:
+    description: Reference to the SMEM state for requesting Hexagon shutdown.
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+
+  qcom,smem-state-names:
+    items:
+      - const: stop
+    description: Name of the SMEM state for shutdown requests.
+
+  qcom,halt-regs:
+    items:
+      - description: Phandle to TCSR syscon.
+      - description: Offset for Q6 halt register.
+      - description: Offset for WCSS halt register.
+      - description: Offset for NC halt register.
+    description: Halt register locations within the TCSR syscon.
+
+allOf:
+  - if:
+      properties:
+        compatible:
+          contains:
+            const: qcom,qcs404-wcss-pil
+    then:
+      required:
+        - cx-supply
+        - qcom,smem-states
+        - qcom,smem-state-names
+        - qcom,halt-regs
+    else:
+      properties:
+        cx-supply: false
+        qcom,smem-states: false
+        qcom,smem-state-names: false
+        qcom,halt-regs: false
+
+required:
+  - compatible
+  - reg
+  - reg-names
+  - interrupts-extended
+  - interrupt-names
+  - clocks
+  - clock-names
+  - resets
+  - reset-names
+  - memory-region
+
+additionalProperties: false
+
+examples:
+  - |
+    remoteproc@0x100000 {
+      compatible = "qcom,qcs404-wcss-pil";
+      reg = <0x12340000 0x1000>, <0x12341000 0x1000>;
+      reg-names = "q6dsp", "rmb";
+      interrupts-extended = <&intc 1>, <&intc 2>, <&intc 3>, <&intc 4>, <&intc 5>;
+      interrupt-names = "wdog", "fatal", "ready", "handover", "stop-ack";
+      clocks = <&xo_clk>;
+      clock-names = "xo";
+      resets = <&wcss_aon_reset>, <&wcss_reset>, <&wcss_q6_reset>;
+      reset-names = "wcss_aon_reset", "wcss_reset", "wcss_q6_reset";
+      memory-region = <&wcss_mem>;
+      cx-supply = <&vdd_rcc>;
+      qcom,smem-states = <&smem_state>;
+      qcom,smem-state-names = "stop";
+      qcom,halt-regs = <&tcsr 0x4 0x8 0xC>;
+    };
