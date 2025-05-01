@@ -1,0 +1,68 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/net/ieee802154/cascoda,ca8210.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: CA8210 IEEE 802.15.4
+
+maintainers:
+  - Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+  - Harry Morris <harrymorris12@gmail.com>
+
+description: |
+  * CA8210 IEEE 802.15.4 *
+
+properties:
+  compatible:
+    items:
+      - const: cascoda,ca8210
+    description: Must be "cascoda,ca8210" to select this driver
+  reg:
+    items:
+      - description: Controlling chip select
+  spi-max-frequency:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Maximum SPI clock frequency, should be less than 4000000 Hz
+  spi-cpol:
+    type: boolean
+    description: Requires inverted clock polarity on the SPI bus
+  reset-gpio:
+    maxItems: 1
+    description: GPIO connected to the CA8210 reset line
+  irq-gpio:
+    maxItems: 1
+    description: GPIO connected to the CA8210 interrupt line
+  extclock-enable:
+    type: boolean
+    description: Include for the CA8210 to route its 16MHz clock to an output
+  extclock-freq:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Frequency in Hz of the external clock
+  extclock-gpio:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: GPIO of the CA8210 to output the clock on
+
+required:
+  - compatible
+  - reg
+  - spi-max-frequency
+  - spi-cpol
+  - reset-gpio
+  - irq-gpio
+
+additionalProperties: false
+
+examples:
+  - |
+    ca8210@0 {
+        compatible = "cascoda,ca8210";
+        reg = <0>;
+        spi-max-frequency = <3000000>;
+        spi-cpol;
+        reset-gpio = <&gpio1 1 GPIO_ACTIVE_LOW>;
+        irq-gpio = <&gpio1 2 GPIO_ACTIVE_HIGH>;
+        extclock-enable;
+        extclock-freq = <16000000>;
+        extclock-gpio = <2>;
+    };
