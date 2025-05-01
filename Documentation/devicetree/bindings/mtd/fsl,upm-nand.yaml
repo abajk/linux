@@ -1,0 +1,100 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mtd/fsl,upm-nand.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Freescale Localbus UPM NAND flash
+
+maintainers:
+  - Boris Brezillon <boris.brezillon@collabora.com>
+  - Grant Likely <grant.likely@secretlab.ca>
+  - Jamie Lentin <jm@lentin.co.uk>
+  - Lucas De Marchi <lucas.demarchi@profusion.mobi>
+  - Nayab Sayed <nayabbasha.sayed@microchip.com>
+
+description: |
+  Freescale Localbus UPM programmed to work with NAND flash
+
+properties:
+  compatible:
+    description: List of compatible strings for the Freescale Localbus UPM NAND flash controller
+    oneOf:
+      - items:
+          - const: fsl,upm-nand
+      - items:
+          - const: tqc,tqm8548-upm-nand
+          - const: fsl,upm-nand
+
+  reg:
+    description: Register specifier for the UPM chip select and size used for the NAND chip
+    items:
+      - description: UPM localbus chip select number
+      - description: Size of the NAND chip in bytes
+
+  fsl,upm-addr-offset:
+    description: UPM pattern offset for the address latch
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  fsl,upm-cmd-offset:
+    description: UPM pattern offset for the command latch
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  fsl,upm-addr-line-cs-offsets:
+    description: Address offsets for multi-chip support; selects chips via address line offsets
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+
+  gpios:
+    description: GPIO phandle-array for Ready-Not-Busy pins; one entry per chip
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+
+  fsl,upm-wait-flags:
+    description: Deprecated. Chip-dependent short delays after UPM operations
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  chip-delay:
+    description: Deprecated. Chip-dependent delay for transferring data from array to read registers (tR)
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+additionalProperties: false
+
+examples:
+  - |
+    upm@1,0 {
+        compatible = "fsl,upm-nand";
+        reg = <1 0 1>;
+        fsl,upm-addr-offset = <16>;
+        fsl,upm-cmd-offset = <8>;
+        gpios = <&qe_pio_e 18 0>;
+
+        flash {
+            #address-cells = <1>;
+            #size-cells = <1>;
+            compatible = "...";
+
+            partition@0 {
+                ...
+            };
+        };
+    };
+  - |
+    upm@3,0 {
+        #address-cells = <0>;
+        #size-cells = <0>;
+        compatible = "tqc,tqm8548-upm-nand", "fsl,upm-nand";
+        reg = <3 0x0 0x800>;
+        fsl,upm-addr-offset = <0x10>;
+        fsl,upm-cmd-offset = <0x08>;
+        /* Multi-chip NAND device */
+        fsl,upm-addr-line-cs-offsets = <0x0 0x200>;
+
+        nand@0 {
+            #address-cells = <1>;
+            #size-cells = <1>;
+
+            partition@0 {
+                label = "fs";
+                reg = <0x00000000 0x10000000>;
+            };
+        };
+    };
