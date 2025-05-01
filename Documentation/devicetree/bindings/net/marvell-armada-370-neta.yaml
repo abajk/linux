@@ -1,0 +1,95 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Allied Telesis
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/net/marvell-armada-370-neta.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Marvell Armada 370 / Armada XP / Armada 3700 / Armada AC5 Ethernet Controller (NETA)
+
+maintainers:
+  - Chris Packham <chris.packham@alliedtelesis.co.nz>
+  - Jisheng Zhang <jszhang@kernel.org>
+  - Marcin Wojtas <mw@semihalf.com>
+  - Masahiro Yamada <yamada.masahiro@socionext.com>
+  - Rob Herring <robh@kernel.org>
+  - Russell King <rmk+kernel@armlinux.org.uk>
+  - Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+  - Simon Guinot <simon.guinot@sequanux.org>
+  - Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+
+description: |
+  Marvell Armada 370 / Armada XP / Armada 3700 Ethernet Controller (NETA)
+
+properties:
+  compatible:
+    description: List of compatible strings; device must specify one.
+    items:
+      - enum:
+          - marvell,armada-370-neta
+          - marvell,armada-xp-neta
+          - marvell,armada-3700-neta
+          - marvell,armada-ac5-neta
+
+  reg:
+    description: Register base address and size.
+    items:
+      - description: Base address of register set
+      - description: Length of register set in bytes
+
+  interrupts:
+    description: Interrupt specifier for the device.
+    items:
+      - description: Interrupt number
+
+  clocks:
+    description: List of clocks; first is core clock, optional second is bus clock.
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+
+  clock-names:
+    description: Names corresponding to clocks; "core" and optionally "bus".
+    items:
+      - const: core
+      - const: bus
+
+  phy:
+    description: PHY node phandle; see ../phy/phy-bindings.txt.
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  phy-mode:
+    description: PHY interface mode; see ethernet.txt in this directory.
+    $ref: /schemas/types.yaml#/definitions/string
+
+  tx-csum-limit:
+    description: Maximum MTU in bytes for Tx checksum offload; default is 1600 for
+      armada-370-neta and 9800 for others.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  buffer-manager:
+    description: Phandle to hardware buffer manager.
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  'bm,pool-long':
+    description: Pool ID for packets larger than the short threshold.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  'bm,pool-short':
+    description: Pool ID for packets smaller than the long threshold.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+additionalProperties: false
+
+examples:
+  - |
+    ethernet@70000 {
+      compatible = "marvell,armada-370-neta";
+      reg = <0x70000 0x2500>;
+      interrupts = <8>;
+      clocks = <&gate_clk 4>;
+      tx-csum-limit = <9800>;
+      phy = <&phy0>;
+      phy-mode = "rgmii-id";
+      buffer-manager = <&bm>;
+      bm,pool-long = <0>;
+      bm,pool-short = <1>;
+    };
