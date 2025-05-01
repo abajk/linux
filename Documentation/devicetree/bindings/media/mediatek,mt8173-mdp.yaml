@@ -1,0 +1,171 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/media/mediatek,mt8173-mdp.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Mediatek Media Data Path
+
+maintainers:
+  - Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+  - Minghsiu Tsai <minghsiu.tsai@mediatek.com>
+  - Yong Wu <yong.wu@mediatek.com>
+
+description: |
+  Mediatek Media Data Path is used for scaling and color space conversion.
+
+properties:
+  compatible:
+    description: Bindings provide the Mediatek media data path controller.
+    items:
+      - const: mediatek,mt8173-mdp
+  mediatek,vpu:
+    description: The node of the video processor unit.
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+patternProperties:
+  '^rdma@.*$':
+    $ref: '#/definitions/rdma'
+  '^rsz@.*$':
+    $ref: '#/definitions/rsz'
+  '^wdma@.*$':
+    $ref: '#/definitions/wdma'
+  '^wrot@.*$':
+    $ref: '#/definitions/wrot'
+
+required:
+  - compatible
+  - mediatek,vpu
+
+additionalProperties: false
+
+definitions:
+  rdma:
+    description: Read DMA (RDMA) function block.
+    type: object
+    additionalProperties: false
+    properties:
+      compatible:
+        items:
+          - const: mediatek,mt8173-mdp-rdma
+      reg:
+        maxItems: 1
+      clocks:
+        maxItems: 2
+      power-domains:
+        maxItems: 1
+      iommus:
+        maxItems: 1
+    required:
+      - compatible
+      - reg
+      - clocks
+      - power-domains
+      - iommus
+
+  rsz:
+    description: Resizer (RSZ) function block.
+    type: object
+    additionalProperties: false
+    properties:
+      compatible:
+        items:
+          - const: mediatek,mt8173-mdp-rsz
+      reg:
+        maxItems: 1
+      clocks:
+        maxItems: 1
+      power-domains:
+        maxItems: 1
+    required:
+      - compatible
+      - reg
+      - clocks
+      - power-domains
+
+  wdma:
+    description: Write DMA (WDMA) function block.
+    type: object
+    additionalProperties: false
+    properties:
+      compatible:
+        items:
+          - const: mediatek,mt8173-mdp-wdma
+      reg:
+        description: Physical base address and length of the WDMA registers.
+        $ref: /schemas/types.yaml#/definitions/reg
+      clocks:
+        description: Device clocks.
+        $ref: /schemas/types.yaml#/definitions/clocks
+      power-domains:
+        description: Power domain for WDMA.
+        $ref: /schemas/types.yaml#/definitions/power-domains
+      iommus:
+        description: IOMMU mapping for WDMA.
+        $ref: /schemas/types.yaml#/definitions/phandles
+    required:
+      - compatible
+      - reg
+      - clocks
+      - power-domains
+      - iommus
+
+  wrot:
+    description: Write DMA with rotation (WROT) function block.
+    type: object
+    additionalProperties: false
+    properties:
+      compatible:
+        items:
+          - const: mediatek,mt8173-mdp-wrot
+      reg:
+        maxItems: 1
+      clocks:
+        maxItems: 1
+      power-domains:
+        maxItems: 1
+      iommus:
+        maxItems: 1
+    required:
+      - compatible
+      - reg
+      - clocks
+      - power-domains
+      - iommus
+
+examples:
+  - |
+    mdp: mdp@14000000 {
+        compatible = "mediatek,mt8173-mdp";
+        mediatek,vpu = <&vpu>;
+        reg = <0x14000000 0x1000>;
+        clocks = <&mmsys CLK_MM_MDP>;
+        power-domains = <&scpsys MT8173_POWER_DOMAIN_MM>;
+        mdp_rdma0: rdma@14001000 {
+            compatible = "mediatek,mt8173-mdp-rdma";
+            reg = <0x14001000 0x1000>;
+            clocks = <&mmsys CLK_MM_MDP_RDMA0>, <&mmsys CLK_MM_MUTEX_32K>;
+            power-domains = <&scpsys MT8173_POWER_DOMAIN_MM>;
+            iommus = <&iommu M4U_PORT_MDP_RDMA0>;
+        };
+        mdp_rsz0: rsz@14003000 {
+            compatible = "mediatek,mt8173-mdp-rsz";
+            reg = <0x14003000 0x1000>;
+            clocks = <&mmsys CLK_MM_MDP_RSZ0>;
+            power-domains = <&scpsys MT8173_POWER_DOMAIN_MM>;
+        };
+        mdp_wdma0: wdma@14006000 {
+            compatible = "mediatek,mt8173-mdp-wdma";
+            reg = <0x14006000 0x1000>;
+            clocks = <&mmsys CLK_MM_MDP_WDMA>;
+            power-domains = <&scpsys MT8173_POWER_DOMAIN_MM>;
+            iommus = <&iommu M4U_PORT_MDP_WDMA>;
+        };
+        mdp_wrot0: wrot@14007000 {
+            compatible = "mediatek,mt8173-mdp-wrot";
+            reg = <0x14007000 0x1000>;
+            clocks = <&mmsys CLK_MM_MDP_WROT0>;
+            power-domains = <&scpsys MT8173_POWER_DOMAIN_MM>;
+            iommus = <&iommu M4U_PORT_MDP_WROT0>;
+        };
+    };
