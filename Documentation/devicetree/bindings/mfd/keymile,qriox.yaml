@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+---
+$id: http://devicetree.org/schemas/keymile,qriox.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: KEYMILE qrio Board Control CPLD
+
+maintainers:
+  - Valentin Longchamp <valentin.longchamp@keymile.com>
+
+description: |
+  The qrio is a multifunction device that controls the KEYMILE boards based on
+  the kmp204x design. It consists of a reset controller, watchdog timer, LEDs,
+  and 2 IRQ capable GPIO blocks.
+
+properties:
+  compatible:
+    items:
+      - const: keymile,qriox
+
+  reg:
+    description: access on the parent local bus (chip select, offset in chip select, size)
+    items:
+      - description: chip select index
+      - description: offset within chip select
+      - description: size of the region
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    board-control@1,0 {
+      compatible = "keymile,qriox";
+      reg = <1 0 0x80>;
+    };
