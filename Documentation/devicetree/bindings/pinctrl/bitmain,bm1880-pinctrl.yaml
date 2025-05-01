@@ -1,0 +1,113 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pinctrl/bitmain,bm1880-pinctrl.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Bitmain BM1880 Pin Controller
+
+maintainers:
+  - Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+
+description: |
+  Bitmain BM1880 Pin Controller
+
+  This binding describes the pin controller found in the BM1880 SoC.
+
+  Please refer to pinctrl-bindings.txt in this directory for details of the
+  common pinctrl bindings used by client devices, including the meaning of the
+  phrase "pin configuration node".
+
+  The pin configuration nodes act as a container for an arbitrary number of
+  subnodes. Each of these subnodes represents some desired configuration for a
+  pin, a group, or a list of pins or groups. This configuration for BM1880 SoC
+  includes pinmux and various pin configuration parameters, such as pull-up,
+  slew rate etc...
+
+  Each configuration node can consist of multiple nodes describing the pinmux
+  options. The name of each subnode is not important; all subnodes should be
+  enumerated and processed purely based on their content.
+
+properties:
+  compatible:
+    const: bitmain,bm1880-pinctrl
+
+  reg:
+    items:
+      - description: Offset and length of pinctrl space in SCTRL.
+
+patternProperties:
+  "^(?!compatible$|reg$).*":
+    description: A pin configuration node.
+    type: object
+    additionalProperties: false
+    properties:
+      pinmux:
+        type: object
+        description: Pin multiplexing parameters.
+        additionalProperties: false
+        properties:
+          pins:
+            $ref: /schemas/types.yaml#/definitions/string-array
+            description: >
+              List of pins. Valid values are MIO0 through MIO111.
+          groups:
+            $ref: /schemas/types.yaml#/definitions/string-array
+            description: >
+              List of pin group names. Valid values are nand_grp, spi_grp,
+              emmc_grp, …, spi0_grp.
+          function:
+            $ref: /schemas/types.yaml#/definitions/string-array
+            description: >
+              List of pinmux functions. Valid values include nand, spi,
+              emmc, …, spi0.
+          bias-disable:
+            type: boolean
+            description: Disable pin bias.
+          bias-pull-down:
+            type: boolean
+            description: Configure pins with pull-down.
+          bias-pull-up:
+            type: boolean
+            description: Configure pins with pull-up.
+          input-schmitt-enable:
+            type: boolean
+            description: Enable schmitt trigger.
+          input-schmitt-disable:
+            type: boolean
+            description: Disable schmitt trigger.
+          slew-rate:
+            $ref: /schemas/types.yaml#/definitions/uint32
+            description: >
+              Sets slew rate. Valid values: 0 = Slow, 1 = Fast.
+            enum: [0, 1]
+          drive-strength:
+            $ref: /schemas/types.yaml#/definitions/uint32
+            description: >
+              Selects drive strength in mA.
+            enum: [4, 8, 12, 16, 20, 24, 28, 32]
+        required:
+          - pins
+          - groups
+          - function
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    pinctrl: pinctrl@400 {
+      compatible = "bitmain,bm1880-pinctrl";
+      reg = <0x400 0x120>;
+
+      pinctrl_uart0_default: uart0-default {
+        pinmux {
+          groups = "uart0_grp";
+          function = "uart0";
+        };
+      };
+    };
