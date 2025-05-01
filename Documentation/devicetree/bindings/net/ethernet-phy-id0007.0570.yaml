@@ -1,0 +1,99 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Microsemi
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/net/ethernet-phy-id0007.0570.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Microsemi vsc8531 Gigabit Ethernet PHY
+
+maintainers:
+  - Allan W. Nielsen <allan.nielsen@microsemi.co‌​m>
+  - Antoine Tenart <atenart@kernel.org>
+  - Baisheng Gao <gaobaisheng@bonc.com.cn>
+  - Quentin Schulz <quentin.schulz@bootlin.com>
+  - Raju Lakkaraju <Raju.Lakkaraju@microsemi.com>
+
+description: |
+  * Microsemi - vsc8531 Giga bit ethernet phy
+
+  Table: 1 - Edge rate change
+  ----------------------------------------------------------------|
+  | 		Edge Rate Change (VDDMAC)			|
+  |
+  | 3300 mV	2500 mV		1800 mV		1500 mV		|
+  |---------------------------------------------------------------|
+  | 0%		0%		0%		0%		|
+  | (Fastest)			(recommended)	(recommended)	|
+  |---------------------------------------------------------------|
+  | 2%		3%		5%		6%		|
+  |---------------------------------------------------------------|
+  | 4%		6%		9%		14%		|
+  |---------------------------------------------------------------|
+  | 7%		10%		16%		21%		|
+  |(recommended)	(recommended)					|
+  |---------------------------------------------------------------|
+  | 10%		14%		23%		29%		|
+  |---------------------------------------------------------------|
+  | 17%		23%		35%		42%		|
+  |---------------------------------------------------------------|
+  | 29%		37%		52%		58%		|
+  |---------------------------------------------------------------|
+  | 53%		63%		76%		77%		|
+  | (slowest)							|
+  |---------------------------------------------------------------|
+
+properties:
+  compatible:
+    items:
+      - const: ethernet-phy-id0007.0570
+
+  vsc8531,vddmac:
+    description: >
+      The vddmac in mV. Allowed values are listed in the first row of Table 1
+      (above). This property is only used in combination with the
+      'edge-slowdown' property.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    default: 3300
+
+  vsc8531,edge-slowdown:
+    description: >
+      The edge should be slowed down relative to the fastest possible edge
+      time. Edge rate sets the drive strength of the MAC interface output
+      signals. Changing the drive strength will affect the edge rate of the
+      output signal. To adjust the edge-slowdown, the 'vddmac' must be
+      specified. Values supported for a given vddmac are listed in Table 1
+      (above).
+    $ref: /schemas/types.yaml#/definitions/uint32
+    default: 0
+
+  load-save-gpios:
+    description: >
+      GPIO used for the load/save operation of the PTP hardware clock (PHC).
+    maxItems: 1
+
+patternProperties:
+  "^vsc8531,led-[0-9]+-mode$":
+    description: >
+      LED mode. Specify how the LED[N] should behave. N depends on the
+      number of LEDs supported by a PHY. Allowed values are defined in
+      include/dt-bindings/net/mscc-phy-vsc8531.h. Default values are
+      VSC8531_LINK_1000_ACTIVITY (1), VSC8531_LINK_100_ACTIVITY (2),
+      VSC8531_LINK_ACTIVITY (0) and VSC8531_DUPLEX_COLLISION (8).
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+required:
+  - compatible
+
+additionalProperties: false
+
+examples:
+  - |
+    vsc8531_0: ethernet-phy@0 {
+        compatible = "ethernet-phy-id0007.0570";
+        vsc8531,vddmac = <3300>;
+        vsc8531,edge-slowdown = <7>;
+        vsc8531,led-0-mode = <VSC8531_LINK_1000_ACTIVITY>;
+        vsc8531,led-1-mode = <VSC8531_LINK_100_ACTIVITY>;
+        load-save-gpios = <&gpio 10 GPIO_ACTIVE_HIGH>;
+    };
