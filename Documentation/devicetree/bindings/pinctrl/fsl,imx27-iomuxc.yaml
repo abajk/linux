@@ -1,0 +1,98 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 BayLibre
+
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pinctrl/fsl,imx27-iomuxc.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Freescale IMX27 IOMUX Controller
+
+maintainers:
+  - Markus Schneider-Pargmann <msp@baylibre.com>
+
+description: |
+  Freescale IMX27 IOMUX Controller
+
+  The iomuxc driver node should define subnodes containing pinctrl
+  configuration subnodes.
+
+  The iomux controller has gpio child nodes which are embedded in
+  the iomux control registers. They have to be defined as child nodes
+  of the iomux device node. If gpio subnodes are defined
+  "#address-cells", "#size-cells" and "ranges" properties for the iomux
+  device node are required.
+
+  For convenience there are macros defined in imx27-pinfunc.h which
+  provide PIN and MUX_ID. They are structured as
+  MX27_PAD_<Pad name>__<Signal name>. The names are defined in the
+  i.MX27 reference manual.
+
+properties:
+  compatible:
+    description: Must be "fsl,imx27-iomuxc"
+    items:
+      - const: fsl,imx27-iomuxc
+
+  reg:
+    description: Register address and size of the iomux controller
+    items:
+      - description: Base address of the iomuxc registers
+      - description: Size of the iomuxc register region
+
+  "#address-cells":
+    description: Number of address cells for subordinate nodes
+    const: 1
+
+  "#size-cells":
+    description: Number of size cells for subordinate nodes
+    const: 1
+
+  ranges:
+    description: Address translation ranges
+
+  fsl,pins:
+    description: |
+      Sequence of PIN, MUX_ID and CONFIG tuples.
+      PIN is an integer between 0 and 0xbf.
+      MUX_ID is a bitfield selecting function, direction and GPIO
+      submodule settings.
+      CONFIG is 0 (pullup disable) or 1 (pullup enable).
+    items:
+      - description: PIN (PORT * 32 + PORT_PIN)
+        $ref: /schemas/types.yaml#/definitions/uint32
+      - description: MUX_ID bitfield
+        $ref: /schemas/types.yaml#/definitions/uint32
+      - description: CONFIG value
+        $ref: /schemas/types.yaml#/definitions/uint32
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    iomuxc: iomuxc@10015000 {
+      compatible = "fsl,imx27-iomuxc";
+      reg = <0x10015000 0x600>;
+      #address-cells = <1>;
+      #size-cells = <1>;
+      ranges;
+
+      gpio1: gpio@10015000 {
+        /* ... */
+      };
+
+      uart {
+        pinctrl_uart1: uart-1 {
+          fsl,pins = <
+            MX27_PAD_UART1_TXD__UART1_TXD 0x0
+            MX27_PAD_UART1_RXD__UART1_RXD 0x0
+            MX27_PAD_UART1_CTS__UART1_CTS 0x0
+            MX27_PAD_UART1_RTS__UART1_RTS 0x0
+          >;
+        };
+      };
+    };
