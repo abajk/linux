@@ -1,0 +1,62 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/media/silabs,si4713.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Silicon Labs Si4713 FM Radio Transmitter
+
+maintainers:
+  - Sebastian Reichel <sre@kernel.org>
+
+description: |
+  * Silicon Labs FM Radio transmitter
+  The Silicon Labs Si4713 is an FM radio transmitter with receive power scan
+  supporting 76-108 MHz. It includes an RDS encoder and has both, a stereo-analog
+  and a digital interface, which supports I2S, left-justified and a custom
+  DSP-mode format. It is programmable through an I2C interface.
+
+properties:
+  compatible:
+    contains:
+      const: silabs,si4713
+    description: Node must have compatible "silabs,si4713"
+
+  reg:
+    description: I2C address of the Si4713 device
+    items:
+      - description: I2C address
+
+  interrupts-extended:
+    description: Interrupt specifier for the chip's interrupt
+    items:
+      - description: Interrupt specifier
+
+  reset-gpios:
+    description: GPIO specifier for the chip's reset line
+    maxItems: 1
+
+  vdd-supply:
+    description: Phandle for Vdd regulator
+
+  vio-supply:
+    description: Phandle for Vio regulator
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    &i2c2 {
+        fmtx: si4713@63 {
+            compatible = "silabs,si4713";
+            reg = <0x63>;
+            interrupts-extended = <&gpio2 21 IRQ_TYPE_EDGE_FALLING>;
+            reset-gpios = <&gpio6 3 GPIO_ACTIVE_HIGH>;
+            vio-supply = <&vio>;
+            vdd-supply = <&vaux1>;
+        };
+    };
