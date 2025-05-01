@@ -1,0 +1,57 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/cavium,octeon-6880-ciu2.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Cavium Octeon 6880 CIU2
+maintainers:
+  - David Daney <david.daney@cavium.com>
+
+description: |
+  * Central Interrupt Unit
+
+properties:
+  compatible:
+    description: Compatibility with 68XX SOCs.
+    items:
+      - const: cavium,octeon-6880-ciu2
+
+  interrupt-controller: true
+    # The core checks this is a boolean, so just have to list it here to be
+    # valid for this binding.
+
+  reg:
+    description: The base address of the CIU's register bank.
+    items:
+      - description: high 32 bits of register bank base address
+      - description: low 32 bits of register bank base address
+      - description: reserved, must be zero
+      - description: size of register bank
+
+  '#interrupt-cells':
+    description: |
+      Must be <2>.  The first cell is the bank within the CIU and may have a value between 0 and 63.
+      The second cell is the bit within the bank and may also have a value between 0 and 63.
+    const: 2
+
+required:
+  - compatible
+  - interrupt-controller
+  - reg
+  - '#interrupt-cells'
+
+additionalProperties: false
+
+examples:
+  - |
+    interrupt-controller@1070100000000 {
+        compatible = "cavium,octeon-6880-ciu2";
+        interrupt-controller;
+        /* Interrupts are specified by two parts:
+         * 1) Controller register (0..63)
+         * 2) Bit within the register (0..63)
+         */
+        #interrupt-cells = <2>;
+        reg = <0x10701 0x00000000 0x0 0x4000000>;
+    };
