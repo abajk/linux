@@ -1,0 +1,53 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mfd/nokia,retu.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Nokia Retu and Tahvo multi-function device
+
+maintainers:
+  - Javier Martinez Canillas <javier@dowhile0.org>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  Device tree bindings for Nokia Retu and Tahvo multi-function device
+
+  Retu and Tahvo are a multi-function devices found on Nokia Internet
+  Tablets (770, N800 and N810). The Retu chip provides watchdog timer
+  and power button control functionalities while Tahvo chip provides
+  USB transceiver functionality.
+
+properties:
+  compatible:
+    items:
+      - enum: ["nokia,retu", "nokia,tahvo"]
+
+  reg:
+    description: Specifies the CBUS slave address of the ASIC chip.
+    items:
+      - description: CBUS slave address
+
+  interrupts:
+    description: The interrupt line the device is connected to.
+    items:
+      - description: Interrupt number and trigger type
+
+required:
+  - compatible
+  - reg
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    cbus0 {
+        compatible = "i2c-cbus-gpio";
+        ...
+        retu: retu@1 {
+            compatible = "nokia,retu";
+            interrupts = <12 IRQ_TYPE_EDGE_RISING>;
+            reg = <0x1>;
+        };
+    };
