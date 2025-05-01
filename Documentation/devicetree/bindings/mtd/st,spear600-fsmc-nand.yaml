@@ -1,0 +1,119 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2018-2025 ST Microelectronics and contributors
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mtd/st,spear600-fsmc-nand.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: ST Microelectronics FSMC NAND Controller
+
+maintainers:
+  - Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+  - Kamal Dasu <kdasu.kdev@gmail.com>
+  - Linus Walleij <linus.walleij@linaro.org>
+  - Masanari Iida <standby24x7@gmail.com>
+  - Mian Yousaf Kaukab <mian.yousaf.kaukab@stericsson.com>
+  - Stefan Roese <sr@denx.de>
+
+description: |
+  ST Microelectronics Flexible Static Memory Controller (FSMC)
+  NAND Interface
+
+  Can support 1-bit HW ECC (default) or if stronger correction is required,
+  software-based BCH.
+
+allOf:
+  - $ref: /schemas/mtd/nand-controller.yaml#
+
+properties:
+  compatible:
+    description: Compatible strings for this controller.
+    items:
+      - enum:
+          - st,spear600-fsmc-nand
+          - stericsson,fsmc-nand
+
+  reg:
+    description: Address range of the NAND controller registers and NAND device.
+    items:
+      - description: FSMC register range.
+      - description: NAND data range.
+      - description: NAND address range.
+      - description: NAND command range.
+
+  reg-names:
+    items:
+      - const: fsmc_regs
+      - const: nand_data
+      - const: nand_addr
+      - const: nand_cmd
+
+  bank-width:
+    description: Width (in bytes) of the device; defaults to 1.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    default: 1
+
+  nand-skip-bbtscan:
+    description: Indicates that bad block table scanning should be skipped.
+    type: boolean
+
+  timings:
+    description: >-
+      NAND timing parameters in AHB clock cycles.
+      Byte 0: TCLR (CLE to RE delay).
+      Byte 1: TAR (ALE to RE delay).
+      Byte 2: THIZ (bus tristate during write).
+      Byte 3: THOLD (hold address and data after command deassertion).
+      Byte 4: TWAIT (assert command duration).
+      Byte 5: TSET (address setup before command).
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+    items:
+      - description: >-
+          CLE to RE delay in number of AHB clock cycles; only 4 bits are valid
+          (0=1 cycle, 15=16 cycles).
+      - description: ALE to RE delay; only 4 bits valid; same format as TCLR.
+      - description: >-
+          Number of HCLK clock cycles during which the data bus is kept in Hi-Z
+          after start of write access; 0=0 cycles, 255=255 cycles.
+      - description: >-
+          Number of HCLK clock cycles to hold address (and data when writing) after
+          command deassertion; 0=1 cycle, 255=256 cycles.
+      - description: >-
+          Number of HCLK clock cycles to assert the command to the NAND flash in
+          response to SMWAITn; 0=1 cycle, 255=256 cycles.
+      - description: >-
+          Number of HCLK clock cycles to assert the address before the command is
+          asserted; 0=1 cycle, 255=256 cycles.
+
+  bank:
+    description: Default NAND bank to use.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum:
+      - 0
+      - 1
+      - 2
+      - 3
+    default: 0
+
+additionalProperties: false
+
+examples:
+  - |
+    fsmc: flash@d1800000 {
+        compatible = "st,spear600-fsmc-nand";
+        #address-cells = <1>;
+        #size-cells = <1>;
+        reg = <0xd1800000 0x1000   /* FSMC Register */
+               0xd2000000 0x0010   /* NAND Base DATA */
+               0xd2020000 0x0010   /* NAND Base ADDR */
+               0xd2010000 0x0010>; /* NAND Base CMD */
+        reg-names = "fsmc_regs", "nand_data", "nand_addr", "nand_cmd";
+        bank-width = <1>;
+        nand-skip-bbtscan;
+        timings = /bits/ 8 <0 0 0 2 3 0>;
+        bank = <1>;
+
+        partition@0 {
+            ...
+        };
+    };
