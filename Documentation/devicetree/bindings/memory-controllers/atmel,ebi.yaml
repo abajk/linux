@@ -1,0 +1,253 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Boris Brezillon
+# Copyright 2025 Tudor Ambarus
+%YAML 1.2
+---
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+$id: http://devicetree.org/schemas/memory-controllers/atmel,ebi.yaml#
+title: Atmel External Bus Interface (EBI)
+maintainers:
+  - Boris Brezillon <bbrezillon@kernel.org>
+  - Tudor Ambarus <tudor.ambarus@linaro.org>
+description: |
+  * Device tree bindings for Atmel EBI
+
+  The External Bus Interface (EBI) controller is a bus where you can connect
+  asynchronous (NAND, NOR, SRAM, ....) and synchronous memories
+  (SDR/DDR SDRAMs). The EBI provides a glue-less interface to asynchronous
+  memories through the SMC (Static Memory Controller).
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - atmel,at91sam9260-ebi
+          - atmel,at91sam9261-ebi
+          - atmel,at91sam9263-ebi0
+          - atmel,at91sam9263-ebi1
+          - atmel,at91sam9rl-ebi
+          - atmel,at91sam9g45-ebi
+          - atmel,at91sam9x5-ebi
+          - atmel,sama5d3-ebi
+          - microchip,sam9x60-ebi
+
+  reg:
+    items:
+      - description: Offset into the EBI memory mapping
+      - description: Length of the EBI memory mapping
+
+  "#address-cells":
+    const: 2
+
+  "#size-cells":
+    const: 1
+
+  ranges:
+    items:
+      - description: Chip-select to memory region association
+
+  clocks:
+    maxItems: 1
+    description: Clock feeding the EBI controller
+
+  atmel,smc:
+    description: Handle to the Static Memory Controller
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  atmel,matrix:
+    description: Handle to the system matrix
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+patternProperties:
+  "^.+$":
+    type: object
+    description: Device nodes connected to the EBI bus
+    properties:
+      reg:
+        items:
+          - description: Chip-select identifier
+          - description: Offset into the chip-select memory range
+          - description: Length of the memory region requested by the device
+      bank-width:
+        $ref: /schemas/types.yaml#/definitions/uint32
+        description: Width in bytes of the memory bank
+      atmel,smc-bus-width:
+        $ref: /schemas/types.yaml#/definitions/uint32
+        description: Width of the asynchronous device’s data bus (8, 16 or 32)
+      atmel,smc-byte-access-type:
+        enum:
+          - write
+          - select
+        description: Byte-access type
+      atmel,smc-read-mode:
+        enum:
+          - nrd
+          - ncs
+        description: Read mode
+      atmel,smc-write-mode:
+        enum:
+          - nwe
+          - ncs
+        description: Write mode
+      atmel,smc-exnw-mode:
+        enum:
+          - disabled
+          - frozen
+          - ready
+        description: External wait mode
+      atmel,smc-page-mode:
+        enum:
+          - 4
+          - 8
+          - 16
+          - 32
+        description: Page mode size
+      atmel,smc-tdf-mode:
+        enum:
+          - normal
+          - optimized
+        description: Data float time optimization mode
+      atmel,smc-ncs-rd-setup-ns: {}
+      atmel,smc-nrd-setup-ns: {}
+      atmel,smc-ncs-wr-setup-ns: {}
+      atmel,smc-nwe-setup-ns: {}
+      atmel,smc-ncs-rd-pulse-ns: {}
+      atmel,smc-nrd-pulse-ns: {}
+      atmel,smc-ncs-wr-pulse-ns: {}
+      atmel,smc-nwe-pulse-ns: {}
+      atmel,smc-nwe-cycle-ns: {}
+      atmel,smc-nrd-cycle-ns: {}
+      atmel,smc-tdf-ns: {}
+    required:
+      - reg
+    dependencies:
+      atmel,smc-bus-width:
+        - atmel,smc-ncs-rd-setup-ns
+        - atmel,smc-nrd-setup-ns
+        - atmel,smc-ncs-wr-setup-ns
+        - atmel,smc-nwe-setup-ns
+        - atmel,smc-ncs-rd-pulse-ns
+        - atmel,smc-nrd-pulse-ns
+        - atmel,smc-ncs-wr-pulse-ns
+        - atmel,smc-nwe-pulse-ns
+        - atmel,smc-nwe-cycle-ns
+        - atmel,smc-nrd-cycle-ns
+        - atmel,smc-tdf-ns
+      atmel,smc-byte-access-type:
+        - atmel,smc-ncs-rd-setup-ns
+        - atmel,smc-nrd-setup-ns
+        - atmel,smc-ncs-wr-setup-ns
+        - atmel,smc-nwe-setup-ns
+        - atmel,smc-ncs-rd-pulse-ns
+        - atmel,smc-nrd-pulse-ns
+        - atmel,smc-ncs-wr-pulse-ns
+        - atmel,smc-nwe-pulse-ns
+        - atmel,smc-nwe-cycle-ns
+        - atmel,smc-nrd-cycle-ns
+        - atmel,smc-tdf-ns
+      atmel,smc-read-mode:
+        - atmel,smc-ncs-rd-setup-ns
+        - atmel,smc-nrd-setup-ns
+        - atmel,smc-ncs-wr-setup-ns
+        - atmel,smc-nwe-setup-ns
+        - atmel,smc-ncs-rd-pulse-ns
+        - atmel,smc-nrd-pulse-ns
+        - atmel,smc-ncs-wr-pulse-ns
+        - atmel,smc-nwe-pulse-ns
+        - atmel,smc-nwe-cycle-ns
+        - atmel,smc-nrd-cycle-ns
+        - atmel,smc-tdf-ns
+      atmel,smc-write-mode:
+        - atmel,smc-ncs-rd-setup-ns
+        - atmel,smc-nrd-setup-ns
+        - atmel,smc-ncs-wr-setup-ns
+        - atmel,smc-nwe-setup-ns
+        - atmel,smc-ncs-rd-pulse-ns
+        - atmel,smc-nrd-pulse-ns
+        - atmel,smc-ncs-wr-pulse-ns
+        - atmel,smc-nwe-pulse-ns
+        - atmel,smc-nwe-cycle-ns
+        - atmel,smc-nrd-cycle-ns
+        - atmel,smc-tdf-ns
+      atmel,smc-exnw-mode:
+        - atmel,smc-ncs-rd-setup-ns
+        - atmel,smc-nrd-setup-ns
+        - atmel,smc-ncs-wr-setup-ns
+        - atmel,smc-nwe-setup-ns
+        - atmel,smc-ncs-rd-pulse-ns
+        - atmel,smc-nrd-pulse-ns
+        - atmel,smc-ncs-wr-pulse-ns
+        - atmel,smc-nwe-pulse-ns
+        - atmel,smc-nwe-cycle-ns
+        - atmel,smc-nrd-cycle-ns
+        - atmel,smc-tdf-ns
+      atmel,smc-page-mode:
+        - atmel,smc-ncs-rd-setup-ns
+        - atmel,smc-nrd-setup-ns
+        - atmel,smc-ncs-wr-setup-ns
+        - atmel,smc-nwe-setup-ns
+        - atmel,smc-ncs-rd-pulse-ns
+        - atmel,smc-nrd-pulse-ns
+        - atmel,smc-ncs-wr-pulse-ns
+        - atmel,smc-nwe-pulse-ns
+        - atmel,smc-nwe-cycle-ns
+        - atmel,smc-nrd-cycle-ns
+        - atmel,smc-tdf-ns
+      atmel,smc-tdf-mode:
+        - atmel,smc-ncs-rd-setup-ns
+        - atmel,smc-nrd-setup-ns
+        - atmel,smc-ncs-wr-setup-ns
+        - atmel,smc-nwe-setup-ns
+        - atmel,smc-ncs-rd-pulse-ns
+        - atmel,smc-nrd-pulse-ns
+        - atmel,smc-ncs-wr-pulse-ns
+        - atmel,smc-nwe-pulse-ns
+        - atmel,smc-nwe-cycle-ns
+        - atmel,smc-nrd-cycle-ns
+        - atmel,smc-tdf-ns
+
+    additionalProperties: false
+additionalProperties: false
+
+examples:
+  - |
+    ebi: ebi@10000000 {
+        compatible = "atmel,sama5d3-ebi";
+        #address-cells = <2>;
+        #size-cells = <1>;
+        atmel,smc = <&hsmc>;
+        atmel,matrix = <&matrix>;
+        reg = <0x10000000 0x10000000
+               0x40000000 0x30000000>;
+        ranges = <0x0 0x0 0x10000000 0x10000000
+                  0x1 0x0 0x40000000 0x10000000
+                  0x2 0x0 0x50000000 0x10000000
+                  0x3 0x0 0x60000000 0x10000000>;
+        clocks = <&mck>;
+
+        pinctrl-names = "default";
+        pinctrl-0 = <&pinctrl_ebi_addr>;
+
+        nor: flash@0,0 {
+            compatible = "cfi-flash";
+            #address-cells = <1>;
+            #size-cells = <1>;
+            reg = <0x0 0x0 0x1000000>;
+            bank-width = <2>;
+
+            atmel,smc-read-mode = "nrd";
+            atmel,smc-write-mode = "nwe";
+            atmel,smc-bus-width = <16>;
+            atmel,smc-ncs-rd-setup-ns = <0>;
+            atmel,smc-ncs-wr-setup-ns = <0>;
+            atmel,smc-nwe-setup-ns = <8>;
+            atmel,smc-nrd-setup-ns = <16>;
+            atmel,smc-ncs-rd-pulse-ns = <84>;
+            atmel,smc-ncs-wr-pulse-ns = <84>;
+            atmel,smc-nrd-pulse-ns = <76>;
+            atmel,smc-nwe-pulse-ns = <76>;
+            atmel,smc-nrd-cycle-ns = <107>;
+            atmel,smc-nwe-cycle-ns = <84>;
+            atmel,smc-tdf-ns = <16>;
+        };
+    };
