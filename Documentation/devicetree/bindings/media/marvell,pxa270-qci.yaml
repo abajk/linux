@@ -1,0 +1,88 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Robert Jarzmik <robert.jarzmik@free.fr>
+# Copyright 2025 Rob Herring <robh@kernel.org>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/media/marvell,pxa270-qci.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Marvell PXA camera host interface
+
+maintainers:
+  - Robert Jarzmik <robert.jarzmik@free.fr>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  Marvell PXA camera host interface
+
+properties:
+  compatible:
+    items:
+      - const: marvell,pxa270-qci
+    description: Must be "marvell,pxa270-qci".
+  reg:
+    items:
+      - description: Register base address.
+      - description: Register range size.
+  interrupts:
+    items:
+      - description: Interrupt number for camera host interface.
+  clocks:
+    maxItems: 1
+    description: Input clock for the host interface.
+  clock-frequency:
+    description: Frequency of the master clock (MCLK) output driven by the host interface, in Hz.
+  "#clock-cells":
+    const: 1
+  clock-output-names:
+    $ref: /schemas/types.yaml#/definitions/string-array
+    description: Name of the clock output driving the sensor master clock.
+    items:
+      - description: Name of the MCLK output.
+  port:
+    description: Parallel bus port for connecting to sensor endpoint.
+    type: object
+    additionalProperties: true
+    properties:
+      "#address-cells":
+        const: 1
+      "#size-cells":
+        const: 0
+    required:
+      - "#address-cells"
+      - "#size-cells"
+
+required:
+  - compatible
+  - reg
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    pxa_camera: pxa_camera@50000000 {
+        compatible = "marvell,pxa270-qci";
+        reg = <0x50000000 0x1000>;
+        interrupts = <33>;
+
+        clocks = <&pxa2xx_clks 24>;
+        clock-names = "ciclk";
+        clock-frequency = <50000000>;
+        clock-output-names = "qci_mclk";
+
+        port {
+            #address-cells = <1>;
+            #size-cells = <0>;
+
+            /* Parallel bus endpoint */
+            qci: endpoint@0 {
+                reg = <0>;       /* Local endpoint # */
+                remote-endpoint = <&mt9m111_1>;
+                bus-width = <8>; /* Used data lines */
+                hsync-active = <0>; /* Active low */
+                vsync-active = <0>; /* Active low */
+                pclk-sample = <1>; /* Rising */
+            };
+        };
+    };
