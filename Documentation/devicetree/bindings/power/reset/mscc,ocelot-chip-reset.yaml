@@ -1,0 +1,50 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/power/reset/mscc,ocelot-chip-reset.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Microsemi Ocelot Reset Controller
+
+maintainers:
+  - Alexandre Belloni <alexandre.belloni@bootlin.com>
+  - Gregory CLEMENT <gregory.clement@bootlin.com>
+  - Lars Povlsen <lars.povlsen@microchip.com>
+
+description: |
+  Microsemi Ocelot reset controller
+
+  The DEVCPU_GCB:CHIP_REGS have a SOFT_RST register that can be used to reset the
+  SoC core.
+
+  The reset registers are both present in the MSCC vcoreiii MIPS and
+  microchip Sparx5 armv8 SoC's.
+
+properties:
+  compatible:
+    description: The list of supported compatible strings.
+    items:
+      - enum:
+          - mscc,ocelot-chip-reset
+          - mscc,luton-chip-reset
+          - mscc,jaguar2-chip-reset
+          - microchip,sparx5-chip-reset
+
+  reg:
+    description: Reset controller register base address and size.
+    items:
+      - description: Register base address.
+      - description: Register size.
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    reset@1070008 {
+        compatible = "mscc,ocelot-chip-reset";
+        reg = <0x1070008 0x4>;
+    };
