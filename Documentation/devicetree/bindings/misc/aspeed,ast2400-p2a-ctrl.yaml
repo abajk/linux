@@ -1,0 +1,49 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Andrew Jeffery <andrew@aj.id.au>
+# Copyright 2025 Patrick Venture <venture@google.com>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/aspeed,ast2400-p2a-ctrl.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Aspeed AST2400/AST2500 PCI-to-AHB Bridge Control
+maintainers:
+  - Andrew Jeffery <andrew@aj.id.au>
+  - Patrick Venture <venture@google.com>
+
+description: |
+  Device tree bindings for Aspeed AST2400/AST2500 PCI-to-AHB Bridge Control Driver
+
+  The bridge is available on platforms with the VGA enabled on the Aspeed device.
+  In this case, the host has access to a 64KiB window into all of the BMC's
+  memory.  The BMC can disable this bridge.  If the bridge is enabled, the host
+  has read access to all the regions of memory, however the host only has read
+  and write access depending on a register controlled by the BMC.
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - aspeed,ast2400-p2a-ctrl
+          - aspeed,ast2500-p2a-ctrl
+  reg:
+    description: A hint for the memory regions associated with the P2A controller
+  memory-region:
+    description: A phandle to a reserved_memory region to be used for the PCI to AHB mapping
+
+required:
+  - compatible
+
+additionalProperties: false
+
+examples:
+  - |
+    syscon: scu@1e6e2000 {
+        compatible = "aspeed,ast2400-scu", "syscon", "simple-mfd";
+        reg = <0x1e6e2000 0x1a8>;
+
+        p2a: p2a-control {
+            compatible = "aspeed,ast2400-p2a-ctrl";
+            memory-region = <&reserved_memory>;
+        };
+    };
