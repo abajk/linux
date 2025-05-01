@@ -1,0 +1,100 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pinctrl/marvell,armada-37xx-pinctrl.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Marvell Armada 37xx SoC pin and gpio controller
+
+maintainers:
+  - Gregory CLEMENT <gregory.clement@bootlin.com>
+  - Marek Behún <kabel@kernel.org>
+  - Miquel Raynal <miquel.raynal@bootlin.com>
+
+description: |
+  * Marvell Armada 37xx SoC pin and gpio controller
+
+  Each Armada 37xx SoC come with two pin and gpio controller one for the
+  south bridge and the other for the north bridge.
+
+  Inside this set of register the gpio latch allows exposing some
+  configuration of the SoC and especially the clock frequency of the
+  xtal. Hence, this node is a represent as syscon allowing sharing the
+  register between multiple hardware block.
+
+  GPIO and pin controller:
+  ------------------------
+
+  Main node:
+
+  Refer to pinctrl-bindings.txt in this directory for details of the
+  common pinctrl bindings used by client devices, including the meaning
+  of the phrase "pin configuration node".
+
+properties:
+  compatible:
+    # Must list the pinctrl controller and the two framework bindings
+    items:
+      - enum:
+          - marvell,armada3710-sb-pinctrl
+          - marvell,armada3710-nb-pinctrl
+      - const: syscon
+      - const: simple-mfd
+
+  reg:
+    items:
+      - description: pinctrl and GPIO controller registers
+      - description: interrupt controller registers
+
+  interrupts:
+    description: List of interrupts used by the GPIO controller
+
+  '#interrupt-cells':
+    const: 2
+
+  interrupt-controller: true
+
+  gpio:
+    description: GPIO controller subnode
+    type: object
+    additionalProperties: false
+    properties:
+      '#gpio-cells':
+        const: 2
+      gpio-ranges:
+        description: Range of pins managed by the GPIO controller
+      gpio-controller: true
+      interrupts:
+        description: List of interrupt specifiers for the GPIO controller
+    required:
+      - '#gpio-cells'
+      - gpio-ranges
+      - gpio-controller
+      - interrupts
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - '#interrupt-cells'
+  - interrupt-controller
+
+additionalProperties: false
+
+examples:
+  - |
+    pinctrl_sb: pinctrl-sb@18800 {
+        compatible = "marvell,armada3710-sb-pinctrl", "syscon", "simple-mfd";
+        reg = <0x18800 0x100>, <0x18C00 0x20>;
+        gpio {
+            #gpio-cells = <2>;
+            gpio-ranges = <&pinctrl_sb 0 0 29>;
+            gpio-controller;
+            interrupts =
+                <GIC_SPI 160 IRQ_TYPE_LEVEL_HIGH>,
+                <GIC_SPI 159 IRQ_TYPE_LEVEL_HIGH>,
+                <GIC_SPI 158 IRQ_TYPE_LEVEL_HIGH>,
+                <GIC_SPI 157 IRQ_TYPE_LEVEL_HIGH>,
+                <GIC_SPI 156 IRQ_TYPE_LEVEL_HIGH>;
+        };
+    };
