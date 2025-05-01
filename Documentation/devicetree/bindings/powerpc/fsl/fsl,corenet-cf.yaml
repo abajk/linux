@@ -1,0 +1,67 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Freescale Semiconductor, Inc.
+
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/powerpc/fsl/fsl,corenet-cf.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Freescale CoreNet Coherency Fabric (CCF)
+
+maintainers:
+  - Diana Craciun <Diana.Craciun@freescale.com>
+
+description: |
+  The CoreNet coherency fabric is a fabric-oriented, connectivity infrastructure
+  that enables the implementation of coherent, multicore systems.
+
+properties:
+
+  compatible:
+    oneOf:
+      - items:
+          - enum:
+              - fsl,corenet1-cf
+              - fsl,corenet2-cf
+          - const: fsl,corenet-cf
+      - items:
+          - const: fsl,corenet1-cf
+      - items:
+          - const: fsl,corenet2-cf
+
+  reg:
+    description: Address and size of the CoreNet Coherency Fabric registers.
+    items:
+      - description: CCF register region
+
+  interrupts:
+    description: Error interrupt mapping for the CCF.
+    items:
+      - description: CCF error interrupt specifier
+
+  fsl,ccf-num-csdids:
+    description: Number of Coherency Subdomain ID Port Mapping Registers supported by the CCF.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  fsl,ccf-num-snoopids:
+    description: Number of Snoop ID Port Mapping Registers supported by the CCF.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - fsl,ccf-num-csdids
+  - fsl,ccf-num-snoopids
+
+additionalProperties: false
+
+examples:
+  - |
+    corenet-cf@18000 {
+      compatible = "fsl,corenet2-cf", "fsl,corenet-cf";
+      reg = <0x18000 0x1000>;
+      interrupts = <16 2 1 31>;
+      fsl,ccf-num-csdids = <32>;
+      fsl,ccf-num-snoopids = <32>;
+    };
