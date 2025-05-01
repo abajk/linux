@@ -1,0 +1,70 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/net/microchip,enc28j60.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Microchip ENC28J60 Ethernet Controller
+
+maintainers:
+  - Michael Heimpold <mhei@heimpold.de>
+  - Petr Štetiar <ynezz@true.cz>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  This is a standalone 10 MBit ethernet controller with SPI interface.
+
+  For each device connected to a SPI bus, define a child node within
+  the SPI master node.
+
+properties:
+  compatible:
+    items:
+      - const: microchip,enc28j60
+
+  reg:
+    items:
+      - description: SPI chip select the ENC28J60 is wired to
+
+  interrupts:
+    items:
+      - description: Interrupt index and type for ENC28J60
+
+  pinctrl-names:
+    items:
+      - const: default
+
+  pinctrl-0:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    items:
+      - description: GPIO pinctrl for ENC28J60 interrupt line
+
+  spi-max-frequency:
+    description: Maximum SPI bus frequency for ENC28J60
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - pinctrl-names
+  - pinctrl-0
+
+additionalProperties: false
+
+examples:
+  - |
+      ssp2: ssp@80014000 {
+          compatible = "fsl,imx28-spi";
+          pinctrl-names = "default";
+          pinctrl-0 = <&spi2_pins_b &spi2_sck_cfg>;
+
+          enc28j60: ethernet@0 {
+              compatible = "microchip,enc28j60";
+              pinctrl-names = "default";
+              pinctrl-0 = <&enc28j60_pins>;
+              reg = <0>;
+              interrupts = <3 IRQ_TYPE_EDGE_FALLING>;
+              spi-max-frequency = <12000000>;
+          };
+      };
