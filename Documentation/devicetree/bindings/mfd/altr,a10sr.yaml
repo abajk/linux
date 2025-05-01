@@ -1,0 +1,119 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Intel Corporation
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mfd/altr,a10sr.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Altera Arria10 System Resource Chip
+
+maintainers:
+  - Rob Herring <robh@kernel.org>
+  - Thor Thayer <thor.thayer@linux.intel.com>
+  - Thor Thayer <tthayer@opensource.altera.com>
+
+description: |
+  * Altera Arria10 Development Kit System Resource Chip
+
+  The A10SR consists of these sub-devices:
+
+  Device                   Description
+  ------                   ----------
+  a10sr_gpio               GPIO Controller
+  a10sr_rst                Reset Controller
+
+  Arria10 GPIO
+
+  Arria10 Peripheral PHY Reset
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - altr,a10sr
+
+  spi-max-frequency:
+    description: Maximum SPI frequency.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  reg:
+    items:
+      - description: SPI Chip Select address for the Arria10 System Resource chip
+
+  interrupts:
+    items:
+      - description: Interrupt line the device is connected to.
+
+  interrupt-controller: true
+
+  '#interrupt-cells':
+    const: 2
+    description:
+      The number of cells to describe an IRQ.
+      The first cell is the IRQ number.
+      The second cell is the flags, encoded as trigger masks from
+      ../interrupt-controller/interrupts.txt.
+
+  a10sr_gpio:
+    description: GPIO Controller sub-node.
+    type: object
+    additionalProperties: false
+    properties:
+      compatible:
+        items:
+          - enum:
+              - altr,a10sr-gpio
+      gpio-controller: true
+      '#gpio-cells':
+        const: 2
+    required:
+      - compatible
+      - gpio-controller
+      - '#gpio-cells'
+
+  a10sr_rst:
+    description: Peripheral PHY Reset sub-node.
+    type: object
+    additionalProperties: false
+    properties:
+      compatible:
+        items:
+          - enum:
+              - altr,a10sr-reset
+      '#reset-cells':
+        const: 1
+    required:
+      - compatible
+      - '#reset-cells'
+
+required:
+  - compatible
+  - spi-max-frequency
+  - reg
+  - interrupts
+  - interrupt-controller
+  - '#interrupt-cells'
+
+additionalProperties: false
+
+examples:
+  - |
+    resource-manager@0 {
+        compatible = "altr,a10sr";
+        reg = <0>;
+        spi-max-frequency = <100000>;
+        interrupts = <5 IRQ_TYPE_LEVEL_LOW>;
+        interrupt-controller;
+        #interrupt-cells = <2>;
+
+        a10sr_gpio: gpio-controller {
+            compatible = "altr,a10sr-gpio";
+            gpio-controller;
+            #gpio-cells = <2>;
+        };
+
+        a10sr_rst: reset-controller {
+            compatible = "altr,a10sr-reset";
+            #reset-cells = <1>;
+        };
+    };
