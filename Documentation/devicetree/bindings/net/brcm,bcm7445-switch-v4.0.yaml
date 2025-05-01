@@ -1,0 +1,96 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/brcm,bcm7445-switch-v4.0.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Broadcom Starfighter 2 integrated switch
+
+maintainers:
+  - Bjorn Helgaas <bhelgaas@google.com>
+  - Florian Fainelli <f.fainelli@gmail.com>
+  - Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+  - Rafał Miłecki <rafal@milecki.pl>
+  - Scott Branden <sbranden@broadcom.com>
+
+description: |
+  Broadcom Starfighter 2 integrated switch
+
+  See dsa/brcm,bcm7445-switch-v4.0.yaml for the documentation.
+
+properties:
+  compatible:
+    const: brcm,bcm7445-switch-v4.0
+
+  '#size-cells':
+    const: 0
+
+  '#address-cells':
+    const: 2
+
+  reg:
+    description: Register blocks for the switch core and modules
+    items:
+      - description: Switch core registers
+      - description: Switch control registers
+      - description: Switch port 0 registers
+      - description: Switch port 1 registers
+      - description: Switch MAC control registers
+      - description: Switch QoS/statistics registers
+
+  interrupts:
+    description: Switch interrupt numbers
+    items:
+      - description: Combined switch interrupt
+      - description: Per-port status interrupt
+
+  interrupt-controller: true
+
+  dsa,mii-bus:
+    description: Phandle to the MDIO bus controller
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  dsa,ethernet:
+    description: Phandle to the CPU Ethernet interface controller
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  brcm,num-gphy:
+    description: Number of internal GPHY ports
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  brcm,num-rgmii-ports:
+    description: Number of RGMII ports
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  brcm,fcb-pause-override:
+    description: Enable fast control frame pause override
+    type: boolean
+
+  brcm,acb-packets-inflight:
+    description: Enable ACB packets in-flight tracking
+    type: boolean
+
+additionalProperties: false
+
+examples:
+  - |
+    ethernet_switch@0 {
+        compatible = "brcm,bcm7445-switch-v4.0";
+        #size-cells = <0>;
+        #address-cells = <2>;
+        reg = <0x0 0x40000
+               0x40000 0x110
+               0x40340 0x30
+               0x40380 0x30
+               0x40400 0x34
+               0x40600 0x208>;
+        interrupts = <0 0x18 0
+                      0 0x19 0>;
+        interrupt-controller;
+        dsa,mii-bus = <&mdio>;
+        dsa,ethernet = <&eth0>;
+        brcm,num-gphy = <1>;
+        brcm,num-rgmii-ports = <2>;
+        brcm,fcb-pause-override;
+        brcm,acb-packets-inflight;
+    };
