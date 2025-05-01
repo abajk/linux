@@ -1,0 +1,123 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Texas Instruments Inc.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/ti,palmas.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI Palmas PMIC Family
+
+maintainers:
+  - Andrew F. Davis <afd@ti.com>
+  - J Keerthy <j-keerthy@ti.com>
+  - Keerthy <j-keerthy@ti.com>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  * palmas device tree bindings
+
+  The TI palmas family current members :-
+  twl6035 (palmas)
+  twl6037 (palmas)
+  tps65913 (palmas)
+  tps65914 (palmas)
+  tps659038
+  tps65917
+
+properties:
+  compatible:
+    description: >
+      Device compatible strings for TI palmas PMIC devices.
+    oneOf:
+      - items:
+          # Specific PMIC device followed by generic
+          - enum:
+              - ti,twl6035
+              - ti,twl6036
+              - ti,twl6037
+              - ti,tps65913
+              - ti,tps65914
+              - ti,tps80036
+              - ti,tps659038
+              - ti,tps65917
+          - const: ti,palmas
+      - items:
+          - const: ti,palmas
+
+  interrupt-controller: true
+
+  '#interrupt-cells':
+    const: 2
+
+  reg:
+    items:
+      - description: I2C bus register address of the device
+
+  ti,mux-pad1:
+    description: >
+      Pad multiplexing setting for pad1.
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+    items:
+      - description: Multiplexing value for pad1
+
+  ti,mux-pad2:
+    description: >
+      Pad multiplexing setting for pad2.
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+    items:
+      - description: Multiplexing value for pad2
+
+  '#address-cells':
+    const: 1
+
+  '#size-cells':
+    const: 0
+
+  pmic:
+    description: PMIC subnode for additional configuration
+    type: object
+    properties:
+      compatible:
+        description: >
+          Compatible strings for the palmas PMIC subnode.
+        oneOf:
+          - items:
+              - enum:
+                  - ti,twl6035-pmic
+                  - ti,twl6037-pmic
+                  - ti,tps65913-pmic
+                  - ti,tps65914-pmic
+                  - ti,tps80036-pmic
+                  - ti,tps659038-pmic
+                  - ti,tps65917-pmic
+              - const: ti,palmas-pmic
+          - items:
+              - const: ti,palmas-pmic
+    additionalProperties: true
+
+required:
+  - compatible
+  - interrupt-controller
+  - '#interrupt-cells'
+
+additionalProperties: false
+
+examples:
+  - |
+    palmas@48 {
+        compatible = "ti,twl6035", "ti,palmas";
+        reg = <0x48>;
+        interrupt-controller;
+        #interrupt-cells = <2>;
+
+        ti,mux-pad1 = <0>;
+        ti,mux-pad2 = <0>;
+
+        #address-cells = <1>;
+        #size-cells = <0>;
+
+        pmic {
+            compatible = "ti,twl6035-pmic", "ti,palmas-pmic";
+            /* ... */
+        };
+    };
