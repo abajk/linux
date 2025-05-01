@@ -1,0 +1,34 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/powerpc/fsl/fsl,scfg.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Freescale Supplement configuration unit (SCFG)
+
+maintainers:
+  - Wang Dongsheng <dongsheng.wang@freescale.com>
+
+description: |
+  Freescale Supplement configuration unit (SCFG)
+
+  SCFG is the supplemental configuration unit, that provides SoC specific
+  configuration and status registers for the chip. Such as getting PEX port
+  status.
+
+properties:
+  compatible:
+    items:
+      - pattern: '^fsl,[-a-z0-9]+-scfg$'
+
+  reg:
+    maxItems: 1
+
+additionalProperties: false
+
+examples:
+  - |
+    scfg: global-utilities@fc000 {
+        compatible = "fsl,t1040-scfg";
+        reg = <0xfc000 0x1000>;
+    };
