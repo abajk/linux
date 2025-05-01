@@ -1,0 +1,56 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mtd/st,spi-fsm.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: ST-Microelectronics SPI FSM Serial (NOR) Flash Controller
+
+maintainers:
+  - Lee Jones <lee@kernel.org>
+
+properties:
+  compatible:
+    items:
+      - const: st,spi-fsm
+
+  reg:
+    maxItems: 1
+  reg-names:
+    items:
+      - const: spi-fsm
+
+  interrupts:
+    maxItems: 1
+
+  st,syscfg:
+    description: Phandle to boot-device system configuration registers.
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  st,boot-device-reg:
+    description: Address of the boot-device register(s).
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  st,boot-device-spi:
+    description: Expected boot-device value if booted via this device.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+required:
+  - compatible
+  - reg
+  - reg-names
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    spifsm: spifsm@fe902000 {
+      compatible = "st,spi-fsm";
+      reg = <0xfe902000 0x1000>;
+      reg-names = "spi-fsm";
+      interrupts = <5>;
+      st,syscfg = <&syscfg_rear>;
+      st,boot-device-reg = <0x958>;
+      st,boot-device-spi = <0x1a>;
+    };
