@@ -1,0 +1,65 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Huawei Technologies Co., Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/net/hisilicon,hip04-mac.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Hisilicon hip04 Ethernet Controller
+
+maintainers:
+  - huangdaode <huangdaode@hisilicon.com>
+  - Jiangfeng Xiao <xiaojiangfeng@huawei.com>
+  - Rob Herring (Arm) <robh@kernel.org>
+  - Zhangfei Gao <zhangfei.gao@linaro.org>
+
+description: |
+  Hisilicon hip04 Ethernet Controller
+
+  * Ethernet controller node
+
+  * MDIO bus node:
+
+  Inherits from MDIO bus node binding [2]
+
+  [2] Documentation/devicetree/bindings/net/phy.txt
+
+properties:
+  compatible:
+    items:
+      - const: "hisilicon,hip04-mac"
+
+  reg:
+    description: Address and size of the device register set
+    items:
+      - description: Register block (address and length)
+
+  interrupts:
+    description: Interrupt specifier for the device
+    items:
+      - description: Interrupt specifier cells (parent, number, flags)
+
+  port-handle:
+    description: PPE syscon phandle with port, channel, and group
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    items:
+      - items:
+          - description: PPE syscon phandle
+          - description: Port number connected to the controller
+          - description: Receive channel start (RX_DESC_NUM × channel)
+          - description: Group field in packet descriptor
+
+  phy-mode:
+    description: PHY interface mode (see Documentation/devicetree/bindings/net/ethernet.txt)
+
+  phy-handle:
+    description: Optional PHY node phandle on MDIO bus
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - port-handle
+  - phy-mode
+
+additionalProperties: false
