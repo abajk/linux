@@ -1,0 +1,67 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2018 Linaro Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mmc/ti,omap2420-mmc.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI OMAP2420 MMC Host Controller
+
+maintainers:
+  - Mike Maslenkin <mike.maslenkin@gmail.com>
+  - Tony Lindgren <tony@atomide.com>
+
+description: |
+  * TI MMC host controller for OMAP1 and 2420
+
+  The MMC Host Controller on TI OMAP1 and 2420 family provides
+  an interface for MMC, SD, and SDIO types of memory cards.
+
+  This file documents differences between the core properties described
+  by mmc.txt and the properties used by the omap mmc driver.
+
+  Note that this driver will not work with omap2430 or later omaps,
+  please see the omap hsmmc driver for the current omaps.
+
+properties:
+  compatible:
+    items:
+      - const: ti,omap2420-mmc
+  reg:
+    description: Physical address and size of the MMC controller registers.
+  interrupts:
+    description: Interrupt line used by the MMC controller.
+    items:
+      - description: Interrupt number.
+  dmas:
+    description: DMA controller phandles and channel indexes.
+    items:
+      - description: TX DMA channel phandle and index
+      - description: RX DMA channel phandle and index
+  dma-names:
+    description: Names corresponding to each DMA channel.
+    items:
+      - const: tx
+      - const: rx
+  ti,hwmods:
+    description: TI specific hwmods identifier, must be "msdi<n>" where n is the controller instance starting from 1.
+    $ref: /schemas/types.yaml#/definitions/string
+
+required:
+  - compatible
+  - ti,hwmods
+  - reg
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    msdi1: mmc@4809c000 {
+        compatible = "ti,omap2420-mmc";
+        ti,hwmods = "msdi1";
+        reg = <0x4809c000 0x80>;
+        interrupts = <83>;
+        dmas = <&sdma 61 &sdma 62>;
+        dma-names = "tx", "rx";
+    };
