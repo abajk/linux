@@ -1,0 +1,125 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/media/st,stih407-c8sectpfe.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: STMicroelectronics STi c8sectpfe device
+
+maintainers:
+  - Marco Franchi <marco.franchi@nxp.com>
+  - Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+  - Peter Griffin <peter.griffin@linaro.org>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  This document describes the c8sectpfe device bindings that is used to get transport
+  stream data into the SoC on the TS pins, and into DDR for further processing.
+
+  It is typically used in conjunction with one or more demodulator and tuner devices
+  which converts from the RF to digital domain. Demodulators and tuners are usually
+  located on an external DVB frontend card connected to SoC TS input pins.
+
+  Currently 7 TS input (tsin) channels are supported on the stih407 family SoC.
+
+properties:
+  compatible:
+    items:
+      - const: "st,stih407-c8sectpfe"
+  reg:
+    items:
+      - description: c8sectpfe registers
+      - description: c8sectpfe internal sram
+  reg-names:
+    items:
+      - const: c8sectpfe
+      - const: c8sectpfe-ram
+  interrupts:
+    minItems: 1
+    maxItems: 2
+    description: Interrupts for error and idle conditions
+
+  interrupt-names:
+    items:
+      - const: stfe-error-irq
+      - const: stfe-idle-irq
+
+  clocks:
+    maxItems: 1
+
+  clock-names:
+    items:
+      - const: c8sectpfe
+
+patternProperties:
+  "^pinctrl-[0-9]+$":
+    $ref: /schemas/types.yaml#/definitions/phandle
+  "^tsin\\d+$":
+    type: object
+    description: tsin child node
+    required:
+      - tsin-num
+      - i2c-bus
+      - reset-gpios
+    properties:
+      tsin-num:
+        $ref: /schemas/types.yaml#/definitions/uint32
+        enum: [0, 1, 2, 3, 4, 5, 6]
+        description: tsin id of the input block
+      i2c-bus:
+        $ref: /schemas/types.yaml#/definitions/phandle
+        description: phandle to the I2C bus DT node
+      reset-gpios:
+        maxItems: 1
+        description: reset GPIO for this tsin channel
+      invert-ts-clk:
+        type: boolean
+        description: invert sense of TS clock
+      serial-not-parallel:
+        type: boolean
+        description: use serial rather than parallel bus
+      async-not-sync:
+        type: boolean
+        description: asynchronous (not sync) data reception
+      dvb-card:
+        $ref: /schemas/types.yaml#/definitions/phandle
+        description: NIM card connected to this tsin channel
+    additionalProperties: false
+
+additionalProperties: false
+
+examples:
+  - |
+    c8sectpfe@8a20000 {
+      compatible = "st,stih407-c8sectpfe";
+      reg = <0x08a20000 0x10000>, <0x08a00000 0x4000>;
+      reg-names = "stfe", "stfe-ram";
+      interrupts = <GIC_SPI 34 IRQ_TYPE_NONE>, <GIC_SPI 35 IRQ_TYPE_NONE>;
+      interrupt-names = "stfe-error-irq", "stfe-idle-irq";
+      clocks = <&clk_s_c0_flexgen CLK_PROC_STFE>;
+      clock-names = "c8sectpfe";
+      pinctrl-0 = <&pinctrl_tsin0_serial>;
+      pinctrl-1 = <&pinctrl_tsin0_parallel>;
+      pinctrl-2 = <&pinctrl_tsin3_serial>;
+      pinctrl-3 = <&pinctrl_tsin4_serial_alt3>;
+      pinctrl-4 = <&pinctrl_tsin5_serial_alt1>;
+      pinctrl-names = "tsin0-serial",
+                    "tsin0-parallel",
+                    "tsin3-serial",
+                    "tsin4-serial",
+                    "tsin5-serial";
+      tsin0: port@0 {
+        tsin-num = <0>;
+        serial-not-parallel;
+        i2c-bus = <&ssc2>;
+        reset-gpios = <&pio15 4 GPIO_ACTIVE_HIGH>;
+        dvb-card = <STV0367_TDA18212_NIMA_1>;
+      };
+      tsin3: port@3 {
+        tsin-num = <3>;
+        serial-not-parallel;
+        i2c-bus = <&ssc3>;
+        reset-gpios = <&pio15 7 GPIO_ACTIVE_HIGH>;
+        dvb-card = <STV0367_TDA18212_NIMB_1>;
+      };
+    };
