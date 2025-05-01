@@ -1,0 +1,111 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mfd/dlg,da9055-pmic.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Dialog DA9055 Power Management Integrated Circuit (PMIC)
+
+maintainers:
+  - Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  * Dialog DA9055 Power Management Integrated Circuit (PMIC)
+
+  DA9055 consists of a large and varied group of sub-devices (I2C Only):
+
+  Device                Supply Names  Description
+  ------                ------------  -----------
+  da9055-gpio                           GPIOs
+  da9055-regulator                      Regulators
+  da9055-onkey                          On key
+  da9055-rtc                            RTC
+  da9055-hwmon                          ADC
+  da9055-watchdog                       Watchdog
+
+  The CODEC device in DA9055 has a separate, configurable I2C address and so
+  is instantiated separately from the PMIC.
+
+  For details on accompanying CODEC I2C device, see the following:
+  Documentation/devicetree/bindings/sound/da9055.txt
+
+properties:
+  compatible:
+    enum:
+      - dlg,da9055-pmic
+
+  reg:
+    maxItems: 1
+
+  interrupts:
+    maxItems: 1
+
+  interrupt-controller: true
+
+  '#interrupt-cells':
+    const: 1
+
+  regulators:
+    description: Sub-node containing the DA9055 regulator child nodes.
+    type: object
+    additionalProperties: false
+    properties:
+      buck1:
+        $ref: /schemas/regulator/regulator.yaml#
+        description: Regulator BUCK1
+      buck2:
+        $ref: /schemas/regulator/regulator.yaml#
+        description: Regulator BUCK2
+      ldo1:
+        $ref: /schemas/regulator/regulator.yaml#
+        description: Regulator LDO1
+      ldo2:
+        $ref: /schemas/regulator/regulator.yaml#
+        description: Regulator LDO2
+      ldo3:
+        $ref: /schemas/regulator/regulator.yaml#
+        description: Regulator LDO3
+      ldo4:
+        $ref: /schemas/regulator/regulator.yaml#
+        description: Regulator LDO4
+      ldo5:
+        $ref: /schemas/regulator/regulator.yaml#
+        description: Regulator LDO5
+      ldo6:
+        $ref: /schemas/regulator/regulator.yaml#
+        description: Regulator LDO6
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - interrupt-controller
+  - '#interrupt-cells'
+
+additionalProperties: false
+
+examples:
+  - |
+    pmic: da9055-pmic@5a {
+        compatible = "dlg,da9055-pmic";
+        reg = <0x5a>;
+        interrupts = <5 IRQ_TYPE_LEVEL_LOW>;
+        interrupt-controller;
+        #interrupt-cells = <1>;
+
+        regulators {
+            buck1: BUCK1 {
+                regulator-min-microvolt = <725000>;
+                regulator-max-microvolt = <2075000>;
+            };
+            buck2: BUCK2 {
+                regulator-min-microvolt = <925000>;
+                regulator-max-microvolt = <2500000>;
+            };
+            ldo1: LDO1 {
+                regulator-min-microvolt = <900000>;
+                regulator-max-microvolt = <3300000>;
+            };
+        };
+    };
