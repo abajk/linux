@@ -1,0 +1,114 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pinctrl/st,spear300-pinmux.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: ST SPEAr pinmux controller
+
+maintainers:
+  - Soren Brinkmann <soren.brinkmann@xilinx.com>
+  - Viresh Kumar <vireshk@kernel.org>
+
+description: |
+  ST Microelectronics, SPEAr pinmux controller
+
+  Please refer to pinctrl-bindings.txt in this directory for details of the common
+  pinctrl bindings used by client devices.
+
+  SPEAr's pinmux nodes act as a container for an arbitrary number of subnodes.
+  Each of these subnodes represents muxing for a pin, a group, or a list of pins
+  or groups.
+
+  The name of each subnode is not important; all subnodes should be enumerated
+  and processed purely based on their content.
+
+properties:
+  compatible:
+    description: DT compatible strings for SPEAr pinmux controllers
+    $ref: /schemas/types.yaml#/definitions/string-array
+    items:
+      - enum:
+          - st,spear300-pinmux
+          - st,spear310-pinmux
+          - st,spear320-pinmux
+          - st,spear1310-pinmux
+          - st,spear1340-pinmux
+
+  reg:
+    description: Address range of the pinctrl registers
+    items:
+      - description: Start address of the pinctrl registers
+      - description: Size of the pinctrl register range
+
+  st,pinmux-mode:
+    description: >
+      Pinmux mode for SPEAr300 and SPEAr320 machines. Mandatory for SPEAr300
+      and SPEAr320 and invalid for other machines.
+    enum:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+      - 8
+      - 9
+      - 10
+      - 11
+      - 12
+
+additionalProperties: false
+
+required:
+  - compatible
+  - reg
+
+allOf:
+  - if:
+      properties:
+        compatible:
+          contains:
+            enum:
+              - st,spear300-pinmux
+              - st,spear320-pinmux
+    then:
+      required:
+        - st,pinmux-mode
+    else:
+      properties:
+        st,pinmux-mode: false
+
+patternProperties:
+  ".*":
+    type: object
+    description: SPEAr pinmux child node
+    additionalProperties: false
+    properties:
+      st,pins:
+        description: An array of pin or group names to mux.
+        items:
+          type: string
+      st,function:
+        description: >
+          A string containing the name of the function to mux to the pin or
+          group. See the SPEAr's TRM to determine which are valid for each pin
+          or group.
+        $ref: /schemas/types.yaml#/definitions/string
+    required:
+      - st,pins
+      - st,function
+
+examples:
+  - |
+    pinctrl: pinmux {
+        compatible = "st,spear300-pinmux";
+        reg = <0x01c20000 0x1000>;
+        st,pinmux-mode = <2>;
+        child0 {
+            st,pins = <"gpio0_pin0_grp">;
+            st,function = "gpio0";
+        };
+    };
