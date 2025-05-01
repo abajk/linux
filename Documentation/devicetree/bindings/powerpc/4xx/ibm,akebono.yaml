@@ -1,0 +1,152 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/powerpc/4xx/ibm,akebono.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: IBM Akebono board
+
+maintainers:
+  - Alistair Popple <alistair@popple.id.au>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  IBM Akebono board device tree
+  =============================
+
+  The IBM Akebono board is a development board for the PPC476GTR SoC.
+
+  0) The root node
+
+  1.a) The Secure Digital Host Controller Interface (SDHCI) node
+
+  Represent the Secure Digital Host Controller Interfaces.
+
+  1.b) The Advanced Host Controller Interface (AHCI) SATA node
+
+  Represents the advanced host controller SATA interface.
+
+  1.c) The FPGA node
+
+  The Akebono board stores some board information such as the revision
+  number in an FPGA which is represented by this node.
+
+  1.d) The AVR node
+
+  The Akebono board has an Atmel AVR microprocessor attached to the I2C
+  bus as a power controller for the board.
+
+properties:
+  compatible:
+    items:
+      - const: ibm,akebono
+      - const: ibm,476gtr
+    description: Board compatible strings
+  model:
+    description: Model name of the board
+    $ref: /schemas/types.yaml#/definitions/string
+
+patternProperties:
+  "^sdhci@.*":
+    description: Secure Digital Host Controller Interface node
+    type: object
+    additionalProperties: false
+    properties:
+      compatible:
+        items:
+          - const: ibm,476gtr-sdhci
+          - const: generic-sdhci
+        description: SDHCI compatible strings
+      reg:
+        items:
+          - description: SDHCI registers location and length
+      interrupts:
+        items:
+          - description: SDHCI interrupt
+    required:
+      - compatible
+      - reg
+      - interrupts
+
+  "^ahci@.*":
+    description: Advanced Host Controller Interface SATA node
+    type: object
+    additionalProperties: false
+    properties:
+      compatible:
+        items:
+          - const: ibm,476gtr-ahci
+        description: AHCI compatible string
+      reg:
+        items:
+          - description: AHCI registers location and length
+      interrupts:
+        items:
+          - description: AHCI interrupt
+    required:
+      - compatible
+      - reg
+      - interrupts
+
+  "^fpga@.*":
+    description: FPGA node
+    type: object
+    additionalProperties: false
+    properties:
+      compatible:
+        items:
+          - const: ibm,akebono-fpga
+        description: FPGA compatible string
+      reg:
+        items:
+          - description: FPGA registers location and length
+    required:
+      - compatible
+      - reg
+
+  "^avr@.*":
+    description: AVR node
+    type: object
+    additionalProperties: false
+    properties:
+      compatible:
+        items:
+          - const: ibm,akebono-avr
+        description: AVR compatible string
+      reg:
+        items:
+          - description: I2C bus address for the AVR
+    required:
+      - compatible
+      - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    / {
+      compatible = "ibm,akebono", "ibm,476gtr";
+      model = "IBM Akebono board";
+
+      sdhci@ff000000 {
+        compatible = "ibm,476gtr-sdhci", "generic-sdhci";
+        reg = <0xff000000 0x1000>;
+        interrupts = <5>;
+      };
+
+      ahci@ff100000 {
+        compatible = "ibm,476gtr-ahci";
+        reg = <0xff100000 0x200>;
+        interrupts = <6>;
+      };
+
+      fpga@ff200000 {
+        compatible = "ibm,akebono-fpga";
+        reg = <0xff200000 0x100>;
+      };
+
+      avr@20 {
+        compatible = "ibm,akebono-avr";
+        reg = <0x20>;
+      };
+    };
