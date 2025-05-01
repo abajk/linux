@@ -1,0 +1,88 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Andrew Bresticker <abrestic@chromium.org>
+
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/img-pistachio.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Imagination Pistachio SoC
+
+maintainers:
+  - Andrew Bresticker <abrestic@chromium.org>
+
+description: |
+  Imagination Pistachio SoC
+
+  CPU nodes:
+  ----------
+  A "cpus" node is required.  Required properties:
+   - #address-cells: Must be 1.
+   - #size-cells: Must be 0.
+  A CPU sub-node is also required for at least CPU 0.  Since the topology may
+  be probed via CPS, it is not necessary to specify secondary CPUs.  Required
+  properties:
+   - device_type: Must be "cpu".
+   - compatible: Must be "mti,interaptiv".
+   - reg: CPU number.
+   - clocks: Must include the CPU clock.  See ../../clock/clock-bindings.txt for
+     details on clock bindings.
+
+  Boot protocol:
+  --------------
+  In accordance with the MIPS UHI specification[1], the bootloader must pass the
+  following arguments to the kernel:
+   - $a0: -2.
+   - $a1: KSEG0 address of the flattened device-tree blob.
+
+  [1] http://prplfoundation.org/wiki/MIPS_documentation
+
+properties:
+  compatible:
+    items:
+      - const: img,pistachio
+    description: Must include "img,pistachio".
+
+  cpus:
+    type: object
+    description: CPU node list.
+    properties:
+      "#address-cells":
+        const: 1
+        description: Must be 1.
+      "#size-cells":
+        const: 0
+        description: Must be 0.
+    additionalProperties: false
+    required:
+      - "#address-cells"
+      - "#size-cells"
+    patternProperties:
+      "^cpu@\\d+$":
+        type: object
+        required:
+          - device_type
+          - compatible
+          - reg
+          - clocks
+        properties:
+          device_type:
+            const: cpu
+            description: Must be "cpu".
+          compatible:
+            items:
+              - const: mti,interaptiv
+            description: Must be "mti,interaptiv".
+          reg:
+            items:
+              - description: CPU number.
+          clocks:
+            maxItems: 1
+            description: Must include the CPU clock.
+        additionalProperties: false
+
+required:
+  - compatible
+  - cpus
+
+additionalProperties: false
