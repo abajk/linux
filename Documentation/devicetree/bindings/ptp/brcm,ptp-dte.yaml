@@ -1,0 +1,44 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2018 Linaro Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/brcm,ptp-dte.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Broadcom Digital Timing Engine(DTE) based PTP clock
+
+maintainers:
+  - Arun Parameswaran <arun.parameswaran@broadcom.com>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  * Broadcom Digital Timing Engine(DTE) based PTP clock
+
+properties:
+  compatible:
+    oneOf:
+      - items:
+          - enum:
+              - brcm,iproc-ptp-dte
+          - const: brcm,ptp-dte
+      - items:
+          - const: brcm,ptp-dte
+
+  reg:
+    description: Address and length of the DTE block’s NCO registers.
+    items:
+      - description: Register base address
+      - description: Register length
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    ptp: ptp-dte@180af650 {
+        compatible = "brcm,iproc-ptp-dte", "brcm,ptp-dte";
+        reg = <0x180af650 0x10>;
+    };
