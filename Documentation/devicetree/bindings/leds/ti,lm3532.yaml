@@ -1,0 +1,155 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Texas Instruments Inc.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/ti,lm3532.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI LM3532 White LED driver with ambient light sensing capability
+
+maintainers:
+  - Alexander A. Klimov <grandmaster@al2klimov.de>
+  - Dan Murphy <dmurphy@ti.com>
+
+description: |
+  * Texas Instruments - lm3532 White LED driver with ambient light sensing
+    capability.
+
+  The LM3532 provides the 3 high-voltage, low-side current sinks. The device is
+  programmable over an I2C-compatible interface and has independent
+  current control for all three channels. The adaptive current regulation
+  method allows for different LED currents in each current sink thus allowing
+  for a wide variety of backlight and keypad applications.
+
+  The main features of the LM3532 include dual ambient light sensor inputs
+  each with 32 internal voltage setting resistors, 8-bit logarithmic and linear
+  brightness control, dual external PWM brightness control inputs, and up to
+  1000:1 dimming ratio with programmable fade in and fade out settings.
+
+properties:
+  compatible:
+    const: ti,lm3532
+
+  reg:
+    maxItems: 1
+
+  '#address-cells':
+    const: 1
+  '#size-cells':
+    const: 0
+  enable-gpios:
+    maxItems: 1
+    description: GPIO pin to enable (active high)/disable the device.
+  ramp-up-us:
+    description: |
+      The run-time ramp rate/step from one current set-point to another
+      after the device has reached its initial target set point from turn-on
+  ramp-down-us:
+    description: |
+      The run-time ramp rate/step from one current set-point to another
+      after the device has reached its initial target set point from turn-on
+  ti,als-vmin:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Minimum ALS voltage defined in Volts
+    minimum: 0
+    maximum: 2
+  ti,als-vmax:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Maximum ALS voltage defined in Volts
+    minimum: 0
+    maximum: 2
+  ti,als1-imp-sel:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: ALS1 impedance resistor selection in Ohms
+    minimum: 1190
+    maximum: 37000
+  ti,als2-imp-sel:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: ALS2 impedance resistor selection in Ohms
+    minimum: 1190
+    maximum: 37000
+  ti,als-avrg-time-us:
+    description: |
+      Determines the length of time the device needs to average the two ALS inputs.
+      Only used if the input mode is LM3532_ALS_INPUT_AVRG.
+    minimum: 17920
+    maximum: 2293760
+  ti,als-input-mode:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Determines how the device uses the attached ALS devices.
+    enum:
+      - 0
+      - 1
+      - 2
+      - 3
+
+patternProperties:
+  "^led@":
+    description: LED channel child node
+    $ref: common.yaml#
+    unevaluatedProperties: false
+
+    properties:
+      reg:
+        description: Indicates control bank the LED string is controlled by
+        maxItems: 1
+
+      ti,led-mode:
+        description: |
+          Defines if the LED strings are manually controlled or if the LED strings
+          are controlled by the ALS.
+        $ref: /schemas/types.yaml#/definitions/uint32
+        enum:
+          - 0
+          - 1
+      led-max-microamp:
+        description: |
+          Defines the full scale current value for each control bank.
+          The range is from 5000uA-29800uA in increments of 800uA.
+        minimum: 5000
+        maximum: 29800
+
+    required:
+      - reg
+      - led-sources
+      - ti,led-mode
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    leds {
+      compatible = "ti,lm3532";
+      #address-cells = <1>;
+      #size-cells = <0>;
+      reg = <0x38>;
+      enable-gpios = <&gpio6 12 GPIO_ACTIVE_HIGH>;
+      ramp-up-us = <1024>;
+      ramp-down-us = <65536>;
+      ti,als-vmin = <0>;
+      ti,als-vmax = <2000>;
+      ti,als1-imp-sel = <4110>;
+      ti,als2-imp-sel = <2180>;
+      ti,als-avrg-time-us = <17920>;
+      ti,als-input-mode = <0x00>;
+
+      led@0 {
+        reg = <0>;
+        led-sources = <2>;
+        ti,led-mode = <1>;
+        led-max-microamp = <21800>;
+        label = ":backlight";
+        linux,default-trigger = "backlight";
+      };
+
+      led@1 {
+        reg = <1>;
+        led-sources = <1>;
+        ti,led-mode = <0>;
+        label = ":kbd_backlight";
+      };
+    };
