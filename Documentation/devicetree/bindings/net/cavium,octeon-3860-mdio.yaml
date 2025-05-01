@@ -1,0 +1,78 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/net/cavium,octeon-3860-mdio.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: System Management Interface (SMI) / MDIO
+maintainers:
+  - David Daney <david.daney@cavium.com>
+
+description: |
+  * System Management Interface (SMI) / MDIO
+
+  Typically an MDIO bus might have several children.
+
+  * System Management Interface (SMI) / MDIO Nexus
+
+    Several mdio buses may be gathered as children of a single PCI device,
+    this PCI device is the nexus of the buses.
+
+properties:
+  compatible:
+    oneOf:
+      - items:
+          - enum: ["cavium,octeon-3860-mdio"]
+      - items:
+          - enum: ["cavium,thunder-8890-mdio"]
+      - items:
+          - enum: ["cavium,thunder-8890-mdio-nexus"]
+
+  reg:
+    maxItems: 1
+    description: |
+      The base address of the MDIO bus controller register bank, or
+      the PCI device and function numbers of the nexus device.
+
+  '#address-cells':
+    description: Must be 1 for MDIO buses, 2 for the MDIO nexus.
+
+  '#size-cells':
+    description: Must be 0 for MDIO buses, 2 for the MDIO nexus.
+
+  ranges:
+    description: As needed for mapping of the MDIO bus device registers.
+
+  assigned-addresses:
+    description: As needed for mapping of the MDIO bus device registers.
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+
+required:
+  - compatible
+  - reg
+  - '#address-cells'
+  - '#size-cells'
+
+allOf:
+  - if:
+      properties:
+        compatible:
+          contains:
+            const: "cavium,thunder-8890-mdio-nexus"
+    then:
+      properties:
+        '#address-cells':
+          const: 2
+        '#size-cells':
+          const: 2
+      required:
+        - ranges
+        - assigned-addresses
+    else:
+      properties:
+        '#address-cells':
+          const: 1
+        '#size-cells':
+          const: 0
+
+additionalProperties: false
