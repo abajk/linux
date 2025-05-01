@@ -1,0 +1,130 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright (C) 2010,2011 Freescale Semiconductor Inc.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/powerpc/fsl/fsl,mpic.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Freescale MPIC Interrupt Controller
+
+maintainers:
+  - Grant Likely <grant.likely@secretlab.ca>
+  - Kyle Moffett <Kyle.D.Moffett@boeing.com>
+  - Lucas De Marchi <lucas.demarchi@profusion.mobi>
+  - Scott Wood <scottwood@freescale.com>
+  - Stuart Yoder <stuart.yoder@freescale.com>
+
+description: |
+  Freescale MPIC Interrupt Controller Node
+  Copyright (C) 2010,2011 Freescale Semiconductor Inc.
+
+  The Freescale MPIC interrupt controller is found on all PowerQUICC
+  and QorIQ processors and is compatible with the Open PIC. The
+  notable difference from Open PIC binding is the addition of two
+  additional cells in the interrupt specifier defining interrupt type
+  information.
+
+properties:
+  compatible:
+    description: >
+      Shall include "fsl,mpic". Freescale MPIC controllers compatible
+      with this binding have Block Revision Registers BRR1 and BRR2
+      at offset 0x0 and 0x10 in the MPIC.
+    const: fsl,mpic
+
+  reg:
+    maxItems: 1
+
+  interrupt-controller: true
+
+  "#interrupt-cells":
+    description: Number of cells constituting each interrupt specifier.
+    enum: [2, 4]
+
+  "#address-cells":
+    description: Must be 0 for MPIC nodes.
+    const: 0
+
+  pic-no-reset:
+    description: >
+      Presence of this property prevents the MPIC from being reset by
+      the client program and mandates that only explicitly referenced
+      interrupt sources shall be initialized.
+    type: boolean
+
+  big-endian:
+    description: >
+      If present, the MPIC will be treated as big-endian.
+    type: boolean
+
+  single-cpu-affinity:
+    description: >
+      If present, non-IPI interrupts will be routed to a single CPU
+      at a time.
+    type: boolean
+
+  last-interrupt-source:
+    description: >
+      Some MPICs do not correctly report the number of hardware sources
+      in the global feature registers. This value, if specified,
+      overrides the value read from MPIC_GREG_FEATURE_LAST_SRC.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  interrupts:
+    description: >
+      An array of interrupt specifiers for the MPIC. Each specifier is
+      encoded as 4 cells: interrupt number, level-sense, interrupt type,
+      and type-specific information.
+
+required:
+  - compatible
+  - reg
+  - interrupt-controller
+  - "#interrupt-cells"
+  - "#address-cells"
+
+additionalProperties: false
+
+examples:
+  - |
+    mpic: pic@40000 {
+        compatible = "fsl,mpic";
+        interrupt-controller;
+        #interrupt-cells = <4>;
+        #address-cells = <0>;
+        reg = <0x40000 0x40000>;
+    };
+  - |
+    i2c@3000 {
+        #address-cells = <1>;
+        #size-cells = <0>;
+        cell-index = <0>;
+        compatible = "fsl-i2c";
+        reg = <0x3000 0x100>;
+        interrupts = <43 2>;
+        dfsrr;
+    };
+  - |
+    ipi@410a0 {
+        compatible = "fsl,mpic-ipi";
+        reg = <0x40040 0x10>;
+        interrupts = <0 0 2 0
+                      1 0 2 0
+                      2 0 2 0
+                      3 0 2 0>;
+    };
+  - |
+    timer0: timer@41100 {
+        compatible = "fsl,mpic-global-timer";
+        reg = <0x41100 0x100 0x41300 4>;
+        interrupts = <0 0 3 0
+                      1 0 3 0
+                      2 0 3 0
+                      3 0 3 0>;
+    };
+  - |
+    memory-controller@8000 {
+        compatible = "fsl,p4080-memory-controller";
+        reg = <0x8000 0x1000>;
+        interrupts = <16 2 1 23>;
+    };
