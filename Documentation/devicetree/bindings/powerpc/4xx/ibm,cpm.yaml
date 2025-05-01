@@ -1,0 +1,99 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Grant Likely <grant.likely@secretlab.ca>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/powerpc/4xx/ibm,cpm.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: PPC4xx Clock Power Management (CPM) node
+
+maintainers:
+  - Grant Likely <grant.likely@secretlab.ca>
+
+description: |
+  PPC4xx Clock Power Management (CPM) node
+
+properties:
+  compatible:
+    items:
+      - const: ibm,cpm
+
+  dcr-access-method:
+    description: DCR access method. Only "native" is supported.
+    $ref: /schemas/types.yaml#/definitions/string
+    enum:
+      - native
+
+  dcr-reg:
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+    items:
+      - description: DCR register start address
+      - description: DCR register count
+
+  er-offset:
+    description: >-
+      All 4xx SoCs with a CPM controller have one of two different order for the
+      CPM registers. Some have the CPM registers in the following order (ER,FR,SR).
+      The others have them in the following order (SR,ER,FR). For the second case
+      set er-offset = <1>.
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+    items:
+      - description: ER register sequence offset
+
+  unused-units:
+    description: >-
+      Specifier consists of one cell. For each bit in the cell, the corresponding
+      bit in CPM will be set to turn off unused devices.
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+    items:
+      - description: Unused units bitmask
+
+  idle-doze:
+    description: >-
+      Specifier consists of one cell. For each bit in the cell, the corresponding
+      bit in CPM will be set to turn off unused devices. This is usually just
+      CPM[CPU].
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+    items:
+      - description: Idle and doze units bitmask
+
+  standby:
+    description: >-
+      Specifier consists of one cell. For each bit in the cell, the corresponding
+      bit in CPM will be set on standby and restored on resume.
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+    items:
+      - description: Standby units bitmask
+
+  suspend:
+    description: >-
+      Specifier consists of one cell. For each bit in the cell, the corresponding
+      bit in CPM will be set on suspend (mem) and restored on resume. Note: for
+      standby and suspend the corresponding bits can be different or the same.
+      Usually for standby only class 2 and 3 units are set. However, the
+      interface does not care. If they are the same, the additional power saving
+      will be seen if support is available to put the DDR in self refresh mode and
+      any additional power saving techniques for the specific SoC.
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+    items:
+      - description: Suspend units bitmask
+
+required:
+  - compatible
+  - dcr-access-method
+  - dcr-reg
+
+additionalProperties: false
+
+examples:
+  - |
+    cpm0: cpm@160 {
+        compatible = "ibm,cpm";
+        dcr-access-method = "native";
+        dcr-reg = <0x160 0x003>;
+        er-offset = <0>;
+        unused-units = <0x00000100>;
+        idle-doze = <0x02000000>;
+        standby = <0xfeff0000>;
+        suspend = <0xfeff791d>;
+    };
