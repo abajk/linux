@@ -1,0 +1,72 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Freescale Semiconductor
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/bindings/powerpc/fsl/fsl,mpic-v3.1-msgr.yaml#
+# $schema is the meta-schema this schema should be validated with.
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: FSL MPIC Message Registers
+
+maintainers:
+  - Jia Hongtao <B38951@freescale.com>
+
+description: |
+  FSL MPIC Message Registers
+
+  This binding specifies what properties must be available in the device tree
+  representation of the message register blocks found in some FSL MPIC
+  implementations.
+
+properties:
+  compatible:
+    description: >
+      Compatibility list for the message register block.
+      Must be of the form "fsl,mpic-v3.1-msgr".
+    allOf:
+      - $ref: /schemas/types.yaml#/definitions/string-array
+      - items:
+          - pattern: '^fsl,mpic-v[0-9]+(\.[0-9]+)?-msgr$'
+  reg:
+    maxItems: 1
+
+  interrupts:
+    maxItems: 1
+
+  fsl,mpic-msgr-receive-mask:
+    description: >
+      Bit mask indicating which registers in the block can receive interrupts.
+      Bit n corresponds to message register n.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+required:
+  - compatible
+  - reg
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    aliases {
+        mpic-msgr-block0 = &mpic_msgr_block0;
+        mpic-msgr-block1 = &mpic_msgr_block1;
+    };
+
+    mpic_msgr_block0: mpic-msgr-block@41400 {
+        compatible = "fsl,mpic-v3.1-msgr";
+        reg = <0x41400 0x200>;
+        # Message registers 0 and 2 in this block can receive interrupts on
+        # sources 0xb0 and 0xb2, respectively.
+        interrupts = <0xb0 2 0xb2 2>;
+        fsl,mpic-msgr-receive-mask = <0x5>;
+    };
+
+    mpic_msgr_block1: mpic-msgr-block@42400 {
+        compatible = "fsl,mpic-v3.1-msgr";
+        reg = <0x42400 0x200>;
+        # Message registers 0 and 2 in this block can receive interrupts on
+        # sources 0xb4 and 0xb6, respectively.
+        interrupts = <0xb4 2 0xb6 2>;
+        fsl,mpic-msgr-receive-mask = <0x5>;
+    };
