@@ -1,0 +1,69 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mfd/active-semi,act8945a.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Active-semi ACT8945A MFD PMIC
+
+maintainers:
+  - Krzysztof Kozlowski <krzk@kernel.org>
+  - Rob Herring <robh@kernel.org>
+  - Wenyou Yang <wenyou.yang@atmel.com>
+
+description: |
+  Device-Tree bindings for Active-semi ACT8945A MFD driver
+
+  The chip exposes two subdevices:
+   - a regulators: see ../regulator/act8945a-regulator.yaml
+   - a charger: see ../power/act8945a-charger.yaml
+
+properties:
+  compatible:
+    items:
+      - const: active-semi,act8945a
+
+  reg:
+    description: I2C slave address for the ACT8945A chip
+    items:
+      - description: I2C slave address
+
+  active-semi,vsel-high:
+    description: Select high-voltage selection mode
+    type: boolean
+
+  regulators:
+    description: Node containing regulator subnodes (see act8945a-regulator.yaml)
+    type: object
+    additionalProperties: true
+
+  charger:
+    description: Node containing charger subnode (see act8945a-charger.yaml)
+    type: object
+    additionalProperties: true
+
+additionalProperties: false
+
+examples:
+  - |
+    pmic@5b {
+      compatible = "active-semi,act8945a";
+      reg = <0x5b>;
+      active-semi,vsel-high;
+
+      regulators {
+        /* regulator nodes defined in act8945a-regulator.yaml */
+      };
+
+      charger {
+        compatible = "active-semi,act8945a-charger";
+        pinctrl-names = "default";
+        pinctrl-0 = <&pinctrl_charger_chglev &pinctrl_charger_lbo &pinctrl_charger_irq>;
+        interrupts = <45 IRQ_TYPE_LEVEL_LOW>;
+        active-semi,chglev-gpios = <&pioA 12 GPIO_ACTIVE_HIGH>;
+        active-semi,lbo-gpios = <&pioA 72 GPIO_ACTIVE_LOW>;
+        active-semi,input-voltage-threshold-microvolt = <6600>;
+        active-semi,precondition-timeout = <40>;
+        active-semi,total-timeout = <3>;
+      };
+    };
