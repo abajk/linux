@@ -1,0 +1,73 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/power/reset/qnap,power-off.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: QNAP and Synology NAS power-off microcontroller
+
+maintainers:
+  - Guenter Roeck <linux@roeck-us.net>
+  - Sebastian Reichel <sre@kernel.org>
+
+description: |
+  QNAP NAS devices have a microcontroller controlling the main power
+  supply. This microcontroller is connected to UART1 of the Kirkwood and
+  Orion5x SoCs. Sending the character 'A', at 19200 baud, tells the
+  microcontroller to turn the power off.
+
+  Synology NAS devices use a similar scheme, but a different baud rate,
+  9600, and a different character, '1'.
+
+properties:
+  compatible:
+    description: List of supported compatible strings.
+    items:
+      - enum:
+          - qnap,power-off
+          - synology,power-off
+
+  reg:
+    description: Register address and length for the UART1 power-off controller.
+    items:
+      - description: UART1 register bank address and size.
+
+  reg-names:
+    description: Name of the register bank.
+    items:
+      - const: uart1
+
+  clocks:
+    description: Clock input for the tclk signal.
+    items:
+      - description: tclk clock
+
+  clock-names:
+    description: Name of the clock.
+    items:
+      - const: tclk
+
+required:
+  - compatible
+  - reg
+  - clocks
+
+additionalProperties: false
+
+examples:
+  - |
+    node@1000 {
+        compatible = "qnap,power-off";
+        reg = <0x1000 0x8>;
+        reg-names = "uart1";
+        clocks = <&tclk>;
+        clock-names = "tclk";
+    };
+  - |
+    node@2000 {
+        compatible = "synology,power-off";
+        reg = <0x2000 0x8>;
+        reg-names = "uart1";
+        clocks = <&tclk>;
+        clock-names = "tclk";
+    };
