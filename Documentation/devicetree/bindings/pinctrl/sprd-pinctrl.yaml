@@ -1,0 +1,149 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pinctrl/sprd-pinctrl.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Spreadtrum Pin Controller
+
+maintainers:
+  - Baolin Wang <baolin.wang@linux.alibaba.com>
+  - Bjorn Helgaas <bhelgaas@google.com>
+
+description: |
+  * Spreadtrum Pin Controller
+
+  The Spreadtrum pin controller are organized in 3 blocks (types).
+
+  The first block comprises some global control registers, and each
+  register contains several bit fields with one bit or several bits
+  to configure for some global common configuration, such as domain
+  pad driving level, system control select and so on ("domain pad
+  driving level": One pin can output 3.0v or 1.8v, depending on the
+  related domain pad driving selection, if the related domain pad
+  select 3.0v, then the pin can output 3.0v. "system control" is used
+  to choose one function (like: UART0) for which system, since we
+  have several systems (AP/CP/CM4) on one SoC.).
+
+  There are too much various configuration that we can not list all
+  of them, so we can not make every Spreadtrum-special configuration
+  as one generic configuration, and maybe it will add more strange
+  global configuration in future. Then we add one "sprd,control" to
+  set these various global control configuration, and we need use
+  magic number for this property.
+
+  Moreover we recognise every fields comprising one bit or several
+  bits in one global control register as one pin, thus we should
+  record every pin's bit offset, bit width and register offset to
+  configure this field (pin).
+
+  The second block comprises some common registers which have unified
+  register definition, and each register described one pin is used
+  to configure the pin sleep mode, function select and sleep related
+  configuration.
+
+  Now we have 4 systems for sleep mode on SC9860 SoC: AP system,
+  PUBCP system, TGLDSP system and AGDSP system. And the pin sleep
+  related configuration are:
+    - input-enable
+    - input-disable
+    - output-high
+    - output-low
+    - bias-pull-up
+    - bias-pull-down
+
+  In some situation we need set the pin sleep mode and pin sleep related
+  configuration, to set the pin sleep related configuration automatically
+  by hardware when the system specified by sleep mode goes into deep
+  sleep mode. For example, if we set the pin sleep mode as PUBCP_SLEEP
+  and set the pin sleep related configuration as "input-enable", which
+  means when PUBCP system goes into deep sleep mode, this pin will be set
+  input enable automatically.
+
+  Moreover we can not use the "sleep" state, since some systems (like:
+  PUBCP system) do not run linux kernel OS (only AP system run linux
+  kernel on SC9860 platform), then we can not select "sleep" state
+  when the PUBCP system goes into deep sleep mode. Thus we introduce
+  "sprd,sleep-mode" property to set pin sleep mode.
+
+  The last block comprises some misc registers which also have unified
+  register definition, and each register described one pin is used to
+  configure drive strength, pull up/down and so on. Especially for pull
+  up, we have two kind pull up resistor: 20K and 4.7K.
+
+properties:
+  compatible:
+    items:
+      - pattern: "^sprd,.*-pinctrl$"
+
+  reg:
+    description: The register address of pin controller device.
+    items:
+      - description: Register base address.
+
+  pins:
+    description: A list of pin names.
+    $ref: /schemas/types.yaml#/definitions/string-array
+
+  function:
+    description: Specified the function name.
+    $ref: /schemas/types.yaml#/definitions/string
+
+  drive-strength:
+    description: Drive strength in mA.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  input-schmitt-disable:
+    description: Disable Schmitt-trigger mode.
+    type: boolean
+
+  input-schmitt-enable:
+    description: Enable Schmitt-trigger mode.
+    type: boolean
+
+  bias-disable:
+    description: Disable pin bias.
+    type: boolean
+
+  bias-pull-down:
+    description: Pull down on pin.
+    type: boolean
+
+  bias-pull-up:
+    description: Pull up on pin.
+    type: boolean
+
+  input-enable:
+    description: Enable pin input.
+    type: boolean
+
+  input-disable:
+    description: Enable pin output.
+    type: boolean
+
+  output-high:
+    description: Set the pin as an output level high.
+    type: boolean
+
+  output-low:
+    description: Set the pin as an output level low.
+    type: boolean
+
+  sleep-hardware-state:
+    description: Indicate configurations in sleep hardware state.
+    type: boolean
+
+  sprd,control:
+    description: Control values referring to databook for global control pins.
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+
+  sprd,sleep-mode:
+    description: Sleep mode selection.
+    $ref: /schemas/types.yaml#/definitions/string
+
+required:
+  - compatible
+  - reg
+  - pins
+
+additionalProperties: false
