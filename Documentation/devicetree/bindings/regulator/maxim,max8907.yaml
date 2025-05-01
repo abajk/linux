@@ -1,0 +1,202 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Maxim Integrated
+
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/regulator/maxim,max8907.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: MAX8907 regulator
+
+maintainers:
+  - Gyungoh Yoo <jack.yoo@maxim-ic.com>
+  - Stephen Warren <swarren@nvidia.com>
+
+description: |
+  MAX8907 regulator
+
+  The valid names for regulators are:
+
+    sd1, sd2, sd3, ldo1, ldo2, ldo3, ldo4, ldo5, ldo6, ldo7, ldo8, ldo9, ldo10,
+    ldo11, ldo12, ldo13, ldo14, ldo15, ldo16, ldo17, ldo18, ldo19, ldo20, out5v,
+    out33v, bbat, sdby, vrtc.
+
+properties:
+  compatible:
+    items:
+      - const: maxim,max8907
+
+  reg:
+    description: I2C slave address
+    items:
+      - description: I2C slave address
+
+  interrupts:
+    description: Interrupt output of the controller
+    items:
+      - description: Interrupt output of the controller
+
+  mbatt-supply:
+    description: The input supply for MBATT, BBAT, SDBY, VRTC
+
+  in-v1-supply:
+    description: The input supply for SD1
+
+  in-v2-supply:
+    description: The input supply for SD2
+
+  in-v3-supply:
+    description: The input supply for SD3
+
+  in1-supply:
+    description: The input supply for LDO1
+
+  in2-supply:
+    description: The input supply for LDO2
+
+  in3-supply:
+    description: The input supply for LDO3
+
+  in4-supply:
+    description: The input supply for LDO4
+
+  in5-supply:
+    description: The input supply for LDO5
+
+  in6-supply:
+    description: The input supply for LDO6
+
+  in7-supply:
+    description: The input supply for LDO7
+
+  in8-supply:
+    description: The input supply for LDO8
+
+  in9-supply:
+    description: The input supply for LDO9
+
+  in10-supply:
+    description: The input supply for LDO10
+
+  in11-supply:
+    description: The input supply for LDO11
+
+  in12-supply:
+    description: The input supply for LDO12
+
+  in13-supply:
+    description: The input supply for LDO13
+
+  in14-supply:
+    description: The input supply for LDO14
+
+  in15-supply:
+    description: The input supply for LDO15
+
+  in16-supply:
+    description: The input supply for LDO16
+
+  in17-supply:
+    description: The input supply for LDO17
+
+  in18-supply:
+    description: The input supply for LDO18
+
+  in19-supply:
+    description: The input supply for LDO19
+
+  in20-supply:
+    description: The input supply for LDO20
+
+  maxim,system-power-controller:
+    description: Boolean property indicating that the PMIC controls the overall system power
+    type: boolean
+
+  regulators:
+    description: |
+      A node that houses a sub-node for each regulator within the device. Each
+      sub-node is identified using the node's name (or the deprecated
+      regulator-compatible property if present), with valid values listed
+      below. The content of each sub-node is defined by the standard binding
+      for regulators; see regulator.txt
+    type: object
+    additionalProperties: false
+    patternProperties:
+      '^(sd[1-3]|ldo([1-9]|1[0-9]|20)|out5v|out33v|bbat|sdby|vrtc)$':
+        $ref: /schemas/regulator/regulator.yaml#
+        unevaluatedProperties: false
+
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - mbatt-supply
+  - in-v1-supply
+  - in-v2-supply
+  - in-v3-supply
+  - in1-supply
+  - in2-supply
+  - in3-supply
+  - in4-supply
+  - in5-supply
+  - in6-supply
+  - in7-supply
+  - in8-supply
+  - in9-supply
+  - in10-supply
+  - in11-supply
+  - in12-supply
+  - in13-supply
+  - in14-supply
+  - in15-supply
+  - in16-supply
+  - in17-supply
+  - in18-supply
+  - in19-supply
+  - in20-supply
+  - regulators
+
+additionalProperties: false
+
+examples:
+  - |
+    max8907@3c {
+        compatible = "maxim,max8907";
+        reg = <0x3c>;
+        interrupts = <0 86 0x4>;
+
+        maxim,system-power-controller;
+
+        mbatt-supply = <&some_reg>;
+        in-v1-supply = <&mbatt_reg>;
+        in-v2-supply = <&mbatt_reg>;
+        in-v3-supply = <&mbatt_reg>;
+        in1-supply = <&mbatt_reg>;
+        ...
+        in20-supply = <&mbatt_reg>;
+
+        regulators {
+            mbatt_reg: mbatt {
+                regulator-name = "vbat_pmu";
+                regulator-min-microvolt = <5000000>;
+                regulator-max-microvolt = <5000000>;
+                regulator-always-on;
+            };
+
+            sd1 {
+                regulator-name = "nvvdd_sv1,vdd_cpu_pmu";
+                regulator-min-microvolt = <1000000>;
+                regulator-max-microvolt = <1000000>;
+                regulator-always-on;
+            };
+
+            sd2 {
+                regulator-name = "nvvdd_sv2,vdd_core";
+                regulator-min-microvolt = <1200000>;
+                regulator-max-microvolt = <1200000>;
+                regulator-always-on;
+            };
+            ...
+        };
+    };
