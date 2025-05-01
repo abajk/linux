@@ -1,0 +1,71 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Broadcom
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pinctrl/brcm,cygnus-pinmux.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Broadcom Cygnus IOMUX Controller
+maintainers:
+  - Mathieu Malaterre <malat@debian.org>
+  - Ray Jui <rjui@broadcom.com>
+
+description: |
+  The Broadcom Cygnus IOMUX controller supports group based mux configuration.
+  In addition, certain pins can be muxed to GPIO function individually.
+
+properties:
+  compatible:
+    items:
+      - const: brcm,cygnus-pinmux
+
+  reg:
+    items:
+      - description: I/O address base and range
+
+  pinctrl-names:
+    items:
+      - const: default
+
+  pinctrl-0:
+    description: Phandle to the default pinmux configuration
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+patternProperties:
+  '^[A-Za-z0-9,_+-]+$':
+    description: Pinmux configuration node
+    type: object
+    additionalProperties: false
+    properties:
+      mux:
+        type: object
+        description: Mux settings for this configuration
+        additionalProperties: false
+        properties:
+          function:
+            description: The mux function to select
+            items:
+              - enum: ["i2s0", "i2s1", "i2s2", "spdif", "pwm0", "pwm1", "pwm2", "pwm3", "pwm4", "pwm5", "key", "audio_dte", "smart_card0", "smart_card1", "spi0", "spi1", "spi2", "spi3", "spi4", "spi5", "sw_led0", "sw_led1", "sw_led2", "d1w", "lcd", "sram", "uart0", "uart1", "uart2", "uart3", "uart4", "qspi", "nand", "sdio0", "sdio1", "can0", "can1", "cam", "bsc1", "pcie_clkreq", "usb0_oc", "usb1_oc", "usb2_oc"]
+          groups:
+            description: The list of groups to select with a given function
+            items:
+              - enum: ["i2s0_0_grp", "i2s0_1_grp", "i2s1_0_grp", "i2s1_1_grp", "i2s2_0_grp", "i2s2_1_grp", "i2s2_2_grp", "i2s2_3_grp", "i2s2_4_grp", "spdif_grp", "pwm0_grp", "pwm1_grp", "pwm2_grp", "pwm3_grp", "pwm4_grp", "pwm5_grp", "key0_grp", "key1_grp", "key2_grp", "key3_grp", "key4_grp", "key5_grp", "key6_grp", "key7_grp", "key8_grp", "key9_grp", "key10_grp", "key11_grp", "key12_grp", "key13_grp", "key14_grp", "key15_grp", "audio_dte0_grp", "audio_dte1_grp", "audio_dte2_grp", "audio_dte3_grp", "smart_card0_grp", "smart_card0_fcb_grp", "smart_card1_grp", "smart_card1_fcb_grp", "spi0_grp", "spi1_grp", "spi2_grp", "spi3_grp", "spi4_0_grp", "spi4_1_grp", "spi5_grp", "sw_led0_0_grp", "sw_led0_1_grp", "sw_led1_grp", "sw_led2_0_grp", "sw_led2_1_grp", "d1w_grp", "lcd_grp", "sram_0_grp", "sram_1_grp", "uart0_grp", "uart1_grp", "uart1_dte_grp", "uart2_grp", "uart3_grp", "uart4_grp", "qspi_0_grp", "qspi_1_grp", "nand_grp", "sdio0_grp", "sdio0_cd_grp", "sdio0_mmc_grp", "sdio1_data_0_grp", "sdio1_data_1_grp", "sdio1_cd_grp", "sdio1_led_grp", "sdio1_mmc_grp", "can0_grp", "can1_grp", "cam_led_grp", "cam_0_grp", "cam_1_grp", "bsc1_grp", "pcie_clkreq_grp", "usb0_oc_grp", "usb1_oc_grp", "usb2_oc_grp"]
+
+additionalProperties: false
+
+examples:
+  - |
+    pinmux@0301d0c8 {
+      compatible = "brcm,cygnus-pinmux";
+      reg = <0x0301d0c8 0x1b0>;
+
+      pinctrl-names = "default";
+      pinctrl-0 = <&i2s0_default>;
+
+      i2s0_default: i2s0_default {
+        mux {
+          function = "i2s0";
+          groups = "i2s0_0_grp", "i2s0_1_grp";
+        };
+      };
+    };
