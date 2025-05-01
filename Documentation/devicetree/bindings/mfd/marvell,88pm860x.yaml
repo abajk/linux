@@ -1,0 +1,217 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mfd/marvell,88pm860x.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Marvell 88PM860x Power Management IC
+
+maintainers:
+  - Haojian Zhuang <haojian.zhuang@gmail.com>
+
+description: |
+  * Marvell 88PM860x Power Management IC
+
+  Required parent device properties:
+  - compatible : "marvell,88pm860x"
+  - reg : the I2C slave address for the 88pm860x chip
+  - interrupts : IRQ line for the 88pm860x chip
+  - interrupt-controller : describes the 88pm860x as an interrupt controller
+    (has its own domain)
+  - "#interrupt-cells" : should be 1. The cell is the 88pm860x local IRQ number
+
+  Optional parent device properties:
+  - marvell,88pm860x-irq-read-clr : indicates whether interrupt status
+    is cleared by read
+  - marvell,88pm860x-slave-addr : 88pm860x are two‐chip solution. <reg>
+    stores one chip’s I2C address; this property stores the other chip’s address.
+
+  88pm860x consists of a large and varied group of sub-devices:
+
+  Device                 Supply Names   Description
+  ------                 ------------   -----------
+  88pm860x-onkey                          On key
+  88pm860x-rtc                            RTC
+  88pm8607                                Regulators
+  88pm860x-backlight                      Backlight
+  88pm860x-led                            Led
+  88pm860x-touch                          Touchscreen
+
+properties:
+  compatible:
+    description: Compatible string for the Marvell 88PM860x device.
+    items:
+      - enum: [ "marvell,88pm860x" ]
+  reg:
+    description: I2C slave address of the 88pm860x chip.
+    items:
+      - description: Slave address
+  interrupts:
+    description: IRQ line for the 88pm860x chip.
+    items:
+      - description: IRQ number
+  interrupt-controller: true
+  '#interrupt-cells':
+    const: 1
+
+  marvell,88pm860x-irq-read-clr:
+    description: Indicates whether interrupt status is cleared by read.
+    type: boolean
+  marvell,88pm860x-slave-addr:
+    description: I2C address of the second 88pm860x chip.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  regulators:
+    description: Regulator subnodes.
+    type: object
+    additionalProperties: false
+    patternProperties:
+      ".*":
+        type: object
+        description: A voltage regulator subnode.
+        additionalProperties: false
+        properties:
+          regulator-min-microvolt:
+            description: Minimum regulator voltage in microvolts.
+          regulator-max-microvolt:
+            description: Maximum regulator voltage in microvolts.
+          regulator-boot-on:
+            description: Enable regulator at boot.
+            type: boolean
+          regulator-always-on:
+            description: Keep regulator always on.
+            type: boolean
+        required:
+          - regulator-min-microvolt
+          - regulator-max-microvolt
+
+  rtc:
+    description: Real-time clock subnode.
+    type: object
+    additionalProperties: false
+    properties:
+      marvell,88pm860x-vrtc:
+        description: VRTC voltage regulator selection.
+        $ref: /schemas/types.yaml#/definitions/uint32
+    required:
+      - "marvell,88pm860x-vrtc"
+
+  touch:
+    description: Touchscreen subnode.
+    type: object
+    additionalProperties: false
+    properties:
+      marvell,88pm860x-gpadc-prebias:
+        description: GP ADC prebias setting.
+        $ref: /schemas/types.yaml#/definitions/uint32
+      marvell,88pm860x-gpadc-slot-cycle:
+        description: GP ADC slot cycle length.
+        $ref: /schemas/types.yaml#/definitions/uint32
+      marvell,88pm860x-tsi-prebias:
+        description: TSI prebias setting.
+        $ref: /schemas/types.yaml#/definitions/uint32
+      marvell,88pm860x-pen-prebias:
+        description: Pen prebias setting.
+        $ref: /schemas/types.yaml#/definitions/uint32
+      marvell,88pm860x-pen-prechg:
+        description: Pen precharge setting.
+        $ref: /schemas/types.yaml#/definitions/uint32
+      marvell,88pm860x-resistor-X:
+        description: Resistive calibration value.
+        $ref: /schemas/types.yaml#/definitions/uint32
+    required:
+      - marvell,88pm860x-gpadc-prebias
+      - marvell,88pm860x-gpadc-slot-cycle
+      - marvell,88pm860x-tsi-prebias
+      - marvell,88pm860x-pen-prebias
+      - marvell,88pm860x-pen-prechg
+      - marvell,88pm860x-resistor-X
+
+  backlights:
+    description: Backlight subnodes.
+    type: object
+    additionalProperties: false
+    patternProperties:
+      ".*":
+        type: object
+        description: A backlight subnode.
+        additionalProperties: false
+        properties:
+          marvell,88pm860x-iset:
+            description: LED current setting.
+            $ref: /schemas/types.yaml#/definitions/uint32
+          marvell,88pm860x-pwm:
+            description: PWM channel selection.
+            $ref: /schemas/types.yaml#/definitions/uint32
+
+  leds:
+    description: LED subnodes.
+    type: object
+    additionalProperties: false
+    patternProperties:
+      ".*":
+        type: object
+        description: An LED subnode.
+        additionalProperties: false
+        properties:
+          marvell,88pm860x-iset:
+            description: LED current setting.
+            $ref: /schemas/types.yaml#/definitions/uint32
+
+additionalProperties: false
+
+examples:
+  - |
+    pmic: 88pm860x@34 {
+        compatible = "marvell,88pm860x";
+        reg = <0x34>;
+        interrupts = <4>;
+        interrupt-controller;
+        #interrupt-cells = <1>;
+        marvell,88pm860x-irq-read-clr;
+        marvell,88pm860x-slave-addr = <0x11>;
+        regulators {
+            BUCK1 {
+                regulator-min-microvolt = <1000000>;
+                regulator-max-microvolt = <1500000>;
+                regulator-boot-on;
+                regulator-always-on;
+            };
+            LDO1 {
+                regulator-min-microvolt = <1200000>;
+                regulator-max-microvolt = <2800000>;
+                regulator-boot-on;
+                regulator-always-on;
+            };
+        };
+        rtc {
+            marvell,88pm860x-vrtc = <1>;
+        };
+        touch {
+            marvell,88pm860x-gpadc-prebias = <1>;
+            marvell,88pm860x-gpadc-slot-cycle = <1>;
+            marvell,88pm860x-tsi-prebias = <6>;
+            marvell,88pm860x-pen-prebias = <16>;
+            marvell,88pm860x-pen-prechg = <2>;
+            marvell,88pm860x-resistor-X = <300>;
+        };
+        backlights {
+            backlight-0 {
+                marvell,88pm860x-iset = <4>;
+                marvell,88pm860x-pwm = <3>;
+            };
+            backlight-2 {
+            };
+        };
+        leds {
+            led0-red {
+                marvell,88pm860x-iset = <12>;
+            };
+            led0-green {
+                marvell,88pm860x-iset = <12>;
+            };
+            led0-blue {
+                marvell,88pm860x-iset = <12>;
+            };
+        };
+    };
