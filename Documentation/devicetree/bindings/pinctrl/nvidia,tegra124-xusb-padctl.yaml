@@ -1,0 +1,165 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 NVIDIA Corporation
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pinctrl/nvidia,tegra124-xusb-padctl.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: NVIDIA Tegra124 XUSB Pad Controller
+
+maintainers:
+  - Marco Franchi <marco.franchi@nxp.com>
+  - Paul Walmsley <paul@pwsan.com>
+  - Thierry Reding <treding@nvidia.com>
+
+description: |
+  Device tree binding for NVIDIA Tegra XUSB pad controller
+  ========================================================
+
+  NOTE: It turns out that this binding isn't an accurate description of the XUSB
+  pad controller. While the description is good enough for the functional subset
+  required for PCIe and SATA, it lacks the flexibility to represent the features
+  needed for USB. For the new binding, see ../phy/nvidia,tegra-xusb-padctl.txt.
+  The binding described in this file is deprecated and should not be used.
+
+  The Tegra XUSB pad controller manages a set of lanes, each of which can be
+  assigned to one out of a set of different pads. Some of these pads have an
+  associated PHY that must be powered up before the pad can be used.
+
+  This document defines the device-specific binding for the XUSB pad controller.
+
+  Refer to pinctrl-bindings.txt in this directory for generic information about
+  pin controller device tree bindings and ../phy/phy-bindings.txt for details on
+  how to describe and reference PHYs in device trees.
+
+  Lane muxing:
+
+  Child nodes contain the pinmux configurations following the conventions from
+  the pinctrl-bindings.txt document. Typically a single, static configuration is
+  given and applied at boot time.
+
+  Each subnode describes groups of lanes along with parameters and pads that
+  they should be assigned to. The name of these subnodes is not important. All
+  subnodes should be parsed solely based on their content.
+
+  Each subnode only applies the parameters that are explicitly listed. In other
+  words, if a subnode that lists a function but no pin configuration parameters
+  implies no information about any pin configuration parameters. Similarly, a
+  subnode that describes only an IDDQ parameter implies no information about
+  what function the pins are assigned to. For this reason even seemingly boolean
+  values are actually tristates in this binding: unspecified, off or on.
+  Unspecified is represented as an absent property, and off/on are represented
+  as integer values 0 and 1.
+
+properties:
+  compatible:
+    oneOf:
+      - items:
+          - const: nvidia,tegra124-xusb-padctl
+      - items:
+          - enum:
+              - nvidia,tegra132-xusb-padctl
+              - nvidia,tegra210-xusb-padctl
+          - const: nvidia-tegra124-xusb-padctl
+
+  reg:
+    description: Physical base address and size of the controller registers
+    items:
+      - description: Physical base address
+      - description: Length of register region
+
+  resets:
+    description: Reset signals for the controller
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+
+  reset-names:
+    description: Names for each reset signal
+    items:
+      - const: padctl
+
+  '#phy-cells':
+    description: Number of PHY specifier cells
+    const: 1
+
+  pinctrl-0:
+    description: Pin controller state phandles
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+
+  pinctrl-names:
+    description: Names for pin controller states
+    $ref: /schemas/types.yaml#/definitions/string-array
+
+additionalProperties: false
+
+patternProperties:
+  ".*":
+    description: Pinmux subnode
+    type: object
+    additionalProperties: false
+    properties:
+      nvidia,lanes:
+        description: Names of lanes in this group
+        $ref: /schemas/types.yaml#/definitions/string-array
+        items:
+          enum:
+            - otg-0
+            - otg-1
+            - otg-2
+            - ulpi-0
+            - hsic-0
+            - hsic-1
+            - pcie-0
+            - pcie-1
+            - pcie-2
+            - pcie-3
+            - pcie-4
+            - sata-0
+
+      nvidia,function:
+        description: Function assigned to lanes
+        enum:
+          - snps
+          - xusb
+          - uart
+          - rsvd
+          - pcie
+          - usb3
+          - sata
+
+      nvidia,iddq:
+        description: 'IDDQ mode of the lanes (0: off, 1: on)'
+        enum:
+          - 0
+          - 1
+
+    required:
+      - nvidia,lanes
+
+examples:
+  - |
+    padctl@7009f000 {
+      compatible = "nvidia,tegra124-xusb-padctl";
+      reg = <0x7009f000 0x1000>;
+      resets = <&tegra_car 142>;
+      reset-names = "padctl";
+      #phy-cells = <1>;
+      pinctrl-0 = <&padctl_default>;
+      pinctrl-names = "default";
+    };
+    padctl_default: pinmux {
+      usb3 {
+        nvidia,lanes = "pcie-0", "pcie-1";
+        nvidia,function = "usb3";
+        nvidia,iddq = <0>;
+      };
+      pcie {
+        nvidia,lanes = "pcie-2", "pcie-3", "pcie-4";
+        nvidia,function = "pcie";
+        nvidia,iddq = <0>;
+      };
+      sata {
+        nvidia,lanes = "sata-0";
+        nvidia,function = "sata";
+        nvidia,iddq = <0>;
+      };
+    };
