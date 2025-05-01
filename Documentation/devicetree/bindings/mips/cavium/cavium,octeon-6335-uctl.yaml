@@ -1,0 +1,75 @@
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/cavium,octeon-6335-uctl.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: UCTL USB controller glue
+
+maintainers:
+  - David Daney <david.daney@cavium.com>
+
+description: |
+  * UCTL USB controller glue
+
+properties:
+  compatible:
+    items:
+      - const: "cavium,octeon-6335-uctl"
+    description: Device compatible with UCTL USB controller glue
+  reg:
+    items:
+      - description: Base address and size of the UCTL register bank
+    description: UCTL register bank address and size
+  '#address-cells':
+    const: 2
+    description: Must be <2>
+  '#size-cells':
+    const: 2
+    description: Must be <2>
+  ranges: true
+    # Empty to signify direct mapping of the children
+  refclk-frequency:
+    description: Reference clock frequency in Hz
+  refclk-type:
+    enum:
+      - crystal
+      - external
+    description: Reference clock connection type
+
+required:
+  - compatible
+  - reg
+  - '#address-cells'
+  - '#size-cells'
+  - ranges
+  - refclk-frequency
+  - refclk-type
+
+additionalProperties: false
+
+examples:
+  - |
+    uctl@118006f000000 {
+        compatible = "cavium,octeon-6335-uctl";
+        reg = <0x11800 0x6f000000 0x0 0x100>;
+        ranges; /* Direct mapping */
+        #address-cells = <2>;
+        #size-cells = <2>;
+        /* 12MHz, 24MHz and 48MHz allowed */
+        refclk-frequency = <24000000>;
+        /* Either "crystal" or "external" */
+        refclk-type = "crystal";
+
+        ehci@16f0000000000 {
+            compatible = "cavium,octeon-6335-ehci", "usb-ehci";
+            reg = <0x16f00 0x00000000 0x0 0x100>;
+            interrupts = <0 56>;
+            big-endian-regs;
+        };
+        ohci@16f0000000400 {
+            compatible = "cavium,octeon-6335-ohci", "usb-ohci";
+            reg = <0x16f00 0x00000400 0x0 0x100>;
+            interrupts = <0 56>;
+            big-endian-regs;
+        };
+    };
