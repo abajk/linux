@@ -1,0 +1,68 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/hisilicon,hi6220-mbox.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Hisilicon Hi6220 Mailbox
+
+maintainers:
+  - Leo Yan <leo.yan@linux.dev>
+
+description: |
+  Hisilicon Hi6220 mailbox supports up to 32 channels. Each channel
+  is unidirectional with a maximum message size of 8 words. I/O is
+  performed using register access (there is no DMA) and the cell
+  raises an interrupt when messages are received.
+
+  Mailbox Device Node:
+
+  Mailbox client
+
+properties:
+  compatible:
+    const: "hisilicon,hi6220-mbox"
+    description: Vendor and SoC specific compatible identifier for Hi6220 mailbox
+
+  reg:
+    description: |
+      Mailbox register address ranges. First entry is IPC registers; second entry is shared buffer for slots.
+    items:
+      - description: IPC registers
+      - description: Shared buffer for mailbox slots
+
+  interrupts:
+    description: |
+      Contains the interrupt information for the mailbox device.
+      The format is dependent on the interrupt controller used by the SoC.
+    items:
+      - description: Interrupt controller specifier (e.g. GIC_SPI)
+      - description: IRQ number
+      - description: Trigger type (e.g. IRQ_TYPE_LEVEL_HIGH)
+
+  "#mbox-cells":
+    const: 3
+    description: |
+      Number of cells in a mailbox specifier: <phandle slot_id dst_irq ack_irq>
+
+  hi6220,mbox-tx-noirq:
+    description: Flag to request MCU to enable automatic idle flag mode instead of IRQ for TX completion.
+    type: boolean
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - "#mbox-cells"
+
+additionalProperties: false
+
+examples:
+  - |
+    mailbox: mailbox@f7510000 {
+      compatible = "hisilicon,hi6220-mbox";
+      reg = <0x0 0xf7510000 0x0 0x1000>,
+            <0x0 0x06dff800 0x0 0x0800>;
+      interrupts = <GIC_SPI 94 IRQ_TYPE_LEVEL_HIGH>;
+      #mbox-cells = <3>;
+    };
