@@ -1,0 +1,58 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/xilinx/xlnx,v-tc-6.1.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Xilinx Video Timing Controller (VTC)
+
+maintainers:
+  - Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+
+description: |
+  The Video Timing Controller is a general purpose video timing generator and
+  detector.
+
+properties:
+  compatible:
+    items:
+      - const: xlnx,v-tc-6.1
+
+  reg:
+    items:
+      - description: Physical base address and length of the registers set for the device.
+
+  clocks:
+    description: Clock for both the VTC core and timing interfaces.
+    items:
+      - description: VTC core and timing interfaces clock.
+
+  xlnx,detector:
+    type: boolean
+    description: Indicates presence of a timing detector.
+
+  xlnx,generator:
+    type: boolean
+    description: Indicates presence of a timing generator.
+
+required:
+  - compatible
+  - reg
+  - clocks
+
+anyOf:
+  - required: ['xlnx,detector']
+  - required: ['xlnx,generator']
+
+additionalProperties: false
+
+examples:
+  - |
+    vtc: vtc@43c40000 {
+        compatible = "xlnx,v-tc-6.1";
+        reg = <0x43c40000 0x10000>;
+        clocks = <&clkc 15>;
+        xlnx,generator;
+    };
