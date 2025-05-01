@@ -1,0 +1,54 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/ibm,opal-v3-led.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: IBM PowerNV OPAL v3 LED Controller
+
+maintainers:
+  - Vasant Hegde <hegdevasant@linux.vnet.ibm.com>
+
+description: |
+  Device Tree binding for LEDs on IBM Power Systems
+
+  Each location code of FRU/Enclosure must be expressed in the
+  form of a sub-node.
+
+properties:
+  compatible:
+    items:
+      - const: "ibm,opal-v3-led"
+  led-mode:
+    description: LED operation mode selection.
+    items:
+      - enum: [lightpath, guidinglight]
+
+patternProperties:
+  '^[A-Za-z0-9.,-]+$':
+    description: Sub-node for each FRU/Enclosure location code.
+    type: object
+    properties:
+      led-types:
+        description: Supported LED types for the location.
+        items:
+          - enum: [attention, identify, fault]
+    required: [led-types]
+    additionalProperties: false
+
+required:
+  - compatible
+  - led-mode
+
+additionalProperties: false
+
+examples:
+  - |
+    leds {
+        compatible = "ibm,opal-v3-led";
+        led-mode = "lightpath";
+
+        U78C9.001.RST0027-P1-C1 {
+            led-types = "identify", "fault";
+        };
+    };
