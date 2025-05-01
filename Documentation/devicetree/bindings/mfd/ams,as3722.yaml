@@ -1,0 +1,96 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mfd/ams,as3722.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: ams,as3722 Power management IC.
+
+maintainers:
+  - Guenter Roeck <linux@roeck-us.net>
+  - Laxman Dewangan <ldewangan@nvidia.com>
+  - Marcel Ziswiler <marcel.ziswiler@toradex.com>
+  - Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+
+description: |
+  * ams AS3722 Power management IC.
+
+  Pinmux and GPIO:
+  ==============
+  Device has 8 GPIO pins which can be configured as GPIO as well as the special IO functions.
+
+  Please refer to pinctrl-bindings.txt in this directory for details of the common pinctrl
+  bindings used by client devices, including the meaning of the phrase "pin configuration node".
+
+  Following are properties which are needed if GPIO and pinmux functionality is required:
+    Required properties:
+    -------------------
+    - gpio-controller: Marks the device node as a GPIO controller.
+    - #gpio-cells: Number of GPIO cells. Refer to binding document gpio/gpio.txt
+
+    Optional properties:
+    --------------------
+    - pinctrl-names: A pinctrl state named "default" be defined,
+      using the bindings in pinctrl/pinctrl-bindings.txt.
+    - pinctrl[0...n]: Properties to contain the phandle that refer to different nodes of pin control settings.
+      These nodes represent the pin control setting of state 0 to state n.
+      Each of these nodes contains different subnodes to represents some desired configuration for a list
+      of pins.
+      This configuration can include the mux function to select on those pin(s),
+      and various pin configuration parameters, such as pull-up, open drain.
+
+    Each subnode have following properties:
+    Required properties:
+      - pins: List of pins.
+        Valid values of pins properties are: gpio0, gpio1, gpio2, gpio3, gpio4, gpio5, gpio6, gpio7
+
+    Optional properties:
+      function, bias-disable, bias-pull-up, bias-pull-down, bias-high-impedance, drive-open-drain.
+      Valid values for function properties are: gpio, interrupt-out, gpio-in-interrupt,
+        vsup-vbat-low-undebounce-out, vsup-vbat-low-debounce-out, voltage-in-standby,
+        oc-pg-sd0, oc-pg-sd6, powergood-out, pwm-in, pwm-out, clk32k-out, watchdog-in,
+        soft-reset-in
+
+  Regulators:
+  ==========
+  Device has multiple DCDC and LDOs. The node "regulators" is required if regulator functionality is needed.
+
+  Following are properties of regulator subnode.
+
+    Optional properties:
+    -------------------
+    The input supply of regulators are the optional properties on the regulator node.
+    The input supply of these regulators are provided through following properties:
+      vsup-sd2-supply: Input supply for SD2.
+      vsup-sd3-supply: Input supply for SD3.
+      vsup-sd4-supply: Input supply for SD4.
+      vsup-sd5-supply: Input supply for SD5.
+      vin-ldo0-supply: Input supply for LDO0.
+      vin-ldo1-6-supply: Input supply for LDO1 and LDO6.
+      vin-ldo2-5-7-supply: Input supply for LDO2, LDO5 and LDO7.
+      vin-ldo3-4-supply: Input supply for LDO3 and LDO4.
+      vin-ldo9-10-supply: Input supply for LDO9 and LDO10.
+      vin-ldo11-supply: Input supply for LDO11.
+
+    Optional sub nodes for regulators:
+    ---------------------------------
+    The subnodes name is the name of regulator and it must be one of: sd[0-6], ldo[0-7], ldo[9-11]
+
+    Each sub-node should contain the constraints and initialization information for that regulator.
+    See regulator.txt for a description of standard properties for these sub-nodes.
+    Additional optional custom properties are listed below.
+      - ams,ext-control: External control of the rail.
+        The option of this properties will tell which external input is controlling this rail.
+        Valid values are 0, 1, 2 and 3.
+        0: There is no external control of this rail.
+        1: Rail is controlled by ENABLE1 input pin.
+        2: Rail is controlled by ENABLE2 input pin.
+        3: Rail is controlled by ENABLE3 input pin.
+        Missing this property on DT will be assumed as no external control.
+        The external control pin macros are defined @dt-bindings/mfd/as3722.h
+      - ams,enable-tracking: Enable tracking with SD1, only supported by LDO3.
+
+  Power-off:
+
+properties: {}
+additionalProperties: false
