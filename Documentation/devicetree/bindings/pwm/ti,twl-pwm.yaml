@@ -1,0 +1,41 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pwm/ti,twl-pwm.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Texas Instruments TWL PWM controller
+maintainers:
+  - Krzysztof Kozlowski <krzk@kernel.org>
+  - Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+  - Peter Ujfalusi <peter.ujfalusi@ti.com>
+
+description: |
+  Texas Instruments TWL series PWM drivers
+
+  Supported PWMs:
+  On TWL4030 series: PWM1 and PWM2
+  On TWL6030 series: PWM0 and PWM1
+
+properties:
+  compatible:
+    items:
+      - const: ti,twl4030-pwm
+      - const: ti,twl6030-pwm
+
+  "#pwm-cells":
+    description: Number of PWM cells as defined in pwm.yaml.
+    const: 2
+
+required:
+  - compatible
+  - "#pwm-cells"
+
+additionalProperties: false
+
+examples:
+  - |
+    twl_pwm: pwm {
+        compatible = "ti,twl6030-pwm";
+        #pwm-cells = <2>;
+    };
