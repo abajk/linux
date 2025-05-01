@@ -1,0 +1,81 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/leds/ubnt,acb-spi-led.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: UBNT ACB SPI LED Controller
+
+maintainers:
+  - Christian Mauderer <oss@c-mauderer.de>
+
+description: |
+  * Single Byte SPI LED Device Driver.
+
+  The driver can be used for controllers with a very simple SPI protocol:
+  - one LED is controlled by a single byte on MOSI
+  - the value of the byte gives the brightness between two values (lowest to
+    highest)
+  - no return value is necessary (no MISO signal)
+
+  The value for lowest and highest brightness is dependent on the device and
+  therefore on the compatible string.
+
+  Depending on the compatible string some special functions (like hardware
+  accelerated blinking) might can be supported too.
+
+  The driver currently only supports one LED. The properties of the LED are
+  configured in a sub-node in the device node.
+
+  Property rules described in Documentation/devicetree/bindings/spi/spi-bus.txt
+  apply.
+
+properties:
+  compatible:
+    description: Compatible string for UBNT ACB SPI LED controller.
+    items:
+      - const: ubnt,acb-spi-led
+
+  reg:
+    description: SPI chip select line for the LED.
+    items:
+      - description: SPI chip select identifier
+
+  spi-max-frequency:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Maximum SPI bus frequency in Hz.
+
+  led:
+    description: Single LED configuration sub-node.
+    type: object
+    additionalProperties: false
+    properties:
+      label:
+        $ref: /schemas/types.yaml#/definitions/string
+        description: Label for the LED.
+      default-state:
+        description: Initial default state of the LED.
+        enum: [on, off]
+    required:
+      - label
+
+required:
+  - compatible
+  - reg
+  - spi-max-frequency
+  - led
+
+examples:
+  - |
+    led-controller@0 {
+        compatible = "ubnt,acb-spi-led";
+        reg = <0>;
+        spi-max-frequency = <100000>;
+
+        led {
+            label = "white:status";
+            default-state = "on";
+        };
+    };
+
+additionalProperties: false
