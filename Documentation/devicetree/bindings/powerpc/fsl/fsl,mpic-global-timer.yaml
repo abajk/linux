@@ -1,0 +1,82 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Scott Wood <scottwood@freescale.com>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/fsl,mpic-global-timer.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Freescale MPIC Global Timer
+
+maintainers:
+  - Scott Wood <scottwood@freescale.com>
+
+description: |
+  * Freescale MPIC timers
+
+properties:
+  compatible:
+    items:
+      - const: fsl,mpic-global-timer
+
+  reg:
+    description: |
+      Contains two regions. The first is the main timer register bank
+      (GTCCRxx, GTBCRxx, GTVPRxx, GTDRxx). The second is the timer control
+      register (TCRx) for the group.
+    items:
+      - description: Main timer registers (GTCCRxx, GTBCRxx, GTVPRxx, GTDRxx)
+      - description: Timer control register (TCRx)
+
+  interrupts:
+    description: |
+      One interrupt specifier per timer in the group, in order, starting with
+      timer zero. If fsl,available-ranges is present, only the interrupts that
+      correspond to available timers shall be present.
+    minItems: 1
+    items:
+      description: Interrupt specifier for a timer
+
+  '#interrupt-cells':
+    const: 4
+
+  interrupt-controller: true
+
+  fsl,available-ranges:
+    description: |
+      Defines which timer interrupts can be used as <start count> ranges. This
+      property is optional; without it, all timers within the group can be used.
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+    minItems: 2
+    items:
+      minimum: 0
+
+additionalProperties: false
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - '#interrupt-cells'
+  - interrupt-controller
+
+examples:
+  - |
+    timer0: timer@41100 {
+        compatible = "fsl,mpic-global-timer";
+        reg = <0x41100 0x100 0x41300 4>;
+
+        /* Another AMP partition is using timers 0 and 1 */
+        fsl,available-ranges = <2 2>;
+
+        interrupts = <2 0 3 0
+                      3 0 3 0>;
+    };
+
+    timer1: timer@42100 {
+        compatible = "fsl,mpic-global-timer";
+        reg = <0x42100 0x100 0x42300 4>;
+        interrupts = <4 0 3 0
+                      5 0 3 0
+                      6 0 3 0
+                      7 0 3 0>;
+    };
