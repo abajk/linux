@@ -1,0 +1,59 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/cortina,gemini-pinctrl.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Cortina Systems Gemini pin controller
+
+maintainers:
+  - Linus Walleij <linus.walleij@linaro.org>
+
+description: |
+  Cortina Systems Gemini pin controller
+
+  This pin controller is found in the Cortina Systems Gemini SoC family,
+  see further arm/gemini.txt. It is a purely group-based multiplexing pin
+  controller.
+
+  The pin controller node must be a subnode of the system controller node.
+
+  Subnodes of the pin controller contain pin control multiplexing set-up
+  and pin configuration of individual pins.
+
+  Please refer to pinctrl-bindings.txt for generic pin multiplexing nodes
+  and generic pin config nodes.
+
+  Supported configurations:
+  - skew-delay is supported on the Ethernet pins
+  - drive-strength with 4, 8, 12 or 16 mA as argument is supported for
+    entire groups on the groups "idegrp", "gmii_gmac0_grp", "gmii_gmac1_grp"
+    and "pcigrp".
+
+properties:
+  compatible:
+    items:
+      - const: cortina,gemini-pinctrl
+
+  pinctrl-names:
+    description: Names for pin control states.
+    $ref: /schemas/types.yaml#/definitions/string-array
+
+patternProperties:
+  "^pinctrl-\\d+$":
+    description: Pin control phandles for each state as defined in "pinctrl-names".
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+
+required:
+  - compatible
+
+additionalProperties: false
+
+examples:
+  - |
+    pinctrl {
+        compatible = "cortina,gemini-pinctrl";
+        pinctrl-names = "default";
+        pinctrl-0 = <&dram_default_pins>, <&system_default_pins>,
+            <&vcontrol_default_pins>;
+    };
