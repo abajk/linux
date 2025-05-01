@@ -1,0 +1,38 @@
+---
+$id: http://devicetree.org/schemas/mtd/partitions/brcm,bcm963xx-cfe-nor-partitions.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Broadcom BCM963XX CFE Loader NOR Flash Partitions
+
+maintainers:
+  - Jonas Gorski <jonas.gorski@gmail.com>
+
+description: |
+  Most Broadcom BCM63XX SoC based devices follow the Broadcom reference layout for
+  NOR. The first erase block used for the CFE bootloader, the last for an
+  NVRAM partition, and the remainder in-between for one to two firmware partitions
+  at fixed offsets. A valid firmware partition is identified by the ImageTag
+  header found at beginning of the second erase block, containing the rootfs and
+  kernel offsets and sizes within the firmware partition.
+
+properties:
+  compatible:
+    items:
+      - const: brcm,bcm963xx-cfe-nor-partitions
+
+required:
+  - compatible
+
+additionalProperties: false
+
+examples:
+  - |
+    flash@1fc00000 {
+        compatible = "cfi-flash";
+        reg = <0x1fc00000 0x400000>;
+        bank-width = <2>;
+
+        partitions {
+            compatible = "brcm,bcm963xx-cfe-nor-partitions";
+        };
+    };
