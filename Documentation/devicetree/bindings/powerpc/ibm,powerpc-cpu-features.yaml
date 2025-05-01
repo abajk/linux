@@ -1,0 +1,150 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/powerpc/ibm,powerpc-cpu-features.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: IBM PowerPC CPU Features
+
+maintainers:
+  - Nicholas Piggin <npiggin@gmail.com>
+
+description: |
+  *** NOTE ***
+  This document is copied from OPAL firmware
+  (skiboot/doc/device-tree/ibm,powerpc-cpu-features/binding.txt)
+
+  There is more complete overview and documentation of features in that
+  source tree.  All patches and modifications should go there.
+
+  ibm,powerpc-cpu-features binding
+  =================================
+
+  This device tree binding describes CPU features available to software, with
+  enablement, privilege, and compatibility metadata.
+
+  More general description of design and implementation of this binding is
+  found in design.txt, which also points to documentation of specific features.
+
+  /cpus/ibm,powerpc-cpu-features node binding
+  -------------------------------------------
+
+  Node: ibm,powerpc-cpu-features
+
+  Description: Container of CPU feature nodes.
+
+  The node name must be "ibm,powerpc-cpu-features".
+
+  It is implemented as a child of the node "/cpus", but this must not be
+  assumed by parsers.
+
+  The node is optional but should be provided by new OPAL firmware.
+
+  Each child node of cpu-features represents a CPU feature / capability.
+
+  Node: A string describing an architected CPU feature, e.g., "floating-point".
+
+  Description: A feature or capability supported by the CPUs.
+
+  The name of the node is a human readable string that forms the interface
+  used to describe features to software. Features are currently documented
+  in the code where they are implemented in skiboot/core/cpufeatures.c
+
+properties:
+  compatible:
+    $ref: /schemas/types.yaml#/definitions/string-array
+    items:
+      - const: ibm,powerpc-cpu-features
+  isa:
+    description: |
+      Instruction set architecture version the CPU is currently running in;
+      Power ISA version multiplied by 1000.
+    $ref: /schemas/types.yaml#/definitions/uint32
+  display-name:
+    description: Human readable name for the CPU.
+    $ref: /schemas/types.yaml#/definitions/string
+
+required:
+  - compatible
+  - isa
+
+patternProperties:
+  ".*":
+    description: CPU feature node.
+    type: object
+    additionalProperties: false
+    properties:
+      isa:
+        description: First level of the Power ISA that the feature appears in.
+        $ref: /schemas/types.yaml#/definitions/uint32
+      usable-privilege:
+        description: |
+          Privilege levels and/or software components that can use the feature.
+          Bit mask (LSB0: bit0=PR, bit1=OS, bit2=HV).
+        $ref: /schemas/types.yaml#/definitions/uint32
+      hv-support:
+        description: |
+          Hypervisor privilege support required to enable the feature.
+          Bit mask (LSB0: bit0=HFSCR).
+        $ref: /schemas/types.yaml#/definitions/uint32
+      os-support:
+        description: |
+          Operating system privilege support required to enable the feature.
+          Bit mask (LSB0: bit0=FSCR).
+        $ref: /schemas/types.yaml#/definitions/uint32
+      hfscr-bit-nr:
+        description: HFSCR bit position (LSB0).
+        $ref: /schemas/types.yaml#/definitions/uint32
+      fscr-bit-nr:
+        description: FSCR bit position (LSB0).
+        $ref: /schemas/types.yaml#/definitions/uint32
+      hwcap-bit-nr:
+        description: Linux ELF AUX vector bit position (LSB0).
+        $ref: /schemas/types.yaml#/definitions/uint32
+      feature-dependencies:
+        description: Phandles to CPU feature nodes that must be enabled for this feature.
+        $ref: /schemas/types.yaml#/definitions/phandle-array
+    required:
+      - isa
+      - usable-privilege
+
+additionalProperties: false
+
+examples:
+  - |
+    /cpus/ibm,powerpc-cpu-features {
+        compatible = "ibm,powerpc-cpu-features";
+        isa = <3020>;
+        darn {
+            isa = <3000>;
+            usable-privilege = <1 | 2 | 4>;
+            hwcap-bit-nr = <xx>;
+        };
+        scv {
+            isa = <3000>;
+            usable-privilege = <1 | 2>;
+            os-support = <0>;
+            hwcap-bit-nr = <xx>;
+        };
+        stop {
+            isa = <3000>;
+            usable-privilege = <2 | 4>;
+            hv-support = <0>;
+            os-support = <0>;
+        };
+        vsx2 (hypothetical) {
+            isa = <3010>;
+            usable-privilege = <1 | 2 | 4>;
+            hv-support = <0>;
+            os-support = <0>;
+            hwcap-bit-nr = <xx>;
+        };
+        vsx2-newinsns {
+            isa = <3020>;
+            usable-privilege = <1 | 2 | 4>;
+            os-support = <1>;
+            fscr-bit-nr = <xx>;
+            hwcap-bit-nr = <xx>;
+            feature-dependencies = <&vsx2>;
+        };
+    };
