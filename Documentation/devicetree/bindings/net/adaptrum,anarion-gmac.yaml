@@ -1,0 +1,72 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/adaptrum,anarion-gmac.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Adaptrum Anarion Ethernet Controller
+
+maintainers:
+  - Alexandru Gagniuc <alex.g@adaptrum.com>
+
+description: |
+  Adaptrum Anarion ethernet controller
+
+  This device is a platform glue layer for stmmac.
+  Please see stmmac.txt for the other unchanged properties.
+
+properties:
+  compatible:
+    description: Device compatible string
+    items:
+      - const: adaptrum,anarion-gmac
+      - const: snps,dwmac
+
+  reg:
+    description: Register blocks
+    items:
+      - description: core registers
+      - description: aux registers
+
+  interrupts:
+    description: MAC interrupt
+    items:
+      - description: MAC interrupt line
+
+  interrupt-names:
+    items:
+      - const: macirq
+
+  clocks:
+    maxItems: 1
+    description: Bus clock for the MAC
+
+  clock-names:
+    items:
+      - const: stmmaceth
+
+  phy-mode:
+    description: Physical interface mode
+    enum:
+      - rgmii
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - phy-mode
+
+additionalProperties: false
+
+examples:
+  - |
+    ethernet@f2014000 {
+        compatible = "adaptrum,anarion-gmac", "snps,dwmac";
+        reg = <0xf2014000 0x4000>,
+              <0xf2018100 8>;
+        interrupts = <21>;
+        interrupt-names = "macirq";
+        clocks = <&core_clk>;
+        clock-names = "stmmaceth";
+        phy-mode = "rgmii";
+    };
