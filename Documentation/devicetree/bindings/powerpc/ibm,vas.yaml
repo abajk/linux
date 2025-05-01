@@ -1,0 +1,58 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright IBM Corp. 2025
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/powerpc/ibm,vas.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: IBM Powerpc Virtual Accelerator Switchboard (VAS)
+
+maintainers:
+  - Sukadev Bhattiprolu <sukadev@linux.vnet.ibm.com>
+
+description: |
+  * IBM Powerpc Virtual Accelerator Switchboard (VAS)
+
+  VAS is a hardware mechanism that allows kernel subsystems and user processes
+  to directly submit compression and other requests to Nest accelerators (NX)
+  or other coprocessors functions.
+
+properties:
+  compatible:
+    description: Must be "ibm,vas" and optional "ibm,power9-vas".
+    oneOf:
+      - items:
+          - const: ibm,vas
+          - const: ibm,power9-vas
+      - items:
+          - const: ibm,vas
+
+  reg:
+    description: Register windows for VAS.
+    items:
+      - description: Hypervisor window context start and length
+      - description: OS/User window context start and length
+      - description: Paste address start and length
+      - description: Paste window id start bit and number of bits
+
+  name:
+    description: Name of the VAS instance.
+
+  ibm,vas-id:
+    description: A unique identifier for each instance of VAS in the system.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+required:
+  - compatible
+  - reg
+  - ibm,vas-id
+
+additionalProperties: false
+
+examples:
+  - |
+    vas@6019100000000 {
+      compatible = "ibm,vas", "ibm,power9-vas";
+      reg = <0x6019100000000 0x2000000 0x6019000000000 0x100000000 0x8000000000000 0x100000000 0x20 0x10>;
+      ibm,vas-id = <0x1>;
+    };
