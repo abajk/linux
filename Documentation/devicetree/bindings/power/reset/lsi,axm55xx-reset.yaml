@@ -1,0 +1,42 @@
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/lsi,axm55xx-reset.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Axxia Restart Driver
+
+maintainers:
+  - Sebastian Reichel <sre@kernel.org>
+
+description: |
+  This driver can do reset of the Axxia SoC. It uses the registers in the syscon
+  block to initiate a chip reset.
+
+properties:
+  compatible:
+    description: |
+      Compatible string for this reset driver.
+    items:
+      - const: lsi,axm55xx-reset
+  syscon:
+    description: |
+      Phandle to the syscon node containing the reset control registers.
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+required:
+  - compatible
+  - syscon
+
+additionalProperties: false
+
+examples:
+  - |
+    syscon: syscon@2010030000 {
+        compatible = "lsi,axxia-syscon", "syscon";
+        reg = <0x20 0x10030000 0 0x2000>;
+    };
+
+    reset: reset@2010031000 {
+        compatible = "lsi,axm55xx-reset";
+        syscon = <&syscon>;
+    };
