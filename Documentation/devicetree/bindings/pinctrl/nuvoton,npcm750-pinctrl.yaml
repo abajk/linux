@@ -1,0 +1,91 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+---
+$id: http://devicetree.org/schemas/nuvoton,npcm750-pinctrl.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Nuvoton NPCM7XX Pin Controller
+maintainers:
+  - Geert Uytterhoeven <geert+renesas@glider.be>
+  - Tomer Maimon <tmaimon77@gmail.com>
+
+description: |
+  Nuvoton NPCM7XX Pin Controllers
+
+  The Nuvoton BMC NPCM7XX Pin Controller multi-function routed through
+  the multiplexing block. Each pin supports GPIO functionality (GPIOx)
+  and multiple functions that directly connect the pin to different
+  hardware blocks.
+
+properties:
+  "#address-cells":
+    const: 1
+    description: Number of address cells for the pin controller node.
+  "#size-cells":
+    const: 1
+    description: Number of size cells for the pin controller node.
+  compatible:
+    items:
+      - const: nuvoton,npcm750-pinctrl
+    description: The compatible string for the NPCM7XX pin controller.
+  ranges:
+    description: Mapping ranges between the pin controller register space and GPIO bank register spaces.
+    items:
+      - description: Offset within the controller register space.
+      - description: Offset within the GPIO bank register space.
+      - description: Size of the GPIO bank register space.
+
+required:
+  - "#address-cells"
+  - "#size-cells"
+  - compatible
+  - ranges
+
+additionalProperties: false
+
+examples:
+  - |
+    pinctrl: pinctrl@f0800000 {
+      #address-cells = <1>;
+      #size-cells = <1>;
+      compatible = "nuvoton,npcm750-pinctrl";
+      ranges = <0 0xf0010000 0x8000>;
+
+      gpio0: gpio@f0010000 {
+        gpio-controller;
+        #gpio-cells = <2>;
+        reg = <0x0 0x80>;
+        interrupts = <GIC_SPI 116 IRQ_TYPE_LEVEL_HIGH>;
+        gpio-ranges = <&pinctrl 0 0 32>;
+      };
+
+      ...
+
+      gpio7: gpio@f0017000 {
+        gpio-controller;
+        #gpio-cells = <2>;
+        reg = <0x7000 0x80>;
+        interrupts = <GIC_SPI 123 IRQ_TYPE_LEVEL_HIGH>;
+        gpio-ranges = <&pinctrl 0 224 32>;
+      };
+
+      gpio0_iox1d1_pin: gpio0-iox1d1-pin {
+        pins = "GPIO0/IOX1DI";
+        output-high;
+      };
+
+      iox1_pins: iox1-pins {
+        groups = "iox1";
+        function = "iox1";
+      };
+      iox2_pins: iox2-pins {
+        groups = "iox2";
+        function = "iox2";
+      };
+
+      ...
+
+      clkreq_pins: clkreq-pins {
+        groups = "clkreq";
+        function = "clkreq";
+      };
+    };
