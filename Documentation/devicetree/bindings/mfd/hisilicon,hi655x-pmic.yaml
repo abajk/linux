@@ -1,0 +1,72 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/hisilicon,hi655x-pmic.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Hisilicon Hi655x PMIC
+maintainers:
+  - Chen Feng <puck.chen@hisilicon.com>
+  - Daniel Lezcano <daniel.lezcano@linaro.org>
+
+description: |
+  Hisilicon Hi655x Power Management Integrated Circuit (PMIC)
+
+  The hardware layout for access PMIC Hi655x from AP SoC Hi6220.
+  Between PMIC Hi655x and Hi6220, the physical signal channel is SSI.
+  We can use memory-mapped I/O to communicate.
+
+  +----------------+             +-------------+
+  |                |             |             |
+  |    Hi6220      |   SSI bus   |   Hi655x    |
+  |                |-------------|             |
+  |                |(REGMAP_MMIO)|             |
+  +----------------+             +-------------+
+
+properties:
+  compatible:
+    items:
+      - const: hisilicon,hi655x-pmic
+    description: Name of the device compatible with the Hi655x PMIC driver.
+
+  reg:
+    items:
+      - description: PMIC register space (base address and size)
+    description: Base address and size of the PMIC register range on the SoC.
+
+  interrupt-controller: true
+
+  '#interrupt-cells':
+    const: 2
+
+  pmic-gpios:
+    description: GPIO used by the PMIC for its interrupt line.
+    items:
+      - description: GPIO controller phandle, pin number, and active level specifier
+
+  '#clock-cells':
+    const: 0
+
+  clock-output-names:
+    description: Override default PMIC clock output names.
+
+required:
+  - compatible
+  - reg
+  - interrupt-controller
+  - '#interrupt-cells'
+  - pmic-gpios
+  - '#clock-cells'
+
+examples:
+  - |
+    pmic: pmic@f8000000 {
+        compatible = "hisilicon,hi655x-pmic";
+        reg = <0x0 0xf8000000 0x0 0x1000>;
+        interrupt-controller;
+        #interrupt-cells = <2>;
+        pmic-gpios = <&gpio1 2 GPIO_ACTIVE_HIGH>;
+        #clock-cells = <0>;
+    };
+
+additionalProperties: false
