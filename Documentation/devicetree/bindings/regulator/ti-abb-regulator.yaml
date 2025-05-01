@@ -1,0 +1,163 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Texas Instruments
+---
+$id: http://devicetree.org/schemas/regulator/ti-abb-regulator.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI ABB regulator
+
+maintainers:
+  - Andrii.Tseglytskyi <andrii.tseglytskyi@ti.com>
+  - Geert Uytterhoeven <geert+renesas@glider.be>
+  - Masahiro Yamada <yamada.masahiro@socionext.com>
+  - Nishanth Menon <nm@ti.com>
+
+description: |
+  Adaptive Body Bias(ABB) SoC internal LDO regulator for Texas Instruments SoCs
+
+properties:
+  compatible:
+    description: Device compatible string selecting the ABB version
+    items:
+      - enum:
+          - ti,abb-v1
+          - ti,abb-v2
+          - ti,abb-v3
+
+  regulator-name:
+    description: Unique name for the regulator instance
+    $ref: /schemas/types.yaml#/definitions/string
+
+  "#address-cells":
+    description: Number of address cells, must be zero
+    const: 0
+
+  "#size-cells":
+    description: Number of size cells, must be zero
+    const: 0
+
+  reg:
+    maxItems: 1
+
+  reg-names:
+    description: Names of register regions in order matching 'reg'
+    $ref: /schemas/types.yaml#/definitions/string-array
+    items:
+      - enum:
+          - base-address
+          - control-address
+          - setup-address
+          - int-address
+          - efuse-address
+          - ldo-address
+
+  clocks:
+    maxItems: 1
+
+  ti,settling-time:
+    description: Settling time (µs) to reach target for SR2_WTCNT_VALUE
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  ti,clock-cycles:
+    description: Number of system clock cycles used for computing settling time
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  ti,tranxdone-status-mask:
+    description: Write-to-clear mask indicating transaction completion in interrupt register
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  ti,abb_info:
+    description: >
+      Array of six-tuples of u32 providing ABB configuration per voltage:
+      volt (uV), ABB mode (0=bypass,1=FBB,3=RBB), efuse register offset,
+      RBB enable efuse mask, FBB enable efuse mask, Vset value efuse mask.
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+    items:
+      - description: Voltage in microvolts
+      - description: ABB mode (0=bypass,1=FBB,3=RBB)
+      - description: Efuse register offset (if 'efuse-address' defined)
+      - description: RBB enable efuse mask (if 'efuse-address' defined)
+      - description: FBB enable efuse mask (if 'efuse-address' defined)
+      - description: Vset efuse mask (if 'ldo-address' defined)
+
+  ti,ldovbb-override-mask:
+    description: Mask to enable override VSET in LDO override register
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  ti,ldovbb-vset-mask:
+    description: Mask to set VSET value in LDO override register
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+required:
+  - compatible
+  - regulator-name
+  - reg
+  - reg-names
+  - "#address-cells"
+  - "#size-cells"
+  - clocks
+  - ti,settling-time
+  - ti,clock-cycles
+  - ti,tranxdone-status-mask
+  - ti,abb_info
+
+additionalProperties: false
+examples:
+  - |
+    abb_x: regulator-abb-x {
+      compatible = "ti,abb-v1";
+      regulator-name = "abb_x";
+      #address-cells = <0>;
+      #size-cells = <0>;
+      reg = <0x483072f0 0x8>, <0x48306818 0x4>;
+      reg-names = "base-address", "int-address";
+      ti,tranxdone-status-mask = <0x4000000>;
+      clocks = <&sysclk>;
+      ti,settling-time = <30>;
+      ti,clock-cycles = <8>;
+      ti,abb_info = <
+        1012500 0 0 0 0 0
+        1200000 3 0 0 0 0
+        1320000 1 0 0 0 0
+      >;
+    };
+
+  - |
+    abb_y: regulator-abb-y {
+      compatible = "ti,abb-v2";
+      regulator-name = "abb_y";
+      #address-cells = <0>;
+      #size-cells = <0>;
+      reg = <0x4a307bd0 0x8>, <0x4a306014 0x4>, <0x4A002268 0x8>;
+      reg-names = "base-address", "int-address", "efuse-address";
+      ti,tranxdone-status-mask = <0x4000000>;
+      clocks = <&sysclk>;
+      ti,settling-time = <50>;
+      ti,clock-cycles = <16>;
+      ti,abb_info = <
+        975000 0 0 0 0 0
+        1012500 0 0x40000 0 0 0
+        1200000 0 0x4 0 0x40000 0
+        1320000 1 0 0 0 0
+      >;
+    };
+
+  - |
+    abb_z: regulator-abb-z {
+      compatible = "ti,abb-v3";
+      regulator-name = "abb_z";
+      #address-cells = <0>;
+      #size-cells = <0>;
+      reg = <0x4ae07ce4 0x8>, <0x4ae06010 0x4>, <0x4a002194 0x8>, <0x4ae0C314 0x4>;
+      reg-names = "base-address", "control-address", "setup-address", "int-address";
+      ti,tranxdone-status-mask = <0x8000000>;
+      ti,ldovbb-override-mask = <0x400>;
+      ti,ldovbb-vset-mask = <0x1F>;
+      clocks = <&sysclk>;
+      ti,settling-time = <50>;
+      ti,clock-cycles = <16>;
+      ti,abb_info = <
+        975000 0 0 0 0 0
+        1200000 0 0x4 0 0x40000 0x1f00
+      >;
+    };
