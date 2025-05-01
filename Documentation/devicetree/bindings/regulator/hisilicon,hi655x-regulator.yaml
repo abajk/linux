@@ -1,0 +1,62 @@
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/regulator/hisilicon,hi655x-regulator.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Hisilicon Hi655x Voltage regulators
+
+maintainers:
+  - Chen Feng <puck.chen@hisilicon.com>
+
+description: |
+  Hisilicon Hi655x Voltage regulators
+
+  Note:
+  The Hi655x regulator control is managed by Hi655x PMIC.
+  So the node of this regulator must be child node of Hi655x
+  PMIC node.
+
+  The driver uses the regulator core framework, so please also
+  take the bindings of regulator.txt for reference.
+
+properties:
+  compatible:
+    items:
+      - const: hisilicon,hi655x-regulator
+
+  regulator-enable-ramp-delay:
+    description: Ramp delay on enable in microseconds.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  regulator-max-microvolt:
+    description: Maximum output voltage in microvolts.
+
+  regulator-min-microvolt:
+    description: Minimum output voltage in microvolts.
+
+  regulator-name:
+    description: Name of the regulator.
+
+required:
+  - compatible
+  - regulator-enable-ramp-delay
+  - regulator-max-microvolt
+  - regulator-min-microvolt
+  - regulator-name
+
+additionalProperties: false
+
+examples:
+  - |
+    pmic@f8000000 {
+      compatible = "hisilicon,hi655x-pmic";
+      regulators {
+        ldo2: LDO2@a21 {
+          compatible = "hisilicon,hi655x-regulator";
+          regulator-enable-ramp-delay = <120>;
+          regulator-max-microvolt = <3200000>;
+          regulator-min-microvolt = <2500000>;
+          regulator-name = "LDO2_2V8";
+        };
+      };
+    };
