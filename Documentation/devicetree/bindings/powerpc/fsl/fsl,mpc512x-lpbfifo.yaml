@@ -1,0 +1,57 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Alexander Popov <alex.popov@linux.com>
+
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/powerpc/fsl/fsl,mpc512x-lpbfifo.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Freescale MPC512x LocalPlus Bus FIFO
+
+maintainers:
+  - Alexander Popov <alex.popov@linux.com>
+
+description: |
+  Freescale MPC512x LocalPlus Bus FIFO (called SCLPC in the Reference Manual)
+
+properties:
+  compatible:
+    items:
+      - const: fsl,mpc512x-lpbfifo
+    description: Must be "fsl,mpc512x-lpbfifo"
+  reg:
+    items:
+      - description: Offset of SCLPC register set
+      - description: Length of SCLPC register set
+    description: Register address and length of SCLPC
+  interrupts:
+    items:
+      - description: Interrupt specifier for SCLPC
+    description: Interrupt specifier for SCLPC
+  dmas:
+    items:
+      - description: DMA specifier for SCLPC
+    description: DMA specifier for SCLPC
+  dma-names:
+    items:
+      - const: rx-tx
+    description: DMA names for SCLPC
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - dmas
+  - dma-names
+
+additionalProperties: false
+
+examples:
+  - |
+    sclpc@10100 {
+        compatible = "fsl,mpc512x-lpbfifo";
+        reg = <0x10100 0x50>;
+        interrupts = <7 0x8>;
+        dmas = <&dma0 26>;
+        dma-names = "rx-tx";
+    };
