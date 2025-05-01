@@ -1,0 +1,163 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Broadcom Corporation
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pinctrl/brcm,nsp-pinmux.yaml#
+# $schema is the meta-schema this schema should be validated with.
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Broadcom NSP (Northstar plus) IOMUX Controller
+maintainers:
+  - Geert Uytterhoeven <geert+renesas@glider.be>
+  - Yendapally Reddy Dhananjaya Reddy <yendapally.reddy@broadcom.com>
+
+description: |
+  Broadcom NSP (Northstar plus) IOMUX Controller
+
+  The NSP IOMUX controller supports group based mux configuration. In
+  addition, certain pins can be muxed to GPIO function individually.
+
+  For more details, refer to
+  Documentation/devicetree/bindings/pinctrl/pinctrl-bindings.txt
+
+  List of supported functions and groups in Northstar Plus:
+
+  "spi": "spi_grp"
+
+  "i2c": "i2c_grp"
+
+  "mdio": "mdio_grp"
+
+  "pwm": "pwm0_grp", "pwm1_grp", "pwm2_grp", "pwm3_grp"
+
+  "gpio_b": "gpio_b_0_grp", "gpio_b_1_grp", "gpio_b_2_grp", "gpio_b_3_grp"
+
+  "uart1": "uart1_grp"
+
+  "uart2": "uart2_grp"
+
+  "synce": "synce_grp"
+
+  "sata_led_grps": "sata0_led_grp", "sata1_led_grp"
+
+  "xtal_out": "xtal_out_grp"
+
+  "sdio": "sdio_pwr_grp", "sdio_1p8v_grp"
+
+  "switch_led": "switch_p05_led0_grp", "switch_p05_led1_grp"
+
+  "nand": "nand_grp"
+
+  "emmc": "emmc_grp"
+
+properties:
+  compatible:
+    items:
+      - const: brcm,nsp-pinmux
+
+  reg:
+    description: IOMUX controller register blocks
+    items:
+      - description: GPIO_CONTROL0 register
+      - description: GP_AUX_SEL register
+      - description: IPROC_CONFIG IOMUX register
+
+  pinctrl-names:
+    description: Names for pinctrl configurations
+    $ref: /schemas/types.yaml#/definitions/string-array
+    items:
+      - const: default
+
+  pinctrl-0:
+    description: Phandles for pinctrl default configuration
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+
+patternProperties:
+  "^.+$":
+    type: object
+    description: Pinmux function selector nodes
+    properties:
+      function:
+        description: The mux function to select
+        $ref: /schemas/types.yaml#/definitions/string
+        enum:
+          - spi
+          - i2c
+          - mdio
+          - pwm
+          - gpio_b
+          - uart1
+          - uart2
+          - synce
+          - sata_led_grps
+          - xtal_out
+          - sdio
+          - switch_led
+          - nand
+          - emmc
+
+      groups:
+        description: The list of groups to select with a given function
+        $ref: /schemas/types.yaml#/definitions/string-array
+        items:
+          - enum:
+              - spi_grp
+              - i2c_grp
+              - mdio_grp
+              - pwm0_grp
+              - pwm1_grp
+              - pwm2_grp
+              - pwm3_grp
+              - gpio_b_0_grp
+              - gpio_b_1_grp
+              - gpio_b_2_grp
+              - gpio_b_3_grp
+              - uart1_grp
+              - uart2_grp
+              - synce_grp
+              - sata0_led_grp
+              - sata1_led_grp
+              - xtal_out_grp
+              - sdio_pwr_grp
+              - sdio_1p8v_grp
+              - switch_p05_led0_grp
+              - switch_p05_led1_grp
+              - nand_grp
+              - emmc_grp
+
+    required:
+      - function
+      - groups
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    pinmux: pinmux@1803f1c0 {
+      compatible = "brcm,nsp-pinmux";
+      reg = <0x1803f1c0 0x04>,
+            <0x18030028 0x04>,
+            <0x1803f408 0x04>;
+
+      pinctrl-names = "default";
+      pinctrl-0 = <&pwm>, <&gpio_b>, <&nand_sel>;
+
+      pwm: pwm {
+        function = "pwm";
+        groups = "pwm0_grp", "pwm1_grp";
+      };
+
+      gpio_b: gpio_b {
+        function = "gpio_b";
+        groups = "gpio_b_0_grp", "gpio_b_1_grp";
+      };
+
+      nand_sel: nand_sel {
+        function = "nand";
+        groups = "nand_grp";
+      };
+    };
