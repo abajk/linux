@@ -1,0 +1,73 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/input/touchscreen/zeitec,zet6223.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Zeitec ZET6223 I2C touchscreen controller
+
+maintainers:
+  - Jelle van der Waa <jelle@vdwaa.nl>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  Zeitec ZET6223 I2C touchscreen controller
+
+properties:
+  compatible:
+    const: "zeitec,zet6223"
+
+  reg:
+    description: I2C slave address of the chip
+    items:
+      - description: I2C slave address of the chip
+
+  interrupts:
+    description: Interrupt specification for the ZET6223 touchscreen interrupt
+    items:
+      - description: "First cell: phandle or GPIO specifier"
+      - description: "Second cell: IRQ number"
+      - description: "Third cell: IRQ type flags"
+
+  vio-supply:
+    description: Specification for VIO supply (1.8V or 3.3V, depending on system interface needs)
+
+  vcc-supply:
+    description: Specification for 3.3V VCC supply
+
+  touchscreen-size-x:
+    description: Horizontal resolution of the touchscreen in pixels
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  touchscreen-size-y:
+    description: Vertical resolution of the touchscreen in pixels
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  touchscreen-inverted-x:
+    description: If true, invert the X axis
+    type: boolean
+
+  touchscreen-inverted-y:
+    description: If true, invert the Y axis
+    type: boolean
+
+  touchscreen-swapped-x-y:
+    description: If true, swap the X and Y axes
+    type: boolean
+
+required:
+  - compatible
+  - reg
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    i2c@00000000 {
+        zet6223: touchscreen@76 {
+            compatible = "zeitec,zet6223";
+            reg = <0x76>;
+            interrupts = <6 11 IRQ_TYPE_EDGE_FALLING>;
+        };
+    };
