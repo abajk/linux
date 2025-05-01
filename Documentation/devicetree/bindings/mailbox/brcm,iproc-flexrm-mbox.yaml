@@ -1,0 +1,69 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Broadcom Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/brcm,iproc-flexrm-mbox.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Broadcom FlexRM Ring Manager
+maintainers:
+  - Anup Patel <anup.patel@broadcom.com>
+  - Bjorn Helgaas <bhelgaas@google.com>
+  - Yu-Chun Lin <eleanor15x@gmail.com>
+
+description: |
+  Broadcom FlexRM Ring Manager
+
+  The Broadcom FlexRM ring manager provides a set of rings which can be
+  used to submit work to offload engines. An SoC may have multiple FlexRM
+  hardware blocks. There is one device tree entry per FlexRM block. The
+  FlexRM driver will create a mailbox-controller instance for given FlexRM
+  hardware block where each mailbox channel is a separate FlexRM ring.
+
+properties:
+  compatible:
+    description: Identifies the device as Broadcom FlexRM mailbox controller.
+    $ref: /schemas/types.yaml#/definitions/string-array
+    items:
+      - const: brcm,iproc-flexrm-mbox
+
+  reg:
+    description: Base physical address and size of the FlexRM ring registers.
+    items:
+      - description: Base address of the FlexRM ring registers.
+      - description: Size of the FlexRM ring register region.
+
+  msi-parent:
+    description: Phandles (and potential Device IDs) to MSI controllers.
+      The FlexRM engine will send MSIs (instead of wired interrupts) to CPU.
+      There is one MSI for each FlexRM ring.
+      Refer devicetree/bindings/interrupt-controller/msi.txt.
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+
+  '#mbox-cells':
+    description: Specifies the number of cells needed to encode a mailbox channel.
+    const: 3
+
+  dma-coherent:
+    description: Indicates that DMA operations made by the FlexRM engine (such as DMA descriptor access,
+      access to buffers pointed by DMA descriptors and read/write pointer updates to DDR)
+      are cache coherent with the CPU.
+    type: boolean
+
+required:
+  - compatible
+  - reg
+  - msi-parent
+  - '#mbox-cells'
+
+additionalProperties: false
+
+examples:
+  - |
+    mbox@67000000 {
+        compatible = "brcm,iproc-flexrm-mbox";
+        reg = <0x67000000 0x200000>;
+        msi-parent = <&gic_its 0x7f00>;
+        #mbox-cells = <3>;
+        dma-coherent;
+    };
