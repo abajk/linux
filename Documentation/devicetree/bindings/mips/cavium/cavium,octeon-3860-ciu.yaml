@@ -1,0 +1,49 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mips/cavium/cavium,octeon-3860-ciu.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Cavium Octeon-3860 Central Interrupt Unit
+
+maintainers:
+  - David Daney <david.daney@cavium.com>
+
+description: |
+  Central Interrupt Unit.
+
+  Compatibility with all cn3XXX, cn5XXX and cn63XX SOCs.
+
+  This controller has two interrupt banks, each with up to 64 lines.
+
+properties:
+  compatible:
+    items:
+      - const: cavium,octeon-3860-ciu
+  reg:
+    maxItems: 1
+
+  "#interrupt-cells":
+    description:
+      The first cell is the bank index (0 or 1); the second cell is the bit
+      index (0..63).
+    const: 2
+
+  interrupt-controller: true
+
+required:
+  - compatible
+  - reg
+  - "#interrupt-cells"
+  - interrupt-controller
+
+additionalProperties: false
+
+examples:
+  - |
+    interrupt-controller@1070000000000 {
+        compatible = "cavium,octeon-3860-ciu";
+        interrupt-controller;
+        #interrupt-cells = <2>;
+        reg = <0x10700 0x00000000 0x0 0x7000>;
+    };
