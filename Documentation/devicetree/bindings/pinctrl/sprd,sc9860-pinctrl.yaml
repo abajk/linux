@@ -1,0 +1,132 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pinctrl/sprd,sc9860-pinctrl.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Spreadtrum SC9860 Pin Controller
+maintainers:
+  - Baolin Wang <baolin.wang@linux.alibaba.com>
+
+description: |
+  Spreadtrum SC9860 Pin Controller
+
+  Please refer to sprd,pinctrl.txt in this directory for common binding part
+  and usage.
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - sprd,sc9860-pinctrl
+
+  reg:
+    items:
+      - description: Register address and size.
+
+  pins:
+    description: Names of pins to configure.
+    $ref: /schemas/types.yaml#/definitions/string-array
+
+  function:
+    description: Function to assign to the pins.
+    enum:
+      - func1
+      - func2
+      - func3
+      - func4
+
+  drive-strength:
+    description: Drive strength in mA.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [2, 4, 6, 8, 10, 12, 14, 16, 20, 21, 24, 25, 27, 29, 31, 33]
+
+  input-schmitt-disable:
+    description: Enable schmitt-trigger mode.
+    type: boolean
+
+  input-schmitt-enable:
+    description: Disable schmitt-trigger mode.
+    type: boolean
+
+  bias-disable:
+    description: Disable pin bias.
+    type: boolean
+
+  bias-pull-down:
+    description: Pull down on pin.
+    type: boolean
+
+  bias-pull-up:
+    description: Pull up on pin.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [20000, 4700]
+
+  input-enable:
+    description: Enable pin input.
+    type: boolean
+
+  input-disable:
+    description: Enable pin output.
+    type: boolean
+
+  output-high:
+    description: Set the pin as an output level high.
+    type: boolean
+
+  output-low:
+    description: Set the pin as an output level low.
+    type: boolean
+
+  sleep-hardware-state:
+    description: Indicate these configs in sleep related state.
+    type: boolean
+
+  sprd,control:
+    description: Control values referring to databook for global control pins.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  sprd,sleep-mode:
+    description: Pin sleep mode selection.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+required:
+  - compatible
+  - reg
+  - pins
+
+additionalProperties: false
+
+examples:
+  - |
+    pin_controller: pinctrl@402a0000 {
+        compatible = "sprd,sc9860-pinctrl";
+        reg = <0x402a0000 0x10000>;
+
+        grp1: sd0 {
+            pins = "SC9860_VIO_SD2_IRTE", "SC9860_VIO_SD0_IRTE";
+            sprd,control = <0x1>;
+        };
+
+        grp2: rfctl_33 {
+            pins = "SC9860_RFCTL33";
+            function = "func2";
+            sprd,sleep-mode = <AP_SLEEP | PUBCP_SLEEP>;
+            grp2_sleep_mode: rfctl_33_sleep {
+                pins = "SC9860_RFCTL33";
+                sleep-hardware-state;
+                output-low;
+            };
+        };
+
+        grp3: rfctl_misc_20 {
+            pins = "SC9860_RFCTL20_MISC";
+            drive-strength = <10>;
+            bias-pull-up = <4700>;
+            grp3_sleep_mode: rfctl_misc_sleep {
+                pins = "SC9860_RFCTL20_MISC";
+                sleep-hardware-state;
+                bias-pull-up;
+            };
+        };
+    };
