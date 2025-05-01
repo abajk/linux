@@ -1,0 +1,62 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mtd/st,spear600-smi.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: SPEAr SMI
+
+maintainers:
+  - Stefan Roese <sr@denx.de>
+
+properties:
+  compatible:
+    items:
+      - const: st,spear600-smi
+
+  reg:
+    maxItems: 1
+
+  "#address-cells":
+    const: 1
+    description: Must be present if the device has sub-nodes representing partitions.
+
+  "#size-cells":
+    const: 1
+
+  interrupts:
+    maxItems: 1
+    description: Should contain the STMMAC interrupts
+
+  clock-rate:
+    description: Functional clock rate of SMI in Hz
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  st,smi-fast-mode:
+    description: Flash supports read in fast mode
+    type: boolean
+
+required:
+  - compatible
+  - reg
+  - "#address-cells"
+  - "#size-cells"
+  - interrupts
+  - clock-rate
+
+additionalProperties: false
+
+examples:
+  - |
+    smi: flash@fc000000 {
+        compatible = "st,spear600-smi";
+        #address-cells = <1>;
+        #size-cells = <1>;
+        reg = <0xfc000000 0x1000>;
+        interrupts = <12>;
+        clock-rate = <50000000>;    /* 50MHz */
+
+        flash@f8000000 {
+            st,smi-fast-mode;
+        };
+    };
