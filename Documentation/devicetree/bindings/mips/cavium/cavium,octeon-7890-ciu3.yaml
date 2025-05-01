@@ -1,0 +1,45 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Cavium
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mips/cavium/cavium,octeon-7890-ciu3.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Cavium Octeon 7890 CIU3 Interrupt Controller
+
+maintainers:
+  - David Daney <david.daney@cavium.com>
+
+description: |
+  * Central Interrupt Unit v3
+
+properties:
+  compatible:
+    items:
+      - const: cavium,octeon-7890-ciu3
+
+  interrupt-controller: true
+
+  reg:
+    maxItems: 1
+
+  '#interrupt-cells':
+    const: 2
+
+required:
+  - compatible
+  - interrupt-controller
+  - reg
+  - '#interrupt-cells'
+
+additionalProperties: false
+
+examples:
+  - |
+    interrupt-controller@1010000000000 {
+        compatible = "cavium,octeon-7890-ciu3";
+        interrupt-controller;
+        #address-cells = <0>;
+        #interrupt-cells = <2>;
+        reg = <0x10100 0x00000000 0x0 0xb0000000>;
+    };
