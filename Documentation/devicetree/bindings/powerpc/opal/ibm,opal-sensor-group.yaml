@@ -1,0 +1,67 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 IBM
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/powerpc/opal/ibm,opal-sensor-group.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: IBM OPAL Sensor Groups
+
+maintainers:
+  - Shilpasri G Bhat <shilpa.bhat@linux.vnet.ibm.com>
+
+description: |
+  Node: /ibm,opal/sensor-groups
+
+  Contains sensor groups available in the Powernv P9 servers. Each child node indicates a sensor group.
+
+properties:
+  compatible:
+    items:
+      - const: ibm,opal-sensor-group
+
+  "type":
+    description: String to indicate the type of sensor-group.
+    $ref: /schemas/types.yaml#/definitions/string
+
+  sensor-group-id:
+    description: >
+      Abstract unique identifier provided by firmware for sensor-group
+      operations like clearing the min/max history of all sensors
+      belonging to the group.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  ibm,chip-id:
+    description: Chip ID.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  sensors:
+    description: Phandle array of child nodes of /ibm/opal/sensor/ belonging to this group.
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+
+  ops:
+    description: >
+      Array of OPAL call numbers indicating available operations on sensor
+      groups like clearing min/max, enabling/disabling sensor group.
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+
+required:
+  - compatible
+  - type
+  - sensor-group-id
+  - ibm,chip-id
+  - sensors
+  - ops
+
+additionalProperties: false
+
+examples:
+  - |
+    sensor-group@0 {
+      compatible = "ibm,opal-sensor-group";
+      type = "temperature";
+      sensor-group-id = <0x0>;
+      ibm,chip-id = <0x1>;
+      sensors = <&sensor0>, <&sensor1>;
+      ops = <10>, <11>;
+    };
