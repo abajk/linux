@@ -1,0 +1,52 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/st,stih407-softreset.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: STMicroelectronics STi family Sysconfig Peripheral SoftReset Controller
+
+maintainers:
+  - Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+  - Peter Griffin <peter.griffin@linaro.org>
+  - Philipp Zabel <p.zabel@pengutronix.de>
+  - Srinivas Kandagatla <srinivas.kandagatla@st.com>
+
+description: |
+  STMicroelectronics STi family Sysconfig Peripheral SoftReset Controller
+
+  This binding describes a reset controller device that is used to enable and
+  disable on-chip peripheral controllers such as USB and SATA, using
+  "softreset" control bits found in the STi family SoC system configuration
+  registers.
+
+  The actual action taken when softreset is asserted is hardware dependent.
+  However, when asserted it may not be possible to access the hardware's
+  registers and after an assert/deassert sequence the hardware's previous state
+  may no longer be valid.
+
+  Please refer to reset.txt in this directory for common reset
+  controller binding usage.
+
+properties:
+  '#reset-cells':
+    const: 1
+    description: |
+      Specifies that this controller uses a single reset specifier cell.
+  compatible:
+    const: "st,stih407-softreset"
+    description: |
+      Node is compatible with STi SoftReset controller.
+
+additionalProperties: false
+
+required:
+  - '#reset-cells'
+  - compatible
+
+examples:
+  - |
+    softreset: softreset-controller {
+        #reset-cells = <1>;
+        compatible = "st,stih407-softreset";
+    };
