@@ -1,0 +1,68 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mmc/marvell,pxa-mmc.yaml#
+# $schema is the meta-schema this schema should be validated with.
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: PXA MMC
+
+maintainers:
+  - Bjorn Helgaas <bhelgaas@google.com>
+  - Daniel Mack <daniel@zonque.org>
+  - Daniel Mack <daniel@gmail.com>
+
+description: |
+  * PXA MMC drivers
+
+  Driver bindings for the PXA MCI (MMC/SDIO) interfaces
+
+  In addition to the properties described in this document, the details
+  described in mmc.txt are supported.
+
+properties:
+  compatible:
+    items:
+      - const: marvell,pxa-mmc
+
+  reg:
+    description: MMC controller register space
+    items:
+      - description: Register block
+
+  interrupts:
+    description: Controller interrupt
+    items:
+      - description: MMC interrupt
+
+  vmmc-supply: true
+
+  cd-gpios:
+    maxItems: 1
+    description: Card detect GPIO
+
+  wp-gpios:
+    maxItems: 1
+    description: Write-protect GPIO
+
+  marvell,detect-delay-ms:
+    description: Detection delay timeout in milliseconds
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - vmmc-supply
+
+additionalProperties: false
+
+examples:
+  - |
+    mmc@41100000 {
+        compatible = "marvell,pxa-mmc";
+        reg = <0x41100000 0x1000>;
+        interrupts = <23>;
+        vmmc-supply = <&mmc_regulator>;
+        cd-gpios = <&gpio 23 0>;
+        wp-gpios = <&gpio 24 0>;
+    };
