@@ -1,0 +1,55 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Ley Foon Tan
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/altr,mailbox-1.0.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Altera Mailbox Driver
+
+maintainers:
+  - Ley Foon Tan <lftan@altera.com>
+  - Mathieu Malaterre <malat@debian.org>
+
+description: |
+  Altera Mailbox Driver
+
+  Required properties:
+  - compatible: "altr,mailbox-1.0".
+  - reg: physical base address of the mailbox and length of memory mapped region.
+  - #mbox-cells: common mailbox binding property to identify the number of cells required
+    for the mailbox specifier; always 1.
+
+  Optional properties:
+  - interrupts: interrupt number for the mailbox.
+
+properties:
+  compatible:
+    const: altr,mailbox-1.0
+
+  reg:
+    maxItems: 1
+
+  interrupts:
+    maxItems: 1
+
+  '#mbox-cells':
+    const: 1
+
+additionalProperties: false
+
+examples:
+  - |
+    mbox_tx: mailbox@100 {
+      compatible = "altr,mailbox-1.0";
+      reg = <0x100 0x8>;
+      interrupts = <5>;
+      #mbox-cells = <1>;
+    };
+
+    mbox_rx: mailbox@200 {
+      compatible = "altr,mailbox-1.0";
+      reg = <0x200 0x8>;
+      interrupts = <6>;
+      #mbox-cells = <1>;
+    };
