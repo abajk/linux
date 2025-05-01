@@ -1,0 +1,100 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Mason Yang <masonccyang@mxic.com.tw>
+
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mtd/mxic,multi-itfc-v009-nand-controller.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Macronix Raw NAND Controller
+maintainers:
+  - Mason Yang <masonccyang@mxic.com.tw>
+
+description: |
+  Macronix Raw NAND Controller Device Tree Bindings
+  -------------------------------------------------
+
+  Children nodes represent the available NAND chips.
+
+  See Documentation/devicetree/bindings/mtd/nand-controller.yaml for more
+  details on generic bindings.
+
+properties:
+  compatible:
+    items:
+      - const: mxic,multi-itfc-v009-nand-controller
+
+  reg:
+    items:
+      - description: Controller registers
+
+  '#address-cells':
+    const: 1
+
+  '#size-cells':
+    const: 0
+
+  interrupts:
+    items:
+      - description: Interrupt line connected to this raw NAND controller
+
+  clocks:
+    items:
+      - description: ps clock
+      - description: send clock
+      - description: send_dly clock
+
+  clock-names:
+    items:
+      - const: ps
+      - const: send
+      - const: send_dly
+
+patternProperties:
+  '^nand@.*$':
+    type: object
+    description: NAND chip subnode
+    properties:
+      reg:
+        items:
+          - description: NAND chip select
+      nand-ecc-mode:
+        description: NAND error correction mode
+        $ref: /schemas/types.yaml#/definitions/string
+      nand-ecc-algo:
+        description: NAND error correction algorithm
+        $ref: /schemas/types.yaml#/definitions/string
+    required:
+      - reg
+      - nand-ecc-mode
+      - nand-ecc-algo
+    additionalProperties: false
+
+required:
+  - compatible
+  - reg
+  - '#address-cells'
+  - '#size-cells'
+  - interrupts
+  - clocks
+  - clock-names
+
+additionalProperties: false
+
+examples:
+  - |
+    nand: nand-controller@43c30000 {
+        compatible = "mxic,multi-itfc-v009-nand-controller";
+        reg = <0x43c30000 0x10000>;
+        #address-cells = <1>;
+        #size-cells = <0>;
+        interrupts = <GIC_SPI 0x1d IRQ_TYPE_EDGE_RISING>;
+        clocks = <&clkwizard 0>, <&clkwizard 1>, <&clkc 15>;
+        clock-names = "send", "send_dly", "ps";
+
+        nand@0 {
+            reg = <0>;
+            nand-ecc-mode = "soft";
+            nand-ecc-algo = "bch";
+        };
+    };
