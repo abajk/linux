@@ -1,0 +1,53 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/xlnx,zynq-reset.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Xilinx Zynq Reset Manager
+
+maintainers:
+  - Moritz Fischer <moritz.fischer@ettus.com>
+
+description: |
+  Xilinx Zynq Reset Manager
+
+  The Zynq AP-SoC has several different resets.
+
+  See Chapter 26 of the Zynq TRM (UG585) for more information about Zynq resets.
+
+properties:
+  compatible:
+    const: xlnx,zynq-reset
+
+  reg:
+    description: Reset manager SLCR offset and size
+    items:
+      - description: Reset manager register offset
+      - description: Reset manager register size
+
+  syscon:
+    description: A phandle to the Zynq's SLCR registers
+
+  '#reset-cells':
+    const: 1
+
+  reset-controller: true
+
+required:
+  - compatible
+  - reg
+  - syscon
+  - '#reset-cells'
+  - reset-controller
+
+additionalProperties: false
+
+examples:
+  - |
+    rstc: rstc@200 {
+        compatible = "xlnx,zynq-reset";
+        reg = <0x200 0x48>;
+        #reset-cells = <1>;
+        syscon = <&slcr>;
+    };
