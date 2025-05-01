@@ -1,0 +1,122 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/qcom,fsm9900-emac.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Qualcomm FSM9900 EMAC Gigabit Ethernet Controller
+
+maintainers:
+  - Geert Uytterhoeven <geert+renesas@glider.be>
+  - Slark Xiao <slark_xiao@163.com>
+  - Timur Tabi <timur@codeaurora.org>
+
+description: |
+  Qualcomm Technologies EMAC Gigabit Ethernet Controller
+
+  This network controller consists of two devices: a MAC and an SGMII
+  internal PHY. Each device is represented by a device tree node. A phandle
+  connects the MAC node to its corresponding internal phy node. Another
+  phandle points to the external PHY node.
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - qcom,fsm9900-emac
+      - enum:
+          - qcom,fsm9900-emac-sgmii
+      - enum:
+          - qcom,qdf2432-emac-sgmii
+
+  reg:
+    description: Offset and length of the register region(s) for the device
+    items:
+      - description: Primary register region
+      - description: Secondary register region
+
+  interrupts:
+    description: Interrupt specifier cells for the device
+    items:
+      - description: Interrupt specifier cells as defined by the parent interrupt controller
+
+  clocks:
+    description: Clocks used by the EMAC controller
+    items:
+      - description: axi_clk
+      - description: cfg_ahb_clk
+      - description: high_speed_clk
+      - description: mdio_clk
+      - description: tx_clk
+      - description: rx_clk
+      - description: sys_clk
+
+  clock-names:
+    description: Names for each clock
+    items:
+      - const: axi_clk
+      - const: cfg_ahb_clk
+      - const: high_speed_clk
+      - const: mdio_clk
+      - const: tx_clk
+      - const: rx_clk
+      - const: sys_clk
+
+  internal-phy:
+    description: Phandle to the internal SGMII PHY node
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+required:
+  - compatible
+  - reg
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    emac0: ethernet@feb20000 {
+        compatible = "qcom,fsm9900-emac";
+        reg = <0xfeb20000 0x10000>,
+              <0xfeb36000 0x1000>;
+        interrupts = <76>;
+        clocks = <&gcc 0>, <&gcc 1>, <&gcc 3>, <&gcc 4>, <&gcc 5>,
+                 <&gcc 6>, <&gcc 7>;
+        clock-names = "axi_clk", "cfg_ahb_clk", "high_speed_clk",
+                      "mdio_clk", "tx_clk", "rx_clk", "sys_clk";
+        internal-phy = <&emac_sgmii>;
+        phy-handle = <&phy0>;
+        pinctrl-names = "default";
+        pinctrl-0 = <&mdio_pins_a>;
+    };
+
+  - |
+    emac_sgmii: ethernet@feb38000 {
+        compatible = "qcom,fsm9900-emac-sgmii";
+        reg = <0xfeb38000 0x1000>;
+        interrupts = <80>;
+    };
+
+  - |
+    emac0: ethernet@38800000 {
+        compatible = "qcom,fsm9900-emac";
+        reg = <0x0 0x38800000 0x0 0x10000>,
+              <0x0 0x38816000 0x0 0x1000>;
+        interrupts = <0 256 4>;
+        clocks = <&gcc 0>, <&gcc 1>, <&gcc 3>, <&gcc 4>, <&gcc 5>,
+                 <&gcc 6>, <&gcc 7>;
+        clock-names = "axi_clk", "cfg_ahb_clk", "high_speed_clk",
+                      "mdio_clk", "tx_clk", "rx_clk", "sys_clk";
+        internal-phy = <&emac_sgmii>;
+        phy-handle = <&phy0>;
+        pinctrl-names = "default";
+        pinctrl-0 = <&mdio_pins_a>;
+    };
+
+  - |
+    emac_sgmii: ethernet@410400 {
+        compatible = "qcom,qdf2432-emac-sgmii";
+        reg = <0x0 0x00410400 0x0 0xc00>,
+              <0x0 0x00410000 0x0 0x400>;
+        interrupts = <0 254 1>;
+    };
