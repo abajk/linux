@@ -1,0 +1,122 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mfd/ti-lmu.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI LMU (Lighting Management Unit)
+
+maintainers:
+  - Dan Murphy <dmurphy@ti.com>
+  - Milo Kim <milo.kim@ti.com>
+
+description: |
+  TI LMU (Lighting Management Unit) device tree bindings
+
+  TI LMU driver supports lighting devices below.
+
+     Name                  Child nodes
+    ------      ---------------------------------
+    LM3631       Backlight and regulator
+    LM3632       Backlight and regulator
+    LM3633       Backlight, LED and fault monitor
+    LM3695       Backlight
+    LM36274      Backlight and regulator
+
+  For details on child nodes:
+    - Backlight        (see ../leds/backlight/ti-lmu-backlight.yaml)
+    - LEDs (LM3633)    (see ../leds/leds-lm3633.yaml)
+    - Regulators       (see ../regulator/lm363x-regulator.yaml)
+    - LEDs (LM36274)   (see ../leds/leds-lm36274.yaml)
+
+properties:
+  compatible:
+    description: Device compatible string
+    items:
+      - enum:
+          - ti,lm3631
+          - ti,lm3632
+          - ti,lm3633
+          - ti,lm3695
+          - ti,lm36274
+
+  reg:
+    description: I2C slave address
+    items:
+      - description: Slave address
+
+  enable-gpios:
+    description: GPIO specifier for hardware enable pin
+    maxItems: 1
+
+  pwms:
+    description: PWM specifier for backlight control
+
+  pwm-names:
+    description: Name of the PWM specifier for backlight
+
+  ramp-up-us:
+    description: Current ramp-up time in microseconds (2048–117440000)
+
+  ramp-down-us:
+    description: Current ramp-down time in microseconds (2048–117440000)
+
+  ti,brightness-resolution:
+    description: Brightness resolution; 255 (8-bit) or 2047 (11-bit)
+    enum:
+      - 255
+      - 2047
+
+  '#address-cells':
+    description: Number of address cells for child nodes
+
+  '#size-cells':
+    description: Number of size cells for child nodes
+
+  backlight:
+    description: LMU backlight child node
+    type: object
+
+  regulators:
+    description: LMU regulators child node
+    type: object
+
+  leds:
+    description: LMU LEDs child node
+    type: object
+
+  fault-monitor:
+    description: LMU fault-monitor child node
+    type: object
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    lm3631@29 {
+      compatible = "ti,lm3631";
+      reg = <0x29>;
+
+      regulators {
+        compatible = "ti,lm363x-regulator";
+        vboost {
+          regulator-name = "lcd_boost";
+          regulator-min-microvolt = <4500000>;
+          regulator-max-microvolt = <6350000>;
+          regulator-always-on;
+        };
+        /* … */
+      };
+
+      backlight {
+        compatible = "ti,lm3631-backlight";
+        lcd_bl {
+          led-sources = <0 1>;
+          ramp-up-us = <300000>;
+        };
+      };
+    };
