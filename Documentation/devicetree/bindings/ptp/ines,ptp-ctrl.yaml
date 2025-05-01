@@ -1,0 +1,75 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Richard Cochran <richardcochran@gmail.com>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/ptp/ines,ptp-ctrl.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: "ines,ptp-ctrl"
+
+maintainers:
+  - Richard Cochran <richardcochran@gmail.com>
+
+description: |
+  Time stamps from MII bus snooping devices
+
+  This binding supports non-PHY devices that snoop the MII bus and
+  provide time stamps.  In contrast to PHY time stamping drivers (which
+  can simply attach their interface directly to the PHY instance), stand
+  alone MII time stamping drivers use this binding to specify the
+  connection between the snooping device and a given network interface.
+
+  Non-PHY MII time stamping drivers typically talk to the control
+  interface over another bus like I2C, SPI, UART, or via a memory mapped
+  peripheral.  This controller device is associated with one or more
+  time stamping channels, each of which snoops on a MII bus.
+
+  The "timestamper" property lives in a phy node and links a time
+  stamping channel from the controller device to that phy's MII bus.
+
+properties:
+  compatible:
+    description: |
+      Identifies this node as a non-PHY MII time stamping controller.
+    items:
+      - const: "ines,ptp-ctrl"
+  reg:
+    description: |
+      Register address and size of the time stamping channel:
+    items:
+      - description: Base address of the controller
+      - description: Size of the register block in bytes
+  timestamper:
+    description: |
+      A property in a PHY node linking to a time stamping channel
+      exposed by the controller. The first cell is a phandle to the
+      controller, the second cell is the zero-based channel index.
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    items:
+      - description: Controller phandle
+      - description: Time stamping channel index
+
+additionalProperties: false
+
+examples:
+  - |
+    timestamper@10000000 {
+        compatible = "ines,ptp-ctrl";
+        reg = <0x10000000 0x80>;
+    };
+
+    ethernet@20000000 {
+        mdio {
+            ethernet-phy@1 {
+                timestamper = <&timestamper 0>;
+            };
+        };
+    };
+
+    ethernet@30000000 {
+        mdio {
+            ethernet-phy@2 {
+                timestamper = <&timestamper 1>;
+            };
+        };
+    };
