@@ -1,0 +1,53 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 David Daney
+---
+$id: http://devicetree.org/schemas/broadcom-bcm87xx.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Broadcom BCM87XX PHY
+maintainers:
+  - David Daney <david.daney@cavium.com>
+
+description: |
+  The Broadcom BCM87XX devices are a family of 10G Ethernet PHYs.  They
+  have these bindings in addition to the standard PHY bindings.
+
+  Compatible: Should contain "broadcom,bcm8706" or "broadcom,bcm8727" and
+  "ethernet-phy-ieee802.3-c45"
+
+properties:
+  compatible:
+    oneOf:
+      - items:
+          - const: broadcom,bcm8706
+          - const: ethernet-phy-ieee802.3-c45
+      - items:
+          - const: broadcom,bcm8727
+          - const: ethernet-phy-ieee802.3-c45
+
+  reg:
+    maxItems: 1
+    description: MDIO PHY device address.
+
+  interrupts:
+    minItems: 1
+    description: Interrupts from the PHY.
+    items:
+      - description: tx or combined interrupt
+      - description: rx interrupt
+
+  broadcom,c45-reg-init:
+    description: One or more sets of MDIO C45 register initialization tuples.
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+    minItems: 4
+
+additionalProperties: false
+
+examples:
+  - |
+    ethernet-phy@5 {
+        compatible = "broadcom,bcm8706", "ethernet-phy-ieee802.3-c45";
+        reg = <5>;
+        interrupts = <12 8>;
+        broadcom,c45-reg-init = <1 0xc808 0xff8f 0x70>;
+    };
