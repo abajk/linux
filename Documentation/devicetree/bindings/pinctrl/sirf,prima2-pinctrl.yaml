@@ -1,0 +1,97 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Barry Song <baohua@kernel.org>
+#               Mathieu Malaterre <malat@debian.org>
+#               Soren Brinkmann <soren.brinkmann@xilinx.com>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sirf,prima2-pinctrl.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: CSR SiRFprimaII pinmux controller
+
+maintainers:
+  - Barry Song <baohua@kernel.org>
+  - Mathieu Malaterre <malat@debian.org>
+  - Soren Brinkmann <soren.brinkmann@xilinx.com>
+
+description: |
+  CSR SiRFprimaII pinmux controller
+
+  Please refer to pinctrl-bindings.txt in this directory for details of the common
+  pinctrl bindings used by client devices.
+
+  SiRFprimaII's pinmux nodes act as a container for an arbitrary number of subnodes.
+  Each of these subnodes represents some desired configuration for a group of pins.
+
+properties:
+  compatible:
+    const: sirf,prima2-pinctrl
+
+  reg:
+    description: Address range of the pinctrl registers
+    items:
+      - description: Address range of the pinctrl registers
+
+  interrupts:
+    description: Interrupts used by every GPIO group
+    items:
+      - description: Interrupts used by every GPIO group
+
+  gpio-controller: true
+  '#gpio-cells':
+    const: 2
+  interrupt-controller: true
+
+  sirf,pullups:
+    description: if n-th bit of m-th bank is set, set a pullup on GPIO-n of bank m
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+
+  sirf,pulldowns:
+    description: if n-th bit of m-th bank is set, set a pulldown on GPIO-n of bank m
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+
+additionalProperties: false
+
+definitions:
+  sirf,prima2-pinctrl-group:
+    description: A subnode describing a group of pins to mux.
+    type: object
+    additionalProperties: false
+    properties:
+      sirf,pins:
+        description: An array of strings. Each string contains the name of a group.
+        $ref: /schemas/types.yaml#/definitions/string-array
+      sirf,function:
+        description: A string containing the name of the function to mux to the group.
+        type: string
+    required:
+      - sirf,pins
+      - sirf,function
+
+patternProperties:
+  "^.*$":
+    $ref: "#/definitions/sirf,prima2-pinctrl-group"
+
+examples:
+  - |
+    For example, pinctrl might have subnodes like the following:
+        uart2_pins_a: uart2@0 {
+            uart {
+                sirf,pins = "uart2grp";
+                sirf,function = "uart2";
+            };
+        };
+        uart2_noflow_pins_a: uart2@1 {
+            uart {
+                sirf,pins = "uart2_nostreamctrlgrp";
+                sirf,function = "uart2_nostreamctrl";
+            };
+        };
+
+  - |
+    For a specific board, if it wants to use uart2 without hardware flow control,
+    it can add the following to its board-specific .dts file.
+    uart2: uart@b0070000 {
+        pinctrl-names = "default";
+        pinctrl-0 = <&uart2_noflow_pins_a>;
+    }
