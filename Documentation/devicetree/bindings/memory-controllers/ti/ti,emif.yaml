@@ -1,0 +1,137 @@
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/ti,emif.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI EMIF SDRAM Controller
+
+maintainers:
+  - Aneesh V <aneesh@ti.com>
+  - Dave Gerlach <d-gerlach@ti.com>
+  - Mathieu Malaterre <malat@debian.org>
+  - Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+  - Tero Kristo <t-kristo@ti.com>
+  - Tony Lindgren <tony@atomide.com>
+
+description: |
+  * EMIF family of TI SDRAM controllers
+
+  EMIF - External Memory Interface - is an SDRAM controller used in
+  TI SoCs. EMIF supports, based on the IP revision, one or more of
+  DDR2/DDR3/LPDDR2 protocols. This binding describes a given instance
+  of the EMIF IP and memory parts attached to it. Certain revisions
+  of the EMIF controller also contain optional ECC support, which
+  corrects one bit errors and detects two bit errors.
+
+properties:
+  compatible:
+    description: EMIF compatible string
+    items:
+      - enum:
+          - ti,emif-4d
+          - ti,emif-am3352
+          - ti,emif-am4372
+          - ti,emif-dra7xx
+          - ti,emif-keystone
+
+  interrupts:
+    description: Interrupt used by the controller
+    items:
+      - description: EMIF controller interrupt specifier
+
+  phy-type:
+    description: DDR PHY type (1 = Attila, 2 = Intelli)
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [1, 2]
+
+  device-handle:
+    description: Phandle to an lpddr2 memory part
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  ti,hwmods:
+    description: TI hwmods identifier for omap device creation
+    $ref: /schemas/types.yaml#/definitions/string
+
+  sram:
+    description: "Phandles for SRAM nodes: first for code, second for data"
+    items:
+      - $ref: /schemas/types.yaml#/definitions/phandle
+      - $ref: /schemas/types.yaml#/definitions/phandle
+
+  cs1-used:
+    description: Whether chip-select 1 has an attached memory part
+    type: boolean
+
+  cal-resistor-per-cs:
+    description: Board has one calibration resistor per chip-select
+    type: boolean
+
+  hw-caps-read-idle-ctrl:
+    description: Controller supports read idle window programming
+    type: boolean
+
+  hw-caps-dll-calib-ctrl:
+    description: Controller supports DLL calibration control
+    type: boolean
+
+  hw-caps-ll-interface:
+    description: Controller has a low-latency interface and interrupts
+    type: boolean
+
+  hw-caps-temp-alert:
+    description: Controller can generate SDRAM temperature alerts
+    type: boolean
+
+required:
+  - compatible
+  - interrupts
+  - phy-type
+  - device-handle
+  - ti,hwmods
+
+allOf:
+  - if:
+      properties:
+        compatible:
+          contains:
+            const: ti,emif-am3352
+    then:
+      required:
+        - sram
+
+  - if:
+      properties:
+        compatible:
+          contains:
+            const: ti,emif-am4372
+    then:
+      required:
+        - sram
+
+additionalProperties: false
+
+examples:
+  - |
+    emif1: emif@4c000000 {
+        compatible = "ti,emif-4d";
+        ti,hwmods = "emif2";
+        phy-type = <1>;
+        device-handle = <&elpida_ECB240ABACN>;
+        cs1-used;
+        hw-caps-read-idle-ctrl;
+        hw-caps-ll-interface;
+        hw-caps-temp-alert;
+    };
+  - |
+    /* From am33xx.dtsi */
+    emif: emif@4c000000 {
+        compatible = "ti,emif-am3352";
+        reg = <0x4C000000 0x1000>;
+        sram = <&pm_sram_code &pm_sram_data>;
+    };
+  - |
+    emif1: emif@4c000000 {
+        compatible = "ti,emif-dra7xx";
+        reg = <0x4c000000 0x200>;
+        interrupts = <GIC_SPI 105 IRQ_TYPE_LEVEL_HIGH>;
+    };
