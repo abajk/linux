@@ -1,0 +1,113 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2012 Freescale Semiconductor Inc.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/powerpc/fsl/fsl,interlaken-lac.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Freescale Interlaken Look-Aside Controller (LAC)
+maintainers:
+  - Joe Liccese <joe.liccese@freescale.com>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  ================================================================================  
+  Freescale Interlaken Look-Aside Controller Device Bindings
+  Copyright 2012 Freescale Semiconductor Inc.
+
+  The Interlaken is a narrow, high speed channelized chip-to-chip interface. To
+  facilitate interoperability between a data path device and a look-aside
+  co-processor, the Interlaken Look-Aside protocol is defined for short
+  transaction-related transfers. Although based on the Interlaken protocol,
+  Interlaken Look-Aside is not directly compatible with Interlaken and can be
+  considered a different operation mode.
+
+  The Interlaken LA controller connects internal platform to Interlaken serial
+  interface. It accepts LA command through software portals, which are system
+  memory mapped 4KB spaces. The LA commands are then translated into the
+  Interlaken control words and data words, which are sent on TX side to TCAM
+  through SerDes lanes.
+
+  There are two 4KiB spaces defined within the LAC global register memory map.
+  There is a full register set at 0x0000-0x0FFF (also known as the "hypervisor"
+  version), and a subset at 0x1000-0x1FFF. The former is a superset of the
+  latter, and includes certain registers that should not be accessible to
+  partitioned software. Separate nodes are used for each region, with a phandle
+  linking the hypervisor node to the normal operating node.
+
+  Interlaken Look-Aside Controller (LAC) Software Portal Container Node
+
+  The Interlaken Look-Aside Controller (LAC) utilizes Software Portals to accept
+  Interlaken Look-Aside (ILA) commands. The Interlaken LAC software portal
+  memory map occupies 128KB of memory space. The software portal memory space is
+  intended to be cache-enabled. WIMG for each software space is required to be
+  0010 if stashing is enabled; otherwise, WIMG can be 0000 or 0010.
+
+  Interlaken Look-Aside Controller (LAC) Software Portals Child Nodes
+
+  There are up to 24 available software portals with each software portal
+  requiring 4KB of consecutive memory within the software portal memory mapped
+  space.
+properties:
+  compatible:
+    items:
+      - enum:
+          - fsl,interlaken-lac
+          - fsl,interlaken-lac-hv
+
+  reg:
+    items:
+      - description: Interlaken LAC configuration registers
+
+  interrupts:
+    description: Interrupt mapping for Interlaken LAC error IRQ
+    items:
+      - description: IRQ specifier cells
+
+  fsl,non-hv-node:
+    description: Points to the non-protected LAC CCSR mapped register space node
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+required:
+  - compatible
+  - reg
+
+allOf:
+  - if:
+      properties:
+        compatible:
+          contains:
+            const: fsl,interlaken-lac-hv
+    then:
+      required:
+        - fsl,non-hv-node
+    else:
+      properties:
+        interrupts: false
+  - if:
+      properties:
+        compatible:
+          contains:
+            const: fsl,interlaken-lac
+    then:
+      required:
+        - interrupts
+    else:
+      properties:
+        fsl,non-hv-node: false
+
+additionalProperties: false
+
+examples:
+  - |
+    lac: lac@229000 {
+        compatible = "fsl,interlaken-lac";
+        reg = <0x229000 0x1000>;
+        interrupts = <16 2 1 18>;
+    };
+  - |
+    lac-hv@228000 {
+        compatible = "fsl,interlaken-lac-hv";
+        reg = <0x228000 0x1000>;
+        fsl,non-hv-node = <&lac>;
+    };
