@@ -1,0 +1,75 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright (C) 2025 Brian Norris <briannorris@chromium.org>
+# Copyright (C) 2025 Chunfeng Yun <chunfeng.yun@mediatek.com>
+# Copyright (C) 2025 Geert Uytterhoeven <geert+renesas@glider.be>
+# Copyright (C) 2025 Rajat Jain <rajatja@google.com>
+# Copyright (C) 2025 Rob Herring <robh@kernel.org>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/net/usb1286,204e.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Generic Bluetooth controller over USB (btusb driver)
+
+maintainers:
+  - Brian Norris <briannorris@chromium.org>
+  - Chunfeng Yun <chunfeng.yun@mediatek.com>
+  - Geert Uytterhoeven <geert+renesas@glider.be>
+  - Rajat Jain <rajatja@google.com>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  Generic Bluetooth controller over USB (btusb driver)
+
+  Required properties:
+    - compatible: should comply with the format "usbVID,PID" specified in
+      Documentation/devicetree/bindings/usb/usb-device.yaml. At the time of writing,
+      the only OF supported devices (more may be added later) are:
+        - "usb1286,204e" (Marvell 8997)
+        - "usbcf3,e300" (Qualcomm QCA6174A)
+        - "usb4ca,301a" (Qualcomm QCA6174A (Lite-On))
+
+  Optional properties:
+    - interrupt-names: The name "wakeup" indicates the out-of-band
+      wake-on-Bluetooth interrupt.
+    - interrupts: The interrupt specified by the name "wakeup" is used for
+      out-of-band wake-on-Bluetooth.
+
+properties:
+  compatible:
+    $ref: /schemas/types.yaml#/definitions/string-array
+    items:
+      - enum: ["usb1286,204e", "usbcf3,e300", "usb4ca,301a"]
+
+  reg:
+    items:
+      - description: USB port number assigned by the host controller
+
+  interrupts:
+    description: Out-of-band wake-on-Bluetooth interrupt specifier
+    items:
+      - description: Interrupt specifier (GPIO or IRQ number and flags)
+
+  interrupt-names:
+    items:
+      - const: wakeup
+    description: Name of the wake-on-Bluetooth interrupt
+
+required:
+  - compatible
+
+additionalProperties: false
+
+examples:
+  - |
+    &usb_host1_ehci {
+        #address-cells = <1>;
+        #size-cells = <0>;
+
+        mvl_bt1: bt@1 {
+            compatible = "usb1286,204e";
+            reg = <1>;
+            interrupt-names = "wakeup";
+            interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
+        };
+    };
