@@ -1,0 +1,125 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mfd/maxim,max77620.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: MAX77620 Power management IC from Maxim Semiconductor
+
+maintainers:
+  - Dmitry Osipenko <digetx@gmail.com>
+  - Laxman Dewangan <ldewangan@nvidia.com>
+  - Venkat Reddy Talla <vreddytalla@nvidia.com>
+
+description: |
+  MAX77620 Power management IC from Maxim Semiconductor.
+
+  The Flexible Power Sequencer (FPS) allows each regulator to power up under
+  hardware or software control. Additionally, each regulator can power on
+  independently or among a group of other regulators with an adjustable power-up
+  and power-down delays (sequencing). GPIO1, GPIO2, and GPIO3 can be programmed
+  to be part of a sequence allowing external regulators to be sequenced along
+  with internal regulators. The 32 kHz clock can also be included in a sequence.
+
+  The FPS architecture consists of two hardware enable inputs (EN0, EN1) and
+  three master sequencing timers (FPS0, FPS1, FPS2). Each timer can use a hardware
+  input (EN0 or EN1) or a software-controlled source (SW). Upon enabling or
+  disabling, the timer generates eight sequential events ("slots") at programmable
+  intervals. Regulators, GPIOs, and the 32 kHz clock have dedicated configuration
+  registers to select the source and timing for power-up and power-down events.
+
+  By default, when an FPS event is cleared (set to LOW), the target enters:
+    • Sleep state: the output is disabled.
+    • Low-power state: the output enters a reduced power mode.
+
+  FPS configuration is provided via the "fps" sub-node and its children "fps0",
+  "fps1", and "fps2". Each child node corresponds to one master timer and
+  supports vendor-specific timing and source control properties.
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - "maxim,max77620"
+          - "maxim,max20024"
+          - "maxim,max77663"
+
+  reg:
+    items:
+      - description: I²C device address
+
+  interrupts:
+    maxItems: 1
+
+  interrupt-controller: true
+
+  '#interrupt-cells':
+    const: 2
+
+  system-power-controller:
+    type: boolean
+    description: Indicates this PMIC controls the system power; see
+      Documentation/devicetree/bindings/power/power-controller.txt
+
+  fps:
+    description: Flexible Power Sequencer master timers configuration
+    type: object
+    additionalProperties: false
+    properties:
+      fps0:
+        description: Configuration for FPS0
+        type: object
+        additionalProperties: false
+        properties:
+          maxim,shutdown-fps-time-period-us:
+            description: Slot period in microseconds when entering shutdown
+          maxim,fps-event-source:
+            description: Source for FPS events (EN0, EN1, or SW)
+            $ref: /schemas/types.yaml#/definitions/uint32
+      fps1:
+        description: Configuration for FPS1
+        type: object
+        additionalProperties: false
+        properties:
+          maxim,shutdown-fps-time-period-us:
+            description: Slot period in microseconds when entering shutdown
+          maxim,fps-event-source:
+            description: Source for FPS events (EN0, EN1, or SW)
+            $ref: /schemas/types.yaml#/definitions/uint32
+      fps2:
+        description: Configuration for FPS2
+        type: object
+        additionalProperties: false
+        properties:
+          maxim,shutdown-fps-time-period-us:
+            description: Slot period in microseconds when entering shutdown
+          maxim,fps-event-source:
+            description: Source for FPS events (EN0, EN1, or SW)
+            $ref: /schemas/types.yaml#/definitions/uint32
+
+additionalProperties: false
+
+examples:
+  - |
+    max77620@3c {
+      compatible = "maxim,max77620";
+      reg = <0x3c>;
+      interrupts = <0 86 IRQ_TYPE_NONE>;
+      interrupt-controller;
+      #interrupt-cells = <2>;
+
+      fps {
+        fps0 {
+          maxim,shutdown-fps-time-period-us = <1280>;
+          maxim,fps-event-source = <MAX77620_FPS_EVENT_SRC_EN1>;
+        };
+        fps1 {
+          maxim,shutdown-fps-time-period-us = <1280>;
+          maxim,fps-event-source = <MAX77620_FPS_EVENT_SRC_EN0>;
+        };
+        fps2 {
+          maxim,shutdown-fps-time-period-us = <1280>;
+          maxim,fps-event-source = <MAX77620_FPS_EVENT_SRC_SW>;
+        };
+      };
+    };
