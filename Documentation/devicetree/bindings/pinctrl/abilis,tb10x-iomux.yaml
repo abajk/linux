@@ -1,0 +1,129 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pinctrl/abilis,tb10x-iomux.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Abilis Systems TB10x pin controller
+
+maintainers:
+  - Christian Ruppert <christian.ruppert@abilis.com>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  Abilis Systems TB10x pin controller
+
+  Required properties
+
+  Function definitions
+
+  Functions are defined (and referenced) by sub-nodes of the pin controller.
+  Every sub-node defines exactly one function (implying a set of pins).
+  Every function is associated to one named pin group inside the pin controller
+  driver and these names are used to associate pin group predefinitions to pin
+  controller sub-nodes.
+
+  The following pin groups are available:
+    - GPIO ports: gpioa, gpiob, gpioc, gpiod, gpioe, gpiof, gpiog,
+                  gpioh, gpioi, gpioj, gpiok, gpiol, gpiom, gpion
+    - Serial TS input ports: mis0, mis1, mis2, mis3, mis4, mis5, mis6, mis7
+    - Parallel TS input ports: mip1, mip3, mip5, mip7
+    - Serial TS output ports: mos0, mos1, mos2, mos3
+    - Parallel TS output port: mop
+    - CI+ port: ciplus
+    - CableCard (Mcard) port: mcard
+    - Smart card ports: stc0, stc1
+    - UART ports: uart0, uart1
+    - SPI ports: spi1, spi3
+    - JTAG: jtag
+
+  All other ports of the chip are not multiplexed and thus not managed by this
+  driver.
+
+  GPIO ranges definition
+
+  The named pin groups of GPIO ports can be used to define GPIO ranges as
+  explained in Documentation/devicetree/bindings/gpio/gpio.txt.
+
+properties:
+  compatible:
+    description: Must be "abilis,tb10x-iomux".
+    items:
+      - const: abilis,tb10x-iomux
+
+  reg:
+    description: Register block address and size.
+    items:
+      - description: Physical address the pin controller register block is mapped to.
+      - description: Size of the pin controller register block.
+
+patternProperties:
+  "^[a-z][a-z0-9,_-]+$":
+    description: Function definition sub-nodes of the pin controller.
+    type: object
+    additionalProperties: false
+    properties:
+      abilis,function:
+        description: Name of the function's pin group.
+        enum:
+          - gpioa
+          - gpiob
+          - gpioc
+          - gpiod
+          - gpioe
+          - gpiof
+          - gpiog
+          - gpioh
+          - gpioi
+          - gpioj
+          - gpiok
+          - gpiol
+          - gpiom
+          - gpion
+          - mis0
+          - mis1
+          - mis2
+          - mis3
+          - mis4
+          - mis5
+          - mis6
+          - mis7
+          - mip1
+          - mip3
+          - mip5
+          - mip7
+          - mos0
+          - mos1
+          - mos2
+          - mos3
+          - mop
+          - ciplus
+          - mcard
+          - stc0
+          - stc1
+          - uart0
+          - uart1
+          - spi1
+          - spi3
+          - jtag
+    required:
+      - abilis,function
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+      iomux: iomux@ff10601c {
+        compatible = "abilis,tb10x-iomux";
+        reg = <0xFF10601c 0x4>;
+        pctl_gpio_a: pctl-gpio-a {
+          abilis,function = "gpioa";
+        };
+        pctl_uart0: pctl-uart0 {
+          abilis,function = "uart0";
+        };
+      };
