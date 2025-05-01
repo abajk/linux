@@ -1,0 +1,142 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/ti-phy.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI PHY
+
+maintainers:
+  - Bjorn Helgaas <bhelgaas@google.com>
+  - Kishon Vijay Abraham I <kishon@kernel.org>
+  - Rob Herring <robh@kernel.org>
+  - Roger Quadros <rogerq@ti.com>
+  - Sekhar Nori <nsekhar@ti.com>
+
+description: |
+  TI PHY: DT DOCUMENTATION FOR PHYs in TI PLATFORMs
+
+  OMAP CONTROL PHY
+
+  TI PIPE3 PHY
+
+properties:
+  compatible:
+    description: Vendor and device string to identify the TI PHY type.
+    items:
+      - const: ti,control-phy-otghs
+      - const: ti,control-phy-usb2
+      - const: ti,control-phy-pipe3
+      - const: ti,control-phy-pcie
+      - const: ti,control-phy-usb2-dra7
+      - const: ti,control-phy-usb2-am437
+      - const: ti,phy-usb3
+      - const: ti,phy-pipe3-sata
+      - const: ti,phy-pipe3-pcie
+      - const: ti,omap-usb3
+  reg:
+    description: Address and length of the register sets for the device.
+    oneOf:
+      - items:
+          - description: Control PHY register block
+      - items:
+          - description: First register block
+          - description: Second register block
+          - description: Third register block
+  reg-names:
+    description: Names corresponding to each register in reg.
+    oneOf:
+      - items:
+          - const: otghs_control
+      - items:
+          - const: power
+      - items:
+          - const: power
+          - const: pcie_pcs
+          - const: control_sma
+      - items:
+          - const: phy_rx
+          - const: phy_tx
+          - const: pll_ctrl
+  '#phy-cells':
+    description: Number of cells in the phandle when referencing this PHY.
+    const: 0
+  clocks:
+    description: Clocks required by PIPE3 PHYs.
+    items:
+      - description: Wakeup clock.
+      - description: System clock.
+      - description: Reference clock.
+      - description: External DPLL reference clock.
+      - description: Alternative DPLL reference clock.
+      - description: Divider for APLL.
+      - description: APLL clock.
+  clock-names:
+    description: Names corresponding to each clock in clocks.
+    items:
+      - const: wkupclk
+      - const: sysclk
+      - const: refclk
+      - const: dpll_ref
+      - const: dpll_ref_m2
+      - const: phy-div
+      - const: div-clk
+  id:
+    description: Differentiates multiple instances of the same PHY type.
+    $ref: /schemas/types.yaml#/definitions/uint32
+  syscon-pllreset:
+    description: System control and register offset for PLL soft reset (sata_phy only).
+    $ref: /schemas/types.yaml#/definitions/phandle-with-offset
+  syscon-pcs:
+    description: System control and register offset to program PCS delay.
+    $ref: /schemas/types.yaml#/definitions/phandle-with-offset
+  syscon-phy-power:
+    description: System control and register offset to power on/off the PHY.
+    $ref: /schemas/types.yaml#/definitions/phandle-with-offset
+  ctrl-module:
+    description: Deprecated phandle of the control module used to power on the PHY.
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+required:
+  - compatible
+  - reg
+  - reg-names
+
+additionalProperties: false
+
+examples:
+  - |
+    omap-control-usb@4a002300 {
+      compatible = "ti,control-phy-otghs";
+      reg = <0x4a00233c 0x4>;
+      reg-names = "otghs_control";
+    };
+  - |
+    usb3phy@4a084400 {
+      compatible = "ti,phy-usb3";
+      reg = <0x4a084400 0x80>,
+            <0x4a084800 0x64>,
+            <0x4a084c00 0x40>;
+      reg-names = "phy_rx", "phy_tx", "pll_ctrl";
+      ctrl-module = <&omap_control_usb>;
+      #phy-cells = <0>;
+      clocks = <&usb_phy_cm_clk32k>,
+               <&sys_clkin>,
+               <&usb_otg_ss_refclk960m>;
+      clock-names = "wkupclk",
+                    "sysclk",
+                    "refclk";
+    };
+  - |
+    phy@4a096000 {
+      compatible = "ti,phy-pipe3-sata";
+      reg = <0x4A096000 0x80>, /* phy_rx */
+            <0x4A096400 0x64>, /* phy_tx */
+            <0x4A096800 0x40>; /* pll_ctrl */
+      reg-names = "phy_rx", "phy_tx", "pll_ctrl";
+      ctrl-module = <&omap_control_sata>;
+      clocks = <&sys_clkin1>, <&sata_ref_clk>;
+      clock-names = "sysclk", "refclk";
+      syscon-pllreset = <&scm_conf 0x3fc>;
+      #phy-cells = <0>;
+    };
