@@ -1,0 +1,84 @@
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/mtd/atmel,at91rm9200-nand-controller.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Atmel NAND flash controller
+
+maintainers:
+  - Boris Brezillon <bbrezillon@kernel.org>
+  - Claudiu Beznea <claudiu.beznea@tuxon.dev>
+  - Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+  - Josh Wu <josh.wu@atmel.com>
+  - Josh Wu <Josh.wu@atmel.com>
+  - Miquel Raynal <miquel.raynal@bootlin.com>
+  - Nicolas Ferre <nicolas.ferre@microchip.com>
+  - Rob Herring (Arm) <robh@kernel.org>
+  - Romain Izard <romain.izard.pro@gmail.com>
+  - Tudor Ambarus <tudor.ambarus@linaro.org>
+  - Varshini Rajendran <varshini.rajendran@microchip.com>
+  - Wenyou Yang <wenyou.yang@atmel.com>
+  - Wu, Josh <Josh.wu@atmel.com>
+
+description: |
+  Atmel NAND flash controller bindings
+
+  The NAND flash controller node should be defined under the EBI bus (see
+  Documentation/devicetree/bindings/memory-controllers/atmel,ebi.yaml).
+  One or several NAND devices can be defined under this NAND controller.
+  The NAND controller might be connected to an ECC engine.
+
+properties:
+  compatible:
+    description: Supported compatible strings for the NAND controller
+    items:
+      - enum:
+          - atmel,at91rm9200-nand-controller
+          - atmel,at91sam9260-nand-controller
+          - atmel,at91sam9261-nand-controller
+          - atmel,at91sam9g45-nand-controller
+          - atmel,sama5d3-nand-controller
+          - microchip,sam9x60-nand-controller
+
+  ranges:
+    description: Empty ranges property to forward EBI ranges definitions
+
+  '#address-cells':
+    description: Must be set to 2
+    const: 2
+
+  '#size-cells':
+    description: Must be set to 1
+    const: 1
+
+  atmel,nfc-io:
+    description: Phandle to the NFC IO block (only for sama5d3 controllers)
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  atmel,nfc-sram:
+    description: Phandle to the NFC SRAM block (only for sama5d3 controllers)
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  ecc-engine:
+    description: Phandle to the PMECC block (optional, for SoCs with a PMECC engine)
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+required:
+  - compatible
+  - ranges
+  - '#address-cells'
+  - '#size-cells'
+
+additionalProperties: false
+
+examples:
+  - |
+    nand_controller: nand-controller@0 {
+        compatible = "atmel,sama5d3-nand-controller";
+        atmel,nfc-sram = <&nfc_sram>;
+        atmel,nfc-io = <&nfc_io>;
+        ecc-engine = <&pmecc>;
+        #address-cells = <2>;
+        #size-cells = <1>;
+        ranges;
+    };
