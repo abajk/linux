@@ -1,0 +1,72 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2009 Freescale Semiconductor Inc.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/powerpc/fsl/fsl,ecm.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: E500 LAW & Coherency Module
+
+maintainers:
+  - Grant Likely <grant.likely@secretlab.ca>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  =====================================================================
+  E500 LAW & Coherency Module Device Tree Binding
+  Copyright (C) 2009 Freescale Semiconductor Inc.
+  =====================================================================
+
+  Local Access Window (LAW) Node
+
+  The LAW node represents the region of CCSR space where local access
+  windows are configured.  For ECM based devices this is the first 4k
+  of CCSR space that includes CCSRBAR, ALTCBAR, ALTCAR, BPTR, and some
+  number of local access windows as specified by fsl,num-laws.
+
+  E500 Coherency Module Node
+
+  The E500 LAW node represents the region of CCSR space where ECM config
+  and error reporting registers exist, this is the second 4k (0x1000)
+  of CCSR space.
+
+properties:
+  compatible:
+    oneOf:
+      - items:
+          - const: fsl,ecm-law
+      - items:
+          - pattern: '^fsl,[a-z0-9-]+-ecm$'
+          - const: fsl,ecm
+
+  reg:
+    items:
+      - description: 'CCSR register block region: offset and size'
+
+  interrupts:
+    description: ECM error reporting interrupt specifier
+    items:
+      - description: Interrupt specifier for ECM error reporting
+
+  fsl,num-laws:
+    description: Number of local access windows for this device
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    ecm@0 {
+      compatible = "fsl,ecm";
+      reg = <0x0000 0x1000>;
+      interrupts = <5>;
+      fsl,ecm-law@1000 {
+        compatible = "fsl,ecm-law";
+        reg = <0x1000 0x1000>;
+        fsl,num-laws = <4>;
+      };
+    };
