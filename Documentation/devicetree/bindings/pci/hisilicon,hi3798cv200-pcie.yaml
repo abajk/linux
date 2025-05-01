@@ -1,0 +1,126 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pci/hisilicon,hi3798cv200-pcie.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: HiSilicon STB PCIe host bridge
+
+maintainers:
+  - Jianguo Sun <sunjianguo1@huawei.com>
+  - Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+  - Shawn Guo <shawn.guo@linaro.org>
+
+description: |
+  HiSilicon STB PCIe host bridge DT description
+
+  The HiSilicon STB PCIe host controller is based on the DesignWare PCIe core.
+  It shares common functions with the DesignWare PCIe core driver and inherits
+  common properties defined in
+  Documentation/devicetree/bindings/pci/snps,dw-pcie.yaml.
+
+properties:
+  bus-range:
+    items:
+      - description: PCI bus start and end numbers
+  clock-names:
+    items:
+      - const: aux
+      - const: pipe
+      - const: sys
+      - const: bus
+  clocks:
+    items:
+      - description: auxiliary gate clock
+      - description: pipe gate clock
+      - description: system gate clock
+      - description: bus gate clock
+  compatible:
+    items:
+      - const: hisilicon,hi3798cv200-pcie
+  interrupt-names:
+    items:
+      - const: msi
+  interrupts:
+    items:
+      - description: MSI interrupt specifier
+  phys:
+    description: List of phandle and phy mode specifier; mode should be 0 (PHY_TYPE_PCIE)
+    items:
+      - description: PHY handle and mode
+  phy-names:
+    items:
+      - const: phy
+  reg:
+    items:
+      - description: sysctl registers
+      - description: rc_dbi registers
+      - description: configuration transaction registers
+  reg-names:
+    items:
+      - const: control
+      - const: rc-dbi
+      - const: config
+  reset-gpios:
+    description: GPIOs to generate PCIe PERST# assert and deassert signal
+  resets:
+    items:
+      - description: soft reset
+      - description: system reset
+      - description: bus reset
+  reset-names:
+    items:
+      - const: soft
+      - const: sys
+      - const: bus
+  vpcie-supply:
+    description: Regulator for PCIe port power
+
+required:
+  - bus-range
+  - clock-names
+  - clocks
+  - compatible
+  - interrupt-names
+  - interrupts
+  - phys
+  - phy-names
+  - reg
+  - reg-names
+  - reset-gpios
+  - resets
+  - reset-names
+  - vpcie-supply
+
+additionalProperties: false
+
+examples:
+  - |
+    pcie@f9860000 {
+      compatible = "hisilicon,hi3798cv200-pcie";
+      reg = <0xf9860000 0x1000>,
+            <0xf0000000 0x2000>,
+            <0xf2000000 0x01000000>;
+      reg-names = "control", "rc-dbi", "config";
+      #address-cells = <3>;
+      #size-cells = <2>;
+      device_type = "pci";
+      bus-range = <0 15>;
+      num-lanes = <1>;
+      ranges = <0x81000000 0 0 0xf4000000 0 0x00010000
+                0x82000000 0 0xf3000000 0xf3000000 0 0x01000000>;
+      interrupts = <GIC_SPI 128 IRQ_TYPE_LEVEL_HIGH>;
+      interrupt-names = "msi";
+      #interrupt-cells = <1>;
+      interrupt-map-mask = <0 0 0 0>;
+      interrupt-map = <0 0 0 0 &gic GIC_SPI 131 IRQ_TYPE_LEVEL_HIGH>;
+      clocks = <&crg PCIE_AUX_CLK>,
+               <&crg PCIE_PIPE_CLK>,
+               <&crg PCIE_SYS_CLK>,
+               <&crg PCIE_BUS_CLK>;
+      clock-names = "aux", "pipe", "sys", "bus";
+      resets = <&crg 0x18c 6>, <&crg 0x18c 5>, <&crg 0x18c 4>;
+      reset-names = "soft", "sys", "bus";
+      phys = <&combphy1 PHY_TYPE_PCIE>;
+      phy-names = "phy";
+    };
