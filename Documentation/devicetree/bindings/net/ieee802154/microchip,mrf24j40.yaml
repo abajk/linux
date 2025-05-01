@@ -1,0 +1,43 @@
+%YAML 1.2
+---
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+$id: http://devicetree.org/schemas/net/ieee802154/microchip,mrf24j40.yaml#
+title: Microchip MRF24J40 IEEE 802.15.4 Transceiver
+maintainers:
+  - Alexander Aring <alex.aring@gmail.com>
+description: |
+  * MRF24J40 IEEE 802.15.4 *
+properties:
+  compatible:
+    items:
+      - enum:
+          - microchip,mrf24j40
+          - microchip,mrf24j40ma
+          - microchip,mrf24j40mc
+  reg:
+    description: chipselect index
+    items:
+      - description: chipselect index
+  spi-max-frequency:
+    description: maximal bus speed
+    $ref: /schemas/types.yaml#/definitions/uint32
+    maximum: 10000000
+  interrupts:
+    description: interrupt specifier and flags for the MRF24J40
+    items:
+      - description: interrupt specifier
+      - description: interrupt flags
+required:
+  - compatible
+  - reg
+  - spi-max-frequency
+  - interrupts
+additionalProperties: false
+examples:
+  - |
+    mrf24j40ma@0 {
+        compatible = "microchip,mrf24j40ma";
+        spi-max-frequency = <8500000>;
+        reg = <0>;
+        interrupts = <19 8>;
+    };
