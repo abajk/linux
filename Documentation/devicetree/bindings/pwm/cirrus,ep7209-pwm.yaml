@@ -1,0 +1,55 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Alexander Shiyan <shc_work@mail.ru>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pwm/cirrus,ep7209-pwm.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Cirris Logic CLPS711X PWM controller
+
+maintainers:
+  - Alexander Shiyan <shc_work@mail.ru>
+
+description: |
+  Cirris Logic CLPS711X PWM controller
+
+properties:
+  compatible:
+    oneOf:
+      - items:
+          - enum:
+              - cirrus,ep7312-pwm
+          - const: cirrus,ep7209-pwm
+      - items:
+          - const: cirrus,ep7209-pwm
+
+  reg:
+    description: Physical base address and length of the controller's registers.
+    items:
+      - description: Base address
+      - description: Size
+
+  clocks:
+    description: PWM reference clock.
+    maxItems: 1
+
+  '#pwm-cells':
+    description: Cell specifies the index of the PWM channel.
+    const: 1
+
+required:
+  - compatible
+  - reg
+  - clocks
+  - '#pwm-cells'
+
+additionalProperties: false
+
+examples:
+  - |
+    pwm: pwm@80000400 {
+        compatible = "cirrus,ep7312-pwm", "cirrus,ep7209-pwm";
+        reg = <0x80000400 0x4>;
+        clocks = <&clks 8>;
+        #pwm-cells = <1>;
+    };
