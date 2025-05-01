@@ -1,0 +1,49 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 NXP
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/net/ethernet-phy-id13e5.1002.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Cortina EDC PHY
+maintainers:
+  - Bogdan Purcareata <bogdan.purcareata@nxp.com>
+
+description: |
+  Cortina Phy Driver Device Tree Bindings
+  ---------------------------------------
+
+  CORTINA is a registered trademark of Cortina Systems, Inc.
+
+  The driver supports the Cortina Electronic Dispersion Compensation (EDC)
+  devices, equipped with clock and data recovery (CDR) circuits. These
+  devices make use of registers that are not compatible with Clause 45 or
+  Clause 22, therefore they need to be described using the
+  "ethernet-phy-id13e5.1002" compatible.
+
+  Since the driver only implements polling mode support, interrupts info
+  can be skipped.
+
+properties:
+  compatible:
+    items:
+      - const: ethernet-phy-id13e5.1002
+
+  reg:
+    items:
+      - description: MDIO PHY address
+
+additionalProperties: false
+
+required:
+  - compatible
+  - reg
+
+examples:
+  - |
+    mdio {
+        cs4340_phy@10 {
+            compatible = "ethernet-phy-id13e5.1002";
+            reg = <0x10>;
+        };
+    };
