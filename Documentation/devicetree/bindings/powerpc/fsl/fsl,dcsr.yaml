@@ -1,0 +1,187 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2011 Freescale Semiconductor Inc.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/powerpc/fsl/fsl,dcsr.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Freescale DCSR (Debug Control and Status Register)
+
+maintainers:
+  - Bjorn Helgaas <bhelgaas@google.com>
+  - Carlos Garcia <carlos@cgarcia.org>
+  - Rob Herring <robh@kernel.org>
+  - Stephen George <stephen.george@freescale.com>
+
+description: |
+  Debug Control and Status Register (DCSR) Binding
+  Copyright 2011 Freescale Semiconductor Inc.
+
+  NOTE: The bindings described in this document are preliminary and subject
+  to change.  Some of the compatible strings that contain only generic names
+  may turn out to be inappropriate, or need additional properties to describe
+  the integration of the block with the rest of the chip.
+
+  Debug Control and Status Register Memory Map
+
+  This node defines the base address and range for the
+  defined DCSR Memory Map. Child nodes will describe the individual
+  debug blocks defined within this memory space.
+
+  Event Processing Unit
+
+  This node represents the region of DCSR space allocated to the EPU
+
+  The EPU counters can be configured to assert the performance
+  monitor interrupt signal based on either counter overflow or value
+  match. Which counter asserted the interrupt is captured in an EPU
+  Counter Interrupt Status Register (EPCPUISR).
+
+  The EPU unit can also be configured to assert either or both of
+  two interrupt signals based on debug event sources within the SoC.
+  The interrupt signals are epu_xt_int0 and epu_xt_int1.
+  Which event source asserted the interrupt is captured in an EPU
+  Interrupt Status Register (EPISR0,EPISR1).
+
+  Nexus Port Controller
+
+  This node represents the region of DCSR space allocated to the NPC
+
+  The Nexus Port controller occupies two regions in the DCSR space
+  with distinct functionality. The first register range describes the Nexus Port Controller
+  control and status registers. The second register range describes the Nexus Port Controller
+  internal trace buffer.
+
+  Nexus Concentrator
+
+  This node represents the region of DCSR space allocated to the NXC
+
+  CoreNet Debug Controller
+
+  This node represents the region of DCSR space allocated to
+  the CoreNet Debug controller.
+
+  Data Path Debug controller
+
+  This node represents the region of DCSR space allocated to
+  the DPAA Debug Controller. This controller controls debug configuration
+  for the QMAN and FMAN blocks.
+
+  OCN Debug controller
+
+  This node represents the region of DCSR space allocated to
+  the OCN Debug Controller.
+
+  DDR Controller Debug controller
+
+  This node represents the region of DCSR space allocated to
+  the DDR Debug Controller.
+
+  Nexus Aurora Link Controller
+
+  This node represents the region of DCSR space allocated to
+  the NAL Controller.
+
+  Run Control and Power Management
+
+  This node represents the region of DCSR space allocated to
+  the RCPM Debug Controller.
+
+  Core Service Bridge Proxy
+
+  This node represents the region of DCSR space allocated to
+  the Core Service Bridge Proxies.
+
+properties:
+  compatible:
+    items:
+      - const: fsl,dcsr
+      - const: simple-bus
+
+  '#address-cells':
+    const: 1
+
+  '#size-cells':
+    const: 1
+
+  ranges: true
+
+required:
+  - compatible
+  - '#address-cells'
+  - '#size-cells'
+  - ranges
+
+additionalProperties: false
+
+examples:
+  - |
+    dcsr@f00000000 {
+        compatible = "fsl,dcsr", "simple-bus";
+        #address-cells = <1>;
+        #size-cells = <1>;
+        ranges = <0x00000000 0xf 0x00000000 0x01008000>;
+
+        dcsr-epu@0 {
+            compatible = "fsl,dcsr-epu";
+            interrupts = <52 2 0 0
+                          84 2 0 0
+                          85 2 0 0>;
+            reg = <0x0 0x1000>;
+        };
+
+        dcsr-npc {
+            compatible = "fsl,dcsr-npc";
+            reg = <0x1000 0x1000 0x1000000 0x8000>;
+        };
+
+        dcsr-nxc@2000 {
+            compatible = "fsl,dcsr-nxc";
+            reg = <0x2000 0x1000>;
+        };
+
+        dcsr-corenet {
+            compatible = "fsl,dcsr-corenet";
+            reg = <0x8000 0x1000 0xB0000 0x1000>;
+        };
+
+        dcsr-dpaa@9000 {
+            compatible = "fsl,p4080-dcsr-dpaa", "fsl,dcsr-dpaa";
+            reg = <0x9000 0x1000>;
+        };
+
+        dcsr-ocn@11000 {
+            compatible = "fsl,p4080-dcsr-ocn", "fsl,dcsr-ocn";
+            reg = <0x11000 0x1000>;
+        };
+
+        dcsr-ddr@12000 {
+            compatible = "fsl,dcsr-ddr";
+            dev-handle = <&ddr1>;
+            reg = <0x12000 0x1000>;
+        };
+
+        dcsr-nal@18000 {
+            compatible = "fsl,p4080-dcsr-nal", "fsl,dcsr-nal";
+            reg = <0x18000 0x1000>;
+        };
+
+        dcsr-rcpm@22000 {
+            compatible = "fsl,p4080-dcsr-rcpm", "fsl,dcsr-rcpm";
+            reg = <0x22000 0x1000>;
+        };
+
+        dcsr-cpu-sb-proxy@40000 {
+            compatible = "fsl,dcsr-e500mc-sb-proxy",
+                         "fsl,dcsr-cpu-sb-proxy";
+            cpu-handle = <&cpu0>;
+            reg = <0x40000 0x1000>;
+        };
+
+        dcsr-cpu-sb-proxy@41000 {
+            compatible = "fsl,dcsr-e500mc-sb-proxy",
+                         "fsl,dcsr-cpu-sb-proxy";
+            cpu-handle = <&cpu1>;
+            reg = <0x41000 0x1000>;
+        };
+    };
