@@ -1,0 +1,46 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Neil Armstrong <neil.armstrong@linaro.org>
+# Copyright 2025 Yasunari Takiguchi <Yasunari.Takiguchi@sony.com>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/media/spi/sony,cxd2880.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Sony CXD2880 DVB-T2/T tuner + demodulator driver SPI adapter
+
+maintainers:
+  - Neil Armstrong <neil.armstrong@linaro.org>
+  - Yasunari Takiguchi <Yasunari.Takiguchi@sony.com>
+
+description: |
+  Sony CXD2880 DVB-T2/T tuner + demodulator driver SPI adapter
+
+properties:
+  compatible:
+    const: sony,cxd2880
+
+  reg:
+    description: SPI chip select number for the device.
+    items:
+      - description: Chip select index
+
+  spi-max-frequency:
+    description: Maximum SPI bus speed in Hz.
+
+  vcc-supply:
+    description: Optional phandle to the vcc regulator to power the adapter.
+
+required:
+  - compatible
+  - reg
+  - spi-max-frequency
+
+additionalProperties: false
+
+examples:
+  - |
+    cxd2880@0 {
+        compatible = "sony,cxd2880";
+        reg = <0>; /* CE0 */
+        spi-max-frequency = <55000000>; /* 55MHz */
+    };
