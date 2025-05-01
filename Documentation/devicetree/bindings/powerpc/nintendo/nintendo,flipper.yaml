@@ -1,0 +1,259 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Bjorn Helgaas <bhelgaas@google.com>, Grant Likely <grant.likely@secretlab.ca>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/nintendo,flipper.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Nintendo GameCube Flipper chip
+maintainers:
+  - Bjorn Helgaas <bhelgaas@google.com>
+  - Grant Likely <grant.likely@secretlab.ca>
+
+description: |
+  Nintendo GameCube device tree
+
+  The "flipper" node
+
+    This node represents the multi-function "Flipper" chip, which packages
+    many of the devices found in the Nintendo GameCube.
+
+properties:
+  compatible:
+    description: Must be "nintendo,flipper"
+    items:
+      - const: nintendo,flipper
+
+  interrupt-controller: true
+
+required:
+  - compatible
+  - interrupt-controller
+
+patternProperties:
+  "^vi@.*":
+    description: Video Interface (VI) node
+    type: object
+    properties:
+      compatible:
+        items:
+          - const: nintendo,flipper-vi
+      reg:
+        description: VI registers region
+        items:
+          - description: VI registers base address
+          - description: VI registers length
+      interrupts:
+        description: VI interrupt
+        items:
+          - description: interrupt number
+    required:
+      - compatible
+      - reg
+      - interrupts
+    additionalProperties: false
+
+  "^pi@.*":
+    description: Processor Interface (PI) node
+    type: object
+    properties:
+      compatible:
+        items:
+          - const: nintendo,flipper-pi
+      reg:
+        description: PI registers region
+        items:
+          - description: PI registers base address
+          - description: PI registers length
+    required:
+      - compatible
+      - reg
+    additionalProperties: false
+    patternProperties:
+      "^pic@.*":
+        description: Flipper interrupt controller (PIC) node
+        type: object
+        properties:
+          compatible:
+            items:
+              - const: nintendo,flipper-pic
+        required:
+          - compatible
+        additionalProperties: false
+
+  "^dsp@.*":
+    description: Digital Signal Processor (DSP) node
+    type: object
+    properties:
+      compatible:
+        items:
+          - const: nintendo,flipper-dsp
+      reg:
+        description: DSP registers region
+        items:
+          - description: DSP registers base address
+          - description: DSP registers length
+      interrupts:
+        description: DSP interrupt
+        items:
+          - description: interrupt number
+    required:
+      - compatible
+      - reg
+      - interrupts
+    additionalProperties: false
+    patternProperties:
+      "^aram@.*":
+        description: Auxiliary RAM (ARAM) node
+        type: object
+        properties:
+          compatible:
+            items:
+              - const: nintendo,flipper-aram
+          reg:
+            description: ARAM region
+            items:
+              - description: ARAM start (zero-based)
+              - description: ARAM length
+        required:
+          - compatible
+          - reg
+        additionalProperties: false
+
+  "^di@.*":
+    description: Disk Interface (DI) node
+    type: object
+    properties:
+      compatible:
+        items:
+          - const: nintendo,flipper-di
+      reg:
+        description: DI registers region
+        items:
+          - description: DI registers base address
+          - description: DI registers length
+      interrupts:
+        description: DI interrupt
+        items:
+          - description: interrupt number
+    required:
+      - compatible
+      - reg
+      - interrupts
+    additionalProperties: false
+
+  "^ai@.*":
+    description: Audio Interface (AI) node
+    type: object
+    properties:
+      compatible:
+        items:
+          - const: nintendo,flipper-ai
+      reg:
+        description: AI registers region
+        items:
+          - description: AI registers base address
+          - description: AI registers length
+      interrupts:
+        description: AI interrupt
+        items:
+          - description: interrupt number
+    required:
+      - compatible
+      - reg
+      - interrupts
+    additionalProperties: false
+
+  "^si@.*":
+    description: Serial Interface (SI) node
+    type: object
+    properties:
+      compatible:
+        items:
+          - const: nintendo,flipper-si
+      reg:
+        description: SI registers region
+        items:
+          - description: SI registers base address
+          - description: SI registers length
+      interrupts:
+        description: SI interrupt
+        items:
+          - description: interrupt number
+    required:
+      - compatible
+      - reg
+      - interrupts
+    additionalProperties: false
+
+  "^exi@.*":
+    description: External Interface (EXI) node
+    type: object
+    properties:
+      compatible:
+        items:
+          - const: nintendo,flipper-exi
+      reg:
+        description: EXI registers region
+        items:
+          - description: EXI registers base address
+          - description: EXI registers length
+      interrupts:
+        description: EXI interrupt
+        items:
+          - description: interrupt number
+    required:
+      - compatible
+      - reg
+      - interrupts
+    additionalProperties: false
+
+additionalProperties: false
+
+examples:
+  - |
+    flipper@<base> {
+      compatible = "nintendo,flipper";
+      interrupt-controller;
+      vi@<addr> {
+        compatible = "nintendo,flipper-vi";
+        reg = <0x1000 0x20>;
+        interrupts = <1>;
+      };
+      pi@<addr> {
+        compatible = "nintendo,flipper-pi";
+        reg = <0x2000 0x10>;
+        pic@<addr> {
+          compatible = "nintendo,flipper-pic";
+        };
+      };
+      dsp@<addr> {
+        compatible = "nintendo,flipper-dsp";
+        reg = <0x3000 0x20>;
+        interrupts = <2>;
+        aram@<addr> {
+          compatible = "nintendo,flipper-aram";
+          reg = <0x0 0x80000>;
+        };
+      };
+      di@<addr> {
+        compatible = "nintendo,flipper-di";
+        reg = <0x4000 0x10>;
+        interrupts = <3>;
+      };
+      ai@<addr> {
+        compatible = "nintendo,flipper-ai";
+        reg = <0x5000 0x10>;
+        interrupts = <4>;
+      };
+      si@<addr> {
+        compatible = "nintendo,flipper-si";
+        reg = <0x6000 0x10>;
+        interrupts = <5>;
+      };
+      exi@<addr> {
+        compatible = "nintendo,flipper-exi";
+        reg = <0x7000 0x10>;
+        interrupts = <6>;
+      };
+    };
