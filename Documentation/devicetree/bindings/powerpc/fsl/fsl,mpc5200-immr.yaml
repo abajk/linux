@@ -1,0 +1,105 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2006-2009 Secret Lab Technologies Ltd
+
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/powerpc/fsl/fsl,mpc5200-immr.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: MPC5200 SoC Internal Memory Map Register
+
+maintainers:
+  - Grant Likely <grant.likely@secretlab.ca>
+  - Marc Kleine-Budde <mkl@pengutronix.de>
+  - Randy Dunlap <rdunlap@infradead.org>
+
+description: |
+  MPC5200 Device Tree Bindings
+
+  (c) 2006-2009 Secret Lab Technologies Ltd
+  Grant Likely <grant.likely@secretlab.ca>
+
+  Naming conventions
+  ------------------
+  For mpc5200 on-chip devices, the format for each compatible value is
+  <chip>-<device>[-<mode>]. The OS should be able to match a device driver
+  to the device based solely on the compatible value. If two drivers
+  match on the compatible list, the 'most compatible' driver should be
+  selected.
+
+  The split between the MPC5200 and the MPC5200B leaves a bit of a
+  conundrum. How should the compatible property be set up to provide
+  maximum compatibility information, but still accurately describe the
+  chip? For the MPC5200, the answer is easy. Most of the SoC devices
+  originally appeared on the MPC5200. Since they didn't exist anywhere
+  else, the 5200 compatible properties will contain only one item:
+  fsl,mpc5200-<device>.
+
+  The 5200B is almost the same as the 5200, but not quite. It fixes
+  silicon bugs and it adds a small number of enhancements. Most of the
+  devices either provide exactly the same interface as on the 5200. A few
+  devices have extra functions but still have a backwards compatible mode.
+  To express this information as completely as possible, 5200B device trees
+  should have two items in the compatible list:
+    fsl,mpc5200b-<device>, fsl,mpc5200-<device>.
+  It is strongly recommended that 5200B device trees follow this convention
+  (instead of only listing the base mpc5200 item).
+
+  Modal devices, like PSCs, also append the configured function to the
+  end of the compatible field. A PSC in i2s mode would specify
+  fsl,mpc5200-psc-i2s, not fsl,mpc5200-i2s. This convention is chosen to
+  avoid naming conflicts with non-psc devices providing the same function.
+  For example, fsl,mpc5200-spi and fsl,mpc5200-psc-spi describe the mpc5200
+  simple spi device and a PSC spi mode respectively.
+
+  At the time of writing, exact chip may be either fsl,mpc5200 or
+  fsl,mpc5200b.
+
+  The soc node
+  ------------
+  This node describes the on chip SOC peripherals. Every mpc5200 based
+  board will have this node, and as such there is a common naming
+  convention for SOC devices.
+
+properties:
+  compatible:
+    oneOf:
+      - items:
+          - const: fsl,mpc5200-immr
+      - items:
+          - enum:
+              - fsl,mpc5200b-immr
+              - fsl,mpc5200-immr
+
+  reg:
+    maxItems: 1
+
+  ranges:
+    maxItems: 1
+
+  system-frequency:
+    description: fsystem frequency in Hz. XLB, IPB, USB and PCI clocks are derived from the fsystem clock.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  bus-frequency:
+    description: IPB bus frequency in Hz.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+required:
+  - compatible
+  - reg
+  - ranges
+  - system-frequency
+  - bus-frequency
+
+additionalProperties: false
+
+examples:
+  - |
+    soc@ffe00000 {
+      compatible = "fsl,mpc5200-immr";
+      reg = <0xffe00000 0xc000>;
+      ranges = <0 0xffe00000 0xc000>;
+      system-frequency = <200000000>;
+      bus-frequency = <100000000>;
+    };
