@@ -1,0 +1,65 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/powerpc/fsl/fsl,mpc8272-localbus.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Freescale Local Bus Controller
+maintainers:
+  - Grant Likely <grant.likely@secretlab.ca>
+  - John Ogness <john.ogness@linutronix.de>
+
+description: |
+  * Chipselect/Local Bus
+
+properties:
+  compatible:
+    oneOf:
+      - items:
+          - const: fsl,mpc8272-localbus
+          - const: fsl,pq2-localbus
+      - items:
+          - const: fsl,mpc8272-localbus
+      - items:
+          - const: fsl,pq2-localbus
+
+  '#address-cells':
+    description: >
+      Number of cells for the chipselect and offset.
+      The first cell is the chipselect number, and the remaining
+      cells specify the offset.
+    enum: [2, 3]
+
+  '#size-cells':
+    description: Number of cells for the size of the bus window.
+    enum: [1, 2]
+
+  reg:
+    description: Base address and size of the local bus window.
+    items:
+      - description: Base address of the window
+      - description: Size of the window
+
+  ranges:
+    description: >
+      Translation from parent bus address to CPU address
+      for each chipselect.
+    items:
+      - description: Chipselect number
+      - description: Bus address
+      - description: CPU physical address
+      - description: Size of the range
+
+additionalProperties: false
+
+examples:
+  - |
+    localbus@f0010100 {
+        compatible = "fsl,mpc8272-localbus", "fsl,pq2-localbus";
+        #address-cells = <2>;
+        #size-cells = <1>;
+        reg = <0xf0010100 0x40>;
+        ranges = <0x0 0x0 0xfe000000 0x02000000
+                  0x1 0x0 0xf4500000 0x00008000
+                  0x2 0x0 0xfd810000 0x00010000>;
+    };
