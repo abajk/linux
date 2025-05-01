@@ -1,0 +1,52 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/ti,am3352-cpsw-phy-sel.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: TI CPSW Phy mode selection
+maintainers:
+  - Grygorii Strashko <grygorii.strashko@ti.com>
+  - Mugunthan V N <mugunthanvnm@ti.com>
+description: |
+  TI CPSW Phy mode Selection Device Tree Bindings (DEPRECATED)
+  -----------------------------------------------
+properties:
+  compatible:
+    description: Device compatible strings for CPSW Phy mode selection.
+    items:
+      - enum:
+          - ti,am3352-cpsw-phy-sel
+          - ti,dra7xx-cpsw-phy-sel
+          - ti,am43xx-cpsw-phy-sel
+  reg:
+    description: Physical base address and size of the CPSW registers map.
+    items:
+      - description: CPSW register base address
+      - description: CPSW register size
+  reg-names:
+    description: Names of the CPSW registers map entries.
+    $ref: /schemas/types.yaml#/definitions/string-array
+    items:
+      - const: gmii-sel
+  rmii-clock-ext:
+    description: If present, the driver will configure the RMII interface to external clock usage.
+    type: boolean
+required:
+  - compatible
+  - reg
+  - reg-names
+additionalProperties: false
+examples:
+  - |
+    phy_sel: cpsw-phy-sel@44e10650 {
+        compatible = "ti,am3352-cpsw-phy-sel";
+        reg = <0x44e10650 0x4>;
+        reg-names = "gmii-sel";
+    };
+  - |
+    phy_sel: cpsw-phy-sel@44e10650 {
+        compatible = "ti,am3352-cpsw-phy-sel";
+        reg = <0x44e10650 0x4>;
+        reg-names = "gmii-sel";
+        rmii-clock-ext;
+    };
