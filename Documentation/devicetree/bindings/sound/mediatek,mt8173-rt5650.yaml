@@ -1,0 +1,66 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 MediaTek Inc.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/mediatek,mt8173-rt5650.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: MT8173 with RT5650 CODECS and HDMI via I2S
+
+maintainers:
+  - Koro Chen <koro.chen@mediatek.com>
+  - PC Liao <pc.liao@mediatek.com>
+
+description: |
+  MT8173 with RT5650 CODECS and HDMI via I2S
+
+properties:
+  compatible:
+    const: "mediatek,mt8173-rt5650"
+
+  mediatek,audio-codec:
+    description: Phandles of RT5650 codecs and HDMI encoder node
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+
+  mediatek,platform:
+    description: Phandle of MT8173 ASoC platform
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  mediatek,mclk:
+    description: |
+      The MCLK source
+      0: external oscillator (MCLK = 12.288M)
+      1: internal source from MT8173 (MCLK = sampling rate*256)
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 1]
+
+  codec-capture:
+    description: Subnode of RT5650 codec capture
+    type: object
+    additionalProperties: false
+    properties:
+      sound-dai:
+        description: Audio codec DAI name on capture path
+        maxItems: 1
+
+    required:
+      - sound-dai
+
+required:
+  - compatible
+  - mediatek,audio-codec
+  - mediatek,platform
+
+additionalProperties: false
+
+examples:
+  - |
+    sound {
+        compatible = "mediatek,mt8173-rt5650";
+        mediatek,audio-codec = <&rt5650 &hdmi0>;
+        mediatek,platform = <&afe>;
+        mediatek,mclk = <0>;
+        codec-capture {
+            sound-dai = <&rt5650 1>;
+        };
+    };
