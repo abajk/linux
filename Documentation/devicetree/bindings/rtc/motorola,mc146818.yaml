@@ -1,0 +1,60 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/rtc/motorola,mc146818.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Motorola mc146818 compatible RTC
+
+maintainers:
+  - Bjorn Helgaas <bhelgaas@google.com>
+  - Rob Herring <robh@kernel.org>
+  - Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+
+description: |
+  Motorola mc146818 compatible RTC
+
+  "Register A" and "B" are usually initialized by the firmware (BIOS for
+  instance). If this is not done, it can be performed by the driver.
+
+properties:
+  compatible:
+    description: The device compatibility string.
+    items:
+      - const: motorola,mc146818
+
+  reg:
+    description: Register base address and size of the RTC.
+    items:
+      - description: Register base address.
+      - description: Register size in bytes.
+
+  interrupts:
+    description: Interrupt configurations.
+    items:
+      - description: Interrupt number.
+      - description: Interrupt flags.
+
+  ctrl-reg:
+    description: Initial control register value (Register B).
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  freq-reg:
+    description: Initial frequency divider register value (Register A).
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    rtc@70 {
+        compatible = "motorola,mc146818";
+        reg = <1 0x70 2>;
+        interrupts = <8 3>;
+        ctrl-reg = <2>;
+        freq-reg = <0x26>;
+    };
