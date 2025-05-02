@@ -1,0 +1,161 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 STMicroelectronics
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/st,sti-asoc-card.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: STMicroelectronics sti ASoC cards
+
+maintainers:
+  - Arnaud Pouliquen <arnaud.pouliquen@st.com>
+  - Mathieu Malaterrre <malat@debian.org>
+  - Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+  - Moise Gergaud <moise.gergaud@st.com>
+  - Peter Griffin <peter.griffin@linaro.org>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  STMicroelectronics sti ASoC cards
+
+  The sti ASoC Sound Card can be used, for all sti SoCs using internal
+  sti-sas codec or external codecs.
+
+  sti sound drivers allows to expose sti SoC audio interface through the
+  generic ASoC simple card. For details about sound card declaration please
+  refer to Documentation/devicetree/bindings/sound/simple-card.yaml.
+
+properties:
+  compatible:
+    description: Supported compatible strings.
+    items:
+      - enum:
+          - st,stih407-uni-player-hdmi
+          - st,stih407-uni-player-pcm-out
+          - st,stih407-uni-player-dac
+          - st,stih407-uni-player-spdif
+          - st,stih407-uni-reader-pcm_in
+          - st,stih407-uni-reader-hdmi
+          - st,stih407-sas-codec
+          - st,stih416-sas-codec
+
+  st,syscfg:
+    description: Phandle to boot-device system configuration registers.
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  st,reg_audio:
+    description: Phandle to boot-device system configuration registers.
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  reg:
+    description: CPU DAI IP base address and size entries, listed in the
+      same order as the CPU_DAI properties.
+
+  reg-names:
+    description: Names of the mapped memory regions listed in reg property
+      in the same order.
+
+  interrupts:
+    maxItems: 1
+
+  clocks:
+    maxItems: 1
+    description: CPU_DAI IP clock source, listed in the same order as the
+      CPU_DAI properties.
+
+  clock-names:
+    items:
+      - const: bus
+
+  dmas:
+    description: CPU_DAI DMA controller phandle and DMA request line,
+      listed in the same order as the CPU_DAI properties.
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+
+  dma-names:
+    description: Identifier string for each DMA request line in the dmas
+      property.
+    $ref: /schemas/types.yaml#/definitions/string-array
+
+  st,tdm-mode:
+    description: TDM mode for unireader and uniplayer IPs.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  simple-audio-card,name:
+    description: Name of the audio card.
+    $ref: /schemas/types.yaml#/definitions/string
+
+  format:
+    description: DAI format for the link.
+    $ref: /schemas/types.yaml#/definitions/string
+
+  dai-tdm-slot-width:
+    description: Width of a TDM slot in bits.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  dai-tdm-slot-num:
+    description: Number of TDM slots.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  frame-inversion:
+    description: Frame inversion flag.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  dai-tdm-slot-tx-mask:
+    description: TX mask for TDM slots.
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+
+  sound-dai:
+    description: Phandle(s) to CPU or codec DAI(s).
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+
+required:
+  - compatible
+  - st,syscfg
+  - reg
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    sound {
+      compatible = "simple-audio-card";
+      simple-audio-card,name = "sti audio card";
+
+      simple-audio-card,dai-link@0 {
+        format = "i2s";
+        dai-tdm-slot-width = <32>;
+        cpu {
+          sound-dai = <&sti_uni_player2>;
+        };
+
+        codec {
+          sound-dai = <&sti_sas_codec 1>;
+        };
+      };
+      simple-audio-card,dai-link@1 {
+        format = "left_j";
+        cpu {
+          sound-dai = <&sti_uni_player3>;
+        };
+
+        codec {
+          sound-dai = <&sti_sas_codec 0>;
+        };
+      };
+      simple-audio-card,dai-link@2 {
+        format = "left_j";
+        frame-inversion = <1>;
+        cpu {
+          sound-dai = <&sti_uni_player1>;
+          dai-tdm-slot-num = <16>;
+          dai-tdm-slot-width = <16>;
+          dai-tdm-slot-tx-mask = <1 1 1 1 0 0 0 0 0 0 1 1 0 0 1 1>;
+        };
+
+        codec {
+          sound-dai = <&sti_sas_codec 3>;
+        };
+      };
+    };
