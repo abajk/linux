@@ -1,0 +1,54 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/sirf-audio-port.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: SiRF SoC audio port
+
+maintainers:
+  - Rongjun Ying <rongjun.ying@csr.com>
+
+description: |
+  * SiRF SoC audio port
+
+properties:
+  compatible:
+    items:
+      - const: sirf,audio-port
+
+  reg:
+    items:
+      - description: Base address and size entries
+
+  dmas:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    description: List of DMA controller phandle and DMA request line ordered pairs.
+
+  dma-names:
+    $ref: /schemas/types.yaml#/definitions/string-array
+    description: |
+      Identifier string for each DMA request line in the dmas property.
+      These strings correspond 1:1 with the ordered pairs in dmas.
+      One of the DMA channels will be responsible for transmission
+      (should be named "tx") and one for reception (should be named "rx").
+    items:
+      - const: rx
+      - const: tx
+
+required:
+  - compatible
+  - reg
+  - dmas
+  - dma-names
+
+additionalProperties: false
+
+examples:
+  - |
+    audioport: audioport@b0040000 {
+        compatible = "sirf,audio-port";
+        reg = <0xb0040000 0x10000>;
+        dmas = <&dmac1 3>, <&dmac1 8>;
+        dma-names = "rx", "tx";
+    };
