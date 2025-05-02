@@ -1,0 +1,25 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/x86/intel,ce4100-hpet.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: High Precision Event Timer (HPET)
+
+maintainers:
+  - Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+
+description: |
+  Timers
+
+  High Precision Event Timer (HPET)
+
+properties:
+  compatible:
+    items:
+      - const: intel,ce4100-hpet
+
+required:
+  - compatible
+
+additionalProperties: false
