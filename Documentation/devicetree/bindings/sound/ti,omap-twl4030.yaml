@@ -1,0 +1,102 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Marek Belisko <marek@goldelico.com>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/ti,omap-twl4030.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI OMAP TWL4030 sound
+maintainers:
+  - Marek Belisko <marek@goldelico.com>
+  - Peter Ujfalusi <peter.ujfalusi@ti.com>
+
+description: |
+  * Texas Instruments SoC with twl4030 based audio setups
+
+  Available audio endpoints for the audio-routing table:
+
+  Board connectors:
+    * Headset Stereophone
+    * Earpiece Spk
+    * Handsfree Spk
+    * Ext Spk
+    * Main Mic
+    * Sub Mic
+    * Headset Mic
+    * Carkit Mic
+    * Digital0 Mic
+    * Digital1 Mic
+    * Line In
+
+  twl4030 pins:
+    * HSOL
+    * HSOR
+    * EARPIECE
+    * HFL
+    * HFR
+    * PREDRIVEL
+    * PREDRIVER
+    * CARKITL
+    * CARKITR
+    * MAINMIC
+    * SUBMIC
+    * HSMIC
+    * DIGIMIC0
+    * DIGIMIC1
+    * CARKITMIC
+    * AUXL
+    * AUXR
+
+    * Headset Mic Bias
+    * Mic Bias 1 /* Used for Main Mic or Digimic0 */
+    * Mic Bias 2 /* Used for Sub Mic or Digimic1 */
+
+properties:
+  compatible:
+    items:
+      - const: ti,omap-twl4030
+
+  ti,model:
+    description: Name of the sound card
+    $ref: /schemas/types.yaml#/definitions/string
+
+  ti,mcbsp:
+    description: phandle for the McBSP node
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  ti,codec:
+    description: phandle for the twl4030 audio node
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  ti,mcbsp-voice:
+    description: phandle for the McBSP node connected to the voice port of twl
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  ti,jack-det-gpio:
+    description: Jack detect GPIO
+    maxItems: 1
+
+  ti,audio-routing:
+    description: >
+      List of connections between audio components. Each entry is a pair
+      of strings, the first being the connection's sink, the second being
+      the connection's source. If not provided all possible connections
+      will be available.
+    $ref: /schemas/types.yaml#/definitions/string-array
+    minItems: 2
+    
+required:
+  - compatible
+  - ti,model
+  - ti,mcbsp
+
+additionalProperties: false
+
+examples:
+  - |
+    sound {
+        compatible = "ti,omap-twl4030";
+        ti,model = "omap3beagle";
+
+        ti,mcbsp = <&mcbsp2>;
+    };
