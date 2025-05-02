@@ -1,0 +1,230 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Bjorn Helgaas, Brian Austin, Charles Keepax, Rob Herring
+---
+$id: http://devicetree.org/schemas/sound/cirrus,cs35l35.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: CS35L35 Boosted Speaker Amplifier
+
+maintainers:
+  - Bjorn Helgaas <bhelgaas@google.com>
+  - Brian Austin <brian.austin@cirrus.com>
+  - Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  CS35L35 Boosted Speaker Amplifier
+
+  The cs35l35 node can have a single "cirrus,classh-internal-algo" sub-node
+  that will disable automatic control of the internal H/G Algorithm.
+
+  It is strongly recommended that the Datasheet be referenced when adjusting
+  or using these Class H Algorithm controls over the internal Algorithm.
+  Serious damage can occur to the Device and surrounding components.
+
+  The cs35l35 node can have a single "cirrus,monitor-signal-format" sub-node
+  for adjusting the Depth, Location and Frame of the Monitoring Signals
+  for Algorithms.
+
+  See Sections 4.8.2 through 4.8.4 Serial-Port Control in the Datasheet.
+
+  If not used, the defaults for the 6 monitor signals is used.
+
+  Sections 7.44 - 7.53 lists values for the depth, location, and frame
+  for each monitoring signal.
+
+properties:
+  compatible:
+    items:
+      - const: cirrus,cs35l35
+
+  reg:
+    items:
+      - description: I2C address of the device
+
+  VA-supply: true
+  VP-supply: true
+
+  reset-gpios:
+    maxItems: 1
+    description: GPIO used to reset the amplifier
+
+  interrupts:
+    items:
+      - description: IRQ line information for the amplifier
+
+  cirrus,boost-ind-nanohenry:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum:
+      - 1000
+      - 1200
+      - 1500
+      - 2200
+    description: Inductor value for boost converter in nH
+
+  cirrus,stereo-config:
+    type: boolean
+    description: Boolean to enable two amplifiers in stereo configuration
+
+  cirrus,audio-channel:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum:
+      - 0
+      - 1
+    description: Location of the audio signal on serial port (0=Left,1=Right)
+
+  cirrus,advisory-channel:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum:
+      - 0
+      - 1
+    description: Location of the advisory signal on serial port (0=Left,1=Right)
+
+  cirrus,shared-boost:
+    type: boolean
+    description: Enable ClassH tracking of advisory signal when sharing boost
+
+  cirrus,external-boost:
+    type: boolean
+    description: Specify use of external boost supply
+
+  cirrus,sp-drv-strength:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum:
+      - 0
+      - 1
+    description: Serial port drive strength (0=1x,1=0.5x)
+
+  cirrus,sp-drv-unused:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum:
+      - 0
+      - 2
+      - 3
+    description: How unused slots are driven (0=Hi-Z,2=Drive-0,3=Drive-1)
+
+  cirrus,bst-pdn-fet-on:
+    type: boolean
+    description: Control PDN FET on/off when shutting down boost
+
+  cirrus,boost-ctl-millivolt:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Boost converter output voltage in mV
+
+  cirrus,boost-peak-milliamp:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Boost-converter peak current limit in mA
+
+  cirrus,amp-gain-zc:
+    type: boolean
+    description: Use amplifier gain-change zero-cross
+
+  cirrus,classh-internal-algo:
+    description: Sub-node for the Internal Class H Algorithm
+    type: object
+    additionalProperties: false
+
+    properties:
+      cirrus,classh-bst-overide:
+        type: boolean
+        description: Override for Class H boost control
+      cirrus,classh-bst-max-limit:
+        $ref: /schemas/types.yaml#/definitions/uint32
+        description: Maximum boost limit
+      cirrus,classh-mem-depth:
+        $ref: /schemas/types.yaml#/definitions/uint32
+        description: Class H memory depth
+      cirrus,classh-headroom:
+        $ref: /schemas/types.yaml#/definitions/uint32
+        description: Class H headroom control value in mV
+      cirrus,classh-release-rate:
+        $ref: /schemas/types.yaml#/definitions/uint32
+        description: Class H release rate
+      cirrus,classh-wk-fet-disable:
+        type: boolean
+        description: Disable weak FET drive in Class H
+      cirrus,classh-wk-fet-delay:
+        $ref: /schemas/types.yaml#/definitions/uint32
+        description: Weak FET drive delay
+      cirrus,classh-wk-fet-thld:
+        $ref: /schemas/types.yaml#/definitions/uint32
+        description: Weak FET drive threshold
+      cirrus,classh-vpch-auto:
+        type: boolean
+        description: Automatic VPCH control in Class H
+      cirrus,classh-vpch-rate:
+        $ref: /schemas/types.yaml#/definitions/uint32
+        description: VPCH rate
+      cirrus,classh-vpch-man:
+        $ref: /schemas/types.yaml#/definitions/uint32
+        description: Manual VPCH control
+
+  cirrus,monitor-signal-format:
+    description: Sub-node for monitor signal formatting on the I2S port
+    type: object
+    additionalProperties: false
+    properties:
+      cirrus,imon:
+        $ref: /schemas/types.yaml#/definitions/uint8-array
+        description: Depth, location, frame, and ADC scale of the IMON signal
+      cirrus,vmon:
+        $ref: /schemas/types.yaml#/definitions/uint8-array
+        description: Depth, location, and frame of the VMON signal
+      cirrus,vpmon:
+        $ref: /schemas/types.yaml#/definitions/uint8-array
+        description: Depth, location, and frame of the VPMON signal
+      cirrus,vbstmon:
+        $ref: /schemas/types.yaml#/definitions/uint8-array
+        description: Depth, location, and frame of the VBSTMON signal
+      cirrus,vpbrstat:
+        $ref: /schemas/types.yaml#/definitions/uint8-array
+        description: Depth, location, and frame of the VPBRSTAT signal
+      cirrus,zerofill:
+        $ref: /schemas/types.yaml#/definitions/uint8-array
+        description: Zero-fill packet formatting
+
+required:
+  - compatible
+  - reg
+  - VA-supply
+  - VP-supply
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    cs35l35@20 {
+      compatible = "cirrus,cs35l35";
+      reg = <0x20>;
+      VA-supply = <&dummy_vreg>;
+      VP-supply = <&dummy_vreg>;
+      reset-gpios = <&axi_gpio 54 0>;
+      interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
+      cirrus,boost-ctl-millivolt = <9000>;
+      cirrus,stereo-config;
+      cirrus,audio-channel = <0x00>;
+      cirrus,advisory-channel = <0x01>;
+      cirrus,shared-boost;
+      cirrus,classh-internal-algo {
+        cirrus,classh-bst-overide;
+        cirrus,classh-bst-max-limit = <0x01>;
+        cirrus,classh-mem-depth = <0x01>;
+        cirrus,classh-release-rate = <0x08>;
+        cirrus,classh-headroom = <0x0B>;
+        cirrus,classh-wk-fet-disable = <0x01>;
+        cirrus,classh-wk-fet-delay = <0x04>;
+        cirrus,classh-wk-fet-thld = <0x01>;
+        cirrus,classh-vpch-auto = <0x01>;
+        cirrus,classh-vpch-rate = <0x02>;
+        cirrus,classh-vpch-man = <0x05>;
+      };
+      cirrus,monitor-signal-format {
+        cirrus,imon = /bits/ 8 <0x03 0x00 0x01>;
+        cirrus,vmon = /bits/ 8 <0x03 0x00 0x00>;
+        cirrus,vpmon = /bits/ 8 <0x03 0x04 0x00>;
+        cirrus,vbstmon = /bits/ 8 <0x03 0x04 0x01>;
+        cirrus,vpbrstat = /bits/ 8 <0x00 0x04 0x00>;
+        cirrus,zerofill = /bits/ 8 <0x00 0x00 0x00>;
+      };
+    };
