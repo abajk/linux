@@ -1,43 +1,64 @@
-# SPDX-License-Identifier: GPL-2.0
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
 %YAML 1.2
 ---
 $id: http://devicetree.org/schemas/w1/w1-gpio.yaml#
 $schema: http://devicetree.org/meta-schemas/core.yaml#
 
-title: Bitbanged GPIO 1-Wire Bus
+title: Generic one-wire bus controller (w1-gpio)
 
 maintainers:
-  - Daniel Mack <zonque@gmail.com>
+  - Daniel Mack <daniel@zonque.org>
+
+description: |
+  Generic devicetree bindings for onewire (w1) busses
+
+  Onewire busses are described through nodes of their master bus controller.
+  Slave devices are listed as sub-nodes of such master devices. For now, only
+  one slave is allowed per bus master.
 
 properties:
   compatible:
-    const: w1-gpio
+    # Single compatible string identifying the bus controller driver
+    items:
+      - enum:
+          - w1-gpio
 
   gpios:
-    minItems: 1
-    items:
-      - description: Data I/O pin
-      - description: Enable pin for an external pull-up resistor
+    description: GPIOs used to bit-bang the 1-Wire bus
+    $ref: /schemas/types.yaml#/definitions/phandle-array
 
-  linux,open-drain:
-    type: boolean
-    description: >
-      If specified, the data pin is considered in open-drain mode.
+patternProperties:
+  ".*":
+    description: Slave device sub-nodes on the 1-Wire bus
+    type: object
+    additionalProperties: false
+    properties:
+      compatible:
+        items:
+          - enum:
+              - maxim,ds2760
+      power-supplies:
+        description: Power supply phandles for the slave device
+        $ref: /schemas/types.yaml#/definitions/phandle-array
+    required:
+      - compatible
 
-required:
-  - compatible
-  - gpios
-
-additionalProperties:
-  type: object
+additionalProperties: false
 
 examples:
   - |
-    #include <dt-bindings/gpio/gpio.h>
-
-    onewire {
-        compatible = "w1-gpio";
-        gpios = <&gpio 0 GPIO_ACTIVE_HIGH>;
+    charger: charger {
+      compatible = "gpio-charger";
+      charger-type = "mains";
+      gpios = <&gpio 1 GPIO_ACTIVE_LOW>;
     };
 
-...
+    onewire {
+      compatible = "w1-gpio";
+      gpios = <&gpio 100 0>, <&gpio 101 0>;
+
+      battery {
+        compatible = "maxim,ds2760";
+        power-supplies = <&charger>;
+      };
+    };
