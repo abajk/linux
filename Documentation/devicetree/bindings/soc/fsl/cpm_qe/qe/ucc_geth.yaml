@@ -1,0 +1,197 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/ucc_geth.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Unified Communications Controller (UCC)
+
+maintainers:
+  - Rob Herring <robh@kernel.org>
+  - Zhao Qiang <qiang.zhao@nxp.com>
+
+description: |
+  * UCC (Unified Communications Controllers)
+
+  Required properties:
+
+  The following two properties are deprecated. rx-clock has been replaced
+  with rx-clock-name, and tx-clock has been replaced with tx-clock-name.
+  Drivers that currently use the deprecated properties should continue to
+  do so, in order to support older device trees, but they should be updated
+  to check for the new properties first.
+
+  Required properties for network device_type:
+
+  Recommended properties:
+
+properties:
+  compatible:
+    items:
+      - enum: [ ucc_geth, fsl_atm ]
+  device_type:
+    description: The interface type for this controller.
+    enum: [ network, hldc, uart, transparent, bisync, atm, serial ]
+
+  cell-index:
+    description: The UCC number (1–8), corresponding to UCCx in the user manual.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  reg:
+    maxItems: 1
+
+  interrupts:
+    maxItems: 1
+
+  pio-handle:
+    description: The phandle for the Parallel I/O port configuration.
+    $ref: /schemas/types.yaml#/definitions/phandle
+  port-number:
+    description: For UART drivers, the port number (0–3) to use.
+    $ref: /schemas/types.yaml#/definitions/uint32
+  soft-uart:
+    description: Enable Soft‐UART mode via microcode upload for broken hardware.
+    type: boolean
+  rx-clock-name:
+    description: The UCC receive clock source.
+    $ref: /schemas/types.yaml#/definitions/string
+    enum:
+      - none
+      - brg1
+      - brg2
+      - brg3
+      - brg4
+      - brg5
+      - brg6
+      - brg7
+      - brg8
+      - brg9
+      - brg10
+      - brg11
+      - brg12
+      - brg13
+      - brg14
+      - brg15
+      - brg16
+      - clk1
+      - clk2
+      - clk3
+      - clk4
+      - clk5
+      - clk6
+      - clk7
+      - clk8
+      - clk9
+      - clk10
+      - clk11
+      - clk12
+      - clk13
+      - clk14
+      - clk15
+      - clk16
+      - clk17
+      - clk18
+      - clk19
+      - clk20
+      - clk21
+      - clk22
+      - clk23
+      - clk24
+  tx-clock-name:
+    description: The UCC transmit clock source.
+    $ref: /schemas/types.yaml#/definitions/string
+    enum:
+      - none
+      - brg1
+      - brg2
+      - brg3
+      - brg4
+      - brg5
+      - brg6
+      - brg7
+      - brg8
+      - brg9
+      - brg10
+      - brg11
+      - brg12
+      - brg13
+      - brg14
+      - brg15
+      - brg16
+      - clk1
+      - clk2
+      - clk3
+      - clk4
+      - clk5
+      - clk6
+      - clk7
+      - clk8
+      - clk9
+      - clk10
+      - clk11
+      - clk12
+      - clk13
+      - clk14
+      - clk15
+      - clk16
+      - clk17
+      - clk18
+      - clk19
+      - clk20
+      - clk21
+      - clk22
+      - clk23
+      - clk24
+  rx-clock:
+    description: >
+      Deprecated receive clock encoding (0x00: disabled;
+      0x1–0x10: BRG1–BRG16; 0x11–0x28: QE_CLK1–QE_CLK24).
+    $ref: /schemas/types.yaml#/definitions/uint32
+  tx-clock:
+    description: >
+      Deprecated transmit clock encoding (0x00: disabled;
+      0x1–0x10: BRG1–BRG16; 0x11–0x28: QE_CLK1–QE_CLK24).
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  phy-connection-type:
+    enum: [ mii, rmii, gmii, rgmii, rgmii-id, rgmii-txid, rgmii-rxid, tbi, rtbi ]
+
+required:
+  - device_type
+  - compatible
+  - cell-index
+  - reg
+  - interrupts
+  - pio-handle
+
+allOf:
+  - if:
+      properties:
+        device_type:
+          enum: [ uart ]
+    then:
+      required: [ port-number ]
+  - if:
+      properties:
+        device_type:
+          enum: [ network ]
+    then:
+      required: [ mac-address, phy-handle ]
+
+additionalProperties: false
+
+examples:
+  - |
+    ucc@2000 {
+        device_type = "network";
+        compatible = "ucc_geth";
+        cell-index = <1>;
+        reg = <2000 200>;
+        interrupts = <10 0>;
+        mac-address = [ 00 04 9f 00 23 23 ];
+        rx-clock-name = "none";
+        tx-clock-name = "clk9";
+        phy-handle = <212000>;
+        phy-connection-type = "gmii";
+        pio-handle = <140001>;
+    };
