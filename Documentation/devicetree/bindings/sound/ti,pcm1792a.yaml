@@ -1,0 +1,57 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Teenage Engineering
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/ti,pcm1792a.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI PCM1792A audio DAC
+maintainers:
+  - Jacob Siverskog <jacob@teenage.engineering>
+  - Michael Trimarchi <michael@amarulasolutions.com>
+
+description: |
+  Texas Instruments pcm179x DT bindings
+
+  This driver supports both the I2C and SPI bus.
+
+  Required properties:
+
+  - compatible: "ti,pcm1792a"
+
+  For required properties on SPI, please consult
+  Documentation/devicetree/bindings/spi/spi-bus.txt
+
+  Required properties on I2C:
+
+  - reg: the I2C address
+
+properties:
+  compatible:
+    items:
+      - const: ti,pcm1792a
+
+  reg:
+    items:
+      - description: the I2C address
+
+  spi-max-frequency:
+    description: Maximum SPI bus frequency supported by the codec.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+required:
+  - compatible
+
+additionalProperties: false
+
+examples:
+  - |
+    codec_spi: 1792a@0 {
+        compatible = "ti,pcm1792a";
+        spi-max-frequency = <600000>;
+    };
+  - |
+    codec_i2c: 1792a@4c {
+        compatible = "ti,pcm1792a";
+        reg = <0x4c>;
+    };
