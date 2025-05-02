@@ -1,0 +1,158 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/dlg,da7218.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Dialog Semiconductor DA7218 Audio Codec
+
+maintainers:
+  - Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
+
+description: |
+  Dialog Semiconductor DA7218 Audio Codec bindings
+
+  DA7218 is an audio codec with HP detect feature.
+
+properties:
+  compatible:
+    items:
+      - enum: ['dlg,da7217', 'dlg,da7218']
+
+  reg:
+    description: Specifies the I2C slave address
+
+  VDD-supply:
+    description: VDD power supply for the device
+
+  VDDMIC-supply:
+    description: VDDMIC power supply for the device
+
+  VDDIO-supply:
+    description: VDDIO power supply for the device
+
+  interrupts:
+    maxItems: 1
+
+  interrupt-names:
+    description: >-
+      Name associated with interrupt line. Should be "wakeup" if interrupt is
+      to be used to wake system, otherwise "irq".
+    items:
+      - enum: [wakeup, irq]
+
+  wakeup-source: true
+
+  clocks:
+    description: Phandle and clock specifier for codec MCLK.
+    maxItems: 1
+
+  clock-names:
+    items:
+      - const: mclk
+
+  dlg,micbias1-lvl-millivolt:
+    description: Voltage (mV) for Mic Bias 1
+    enum: [1200, 1600, 1800, 2000, 2200, 2400, 2600, 2800, 3000]
+
+  dlg,micbias2-lvl-millivolt:
+    description: Voltage (mV) for Mic Bias 2
+    enum: [1200, 1600, 1800, 2000, 2200, 2400, 2600, 2800, 3000]
+
+  dlg,mic1-amp-in-sel:
+    description: Mic1 input source type
+    enum: [diff, se_p, se_n]
+
+  dlg,mic2-amp-in-sel:
+    description: Mic2 input source type
+    enum: [diff, se_p, se_n]
+
+  dlg,dmic1-data-sel:
+    description: DMIC1 channel select based on clock edge.
+    enum: [lrise_rfall, lfall_rrise]
+
+  dlg,dmic1-samplephase:
+    description: When to sample audio from DMIC1.
+    enum: [on_clkedge, between_clkedge]
+
+  dlg,dmic1-clkrate-hz:
+    description: DMIC1 clock frequency (Hz).
+    enum: [1500000, 3000000]
+
+  dlg,dmic2-data-sel:
+    description: DMIC2 channel select based on clock edge.
+    enum: [lrise_rfall, lfall_rrise]
+
+  dlg,dmic2-samplephase:
+    description: When to sample audio from DMIC2.
+    enum: [on_clkedge, between_clkedge]
+
+  dlg,dmic2-clkrate-hz:
+    description: DMIC2 clock frequency (Hz).
+    enum: [1500000, 3000000]
+
+  dlg,hp-diff-single-supply:
+    description: Boolean flag, use single supply for HP (DA7217 only)
+
+  da7218_hpldet:
+    description: DA7218 hot-plug detect child node.
+    type: object
+    additionalProperties: false
+    properties:
+      dlg,jack-rate-us:
+        description: Time between jack detect measurements (us).
+        enum: [5, 10, 20, 40, 80, 160, 320, 640]
+      dlg,jack-debounce:
+        description: Number of debounce measurements taken for jack detect.
+        enum: [0, 2, 3, 4]
+      dlg,jack-threshold-pct:
+        description: Threshold level for jack detection (% of VDD).
+        enum: [84, 88, 92, 96]
+      dlg,comp-inv:
+        description: Boolean flag, invert comparator output.
+        type: boolean
+      dlg,hyst:
+        description: Boolean flag, enable hysteresis.
+        type: boolean
+      dlg,discharge:
+        description: Boolean flag, auto discharge of Mic Bias on jack removal.
+        type: boolean
+
+required:
+  - compatible
+  - reg
+  - VDD-supply
+  - VDDMIC-supply
+  - VDDIO-supply
+
+additionalProperties: false
+
+examples:
+  - |
+    codec: da7218@1a {
+        compatible = "dlg,da7218";
+        reg = <0x1a>;
+        interrupts = <11 IRQ_TYPE_LEVEL_LOW>;
+        wakeup-source;
+        VDD-supply = <&reg_audio>;
+        VDDMIC-supply = <&reg_audio>;
+        VDDIO-supply = <&reg_audio>;
+        clocks = <&clks 201>;
+        clock-names = "mclk";
+        dlg,micbias1-lvl-millivolt = <2600>;
+        dlg,micbias2-lvl-millivolt = <2600>;
+        dlg,mic1-amp-in-sel = "diff";
+        dlg,mic2-amp-in-sel = "diff";
+        dlg,dmic1-data-sel = "lrise_rfall";
+        dlg,dmic1-samplephase = "on_clkedge";
+        dlg,dmic1-clkrate-hz = <3000000>;
+        dlg,dmic2-data-sel = "lrise_rfall";
+        dlg,dmic2-samplephase = "on_clkedge";
+        dlg,dmic2-clkrate-hz = <3000000>;
+        da7218_hpldet {
+            dlg,jack-rate-us = <40>;
+            dlg,jack-debounce = <2>;
+            dlg,jack-threshold-pct = <84>;
+            dlg,hyst;
+        };
+    };
