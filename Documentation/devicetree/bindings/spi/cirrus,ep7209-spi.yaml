@@ -1,0 +1,73 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/spi/cirrus,ep7209-spi.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Cirrus Logic CL-PS71xx SPI Controller
+
+maintainers:
+  - Arnd Bergmann <arnd@arndb.de>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  Serial Peripheral Interface on Cirrus Logic CL-PS71xx, EP72xx, EP73xx
+
+  An additional register is present in the system controller,
+  which is assumed to be in the same device tree and marked
+  as compatible with "cirrus,ep7209-syscon3".
+
+properties:
+  compatible:
+    description: Device compatible string.
+    items:
+      - const: "cirrus,ep7209-spi"
+
+  '#address-cells':
+    description: Address cells for this device.
+    const: 1
+
+  '#size-cells':
+    description: Size cells for this device.
+    const: 0
+
+  reg:
+    description: Register address and size.
+    items:
+      - description: Register address and size.
+
+  interrupts:
+    description: SPI interrupt line.
+    items:
+      - description: SPI interrupt line.
+
+  clocks:
+    description: SPI bus clock.
+    maxItems: 1
+
+  cs-gpios:
+    description: Specifies the GPIO pins to be used for chip selects.
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+
+required:
+  - compatible
+  - '#address-cells'
+  - '#size-cells'
+  - reg
+  - interrupts
+  - clocks
+  - cs-gpios
+
+additionalProperties: false
+
+examples:
+  - |
+    spi@80000500 {
+      #address-cells = <1>;
+      #size-cells = <0>;
+      compatible = "cirrus,ep7209-spi";
+      reg = <0x80000500 0x4>;
+      interrupts = <15>;
+      clocks = <&clks CLPS711X_CLK_SPI>;
+      cs-gpios = <&gpio0 3>;
+    };
