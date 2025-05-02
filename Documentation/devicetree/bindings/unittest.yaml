@@ -1,0 +1,88 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Pantelis Antoniou <pantelis.antoniou@konsulko.com>,
+# Rob Herring <robh@kernel.org>, Wang Long <long.wanglong@huawei.com>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/unittest.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Unit Test Devices
+
+maintainers:
+  - Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+  - Rob Herring <robh@kernel.org>
+  - Wang Long <long.wanglong@huawei.com>
+
+description: |
+  1) OF unittest platform device
+
+  ** unittest
+
+  2) OF unittest i2c adapter platform device
+
+  ** platform device unittest adapter
+
+  3) OF unittest i2c device
+
+  ** I2C unittest device
+
+  4) OF unittest i2c mux device
+
+  ** I2C unittest mux
+
+properties:
+  compatible:
+    oneOf:
+      - items:
+          - const: unittest
+      - items:
+          - const: unittest-i2c-bus
+      - items:
+          - const: unittest-i2c-dev
+      - items:
+          - const: unittest-i2c-mux
+
+  reg:
+    description: List of register ranges
+
+  '#address-cells':
+    description: Number of address cells for child nodes
+    const: 1
+
+  '#size-cells':
+    description: Number of size cells for child nodes
+    const: 0
+
+required:
+  - compatible
+
+additionalProperties: true
+
+examples:
+  - |
+    unittest {
+      compatible = "unittest";
+    };
+  - |
+    unittest-i2c-bus {
+      compatible = "unittest-i2c-bus";
+    };
+  - |
+    unittest-i2c-dev {
+      compatible = "unittest-i2c-dev";
+    };
+  - |
+    unittest-i2c-mux {
+      compatible = "unittest-i2c-mux";
+      #address-cells = <1>;
+      #size-cells = <0>;
+      channel-0 {
+        reg = <0>;
+        #address-cells = <1>;
+        #size-cells = <0>;
+        i2c-dev {
+          reg = <8>;
+          compatible = "unittest-i2c-dev";
+        };
+      };
+    };

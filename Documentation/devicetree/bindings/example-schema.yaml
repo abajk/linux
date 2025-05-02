@@ -117,8 +117,8 @@ properties:
     const: 2
 
   interrupt-controller: true
-    # The core checks this is a boolean, so just have to list it here to be
-    # valid for this binding.
+  # The core checks this is a boolean, so just have to list it here to be
+  # valid for this binding.
 
   clock-frequency:
     # The type is set in the core schema. Per-device schema only need to set
