@@ -1,0 +1,131 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/soc/mediatek/mediatek,mt2701-scpsys.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: MediaTek SCPSYS
+
+maintainers:
+  - James Liao <jamesjj.liao@mediatek.com>
+  - Krzysztof Kozlowski <krzk@kernel.org>
+  - Mars Cheng <mars.cheng@mediatek.com>
+  - Ryder Lee <ryder.lee@mediatek.com>
+  - Sascha Hauer <s.hauer@pengutronix.de>
+  - Sean Wang <sean.wang@mediatek.com>
+  - Shunli Wang <shunli.wang@mediatek.com>
+  - weiyi.lu@mediatek.com <weiyi.lu@mediatek.com>
+  - Yassine Oudjana <y.oudjana@protonmail.com>
+
+description: |
+  MediaTek SCPSYS
+  ===============
+
+  The System Control Processor System (SCPSYS) has several power management
+  related tasks in the system. The tasks include thermal measurement, dynamic
+  voltage frequency scaling (DVFS), interrupt filter and lowlevel sleep control.
+  The System Power Manager (SPM) inside the SCPSYS is for the MTCMOS power
+  domain control.
+
+  The driver implements the Generic PM domain bindings described in
+  power/power-domain.yaml. It provides the power domains defined in
+  - include/dt-bindings/power/mt8173-power.h
+  - include/dt-bindings/power/mt6797-power.h
+  - include/dt-bindings/power/mt6765-power.h
+  - include/dt-bindings/power/mt2701-power.h
+  - include/dt-bindings/power/mt2712-power.h
+  - include/dt-bindings/power/mt7622-power.h
+
+properties:
+  compatible:
+    oneOf:
+      - items:
+          - enum:
+              - "mediatek,mt2701-scpsys"
+              - "mediatek,mt2712-scpsys"
+              - "mediatek,mt6735-scpsys"
+              - "mediatek,mt6765-scpsys"
+              - "mediatek,mt6797-scpsys"
+              - "mediatek,mt7622-scpsys"
+              - "mediatek,mt7623a-scpsys"
+              - "mediatek,mt8173-scpsys"
+      - items:
+          - const: "mediatek,mt7623-scpsys"
+          - const: "mediatek,mt2701-scpsys"
+      - items:
+          - const: "mediatek,mt7629-scpsys"
+          - const: "mediatek,mt7622-scpsys"
+
+  '#power-domain-cells':
+    description: Always 1
+    const: 1
+
+  reg:
+    items:
+      - description: Register base address
+      - description: Register size
+
+  infracfg:
+    description: Infrastructure configuration controller phandle
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  clocks:
+    maxItems: 1
+
+  clock-names:
+    items:
+      - const: mm
+      - const: mfg
+      - const: ethif
+      - const: venc
+      - const: jpgdec
+      - const: audio
+      - const: vdec
+      - const: mm-0
+      - const: mm-1
+      - const: mm-2
+      - const: mm-3
+      - const: isp-0
+      - const: isp-1
+      - const: cam-0
+      - const: cam-1
+      - const: cam-2
+      - const: cam-3
+      - const: cam-4
+      - const: venc_lt
+      - const: hif_sel
+
+  vdec-supply: true
+  venc-supply: true
+  isp-supply: true
+  mm-supply: true
+  venc_lt-supply: true
+  audio-supply: true
+  usb-supply: true
+  mfg_async-supply: true
+  mfg_2d-supply: true
+  mfg-supply: true
+
+required:
+  - compatible
+  - '#power-domain-cells'
+  - reg
+  - infracfg
+  - clocks
+  - clock-names
+
+additionalProperties: false
+
+examples:
+  - |
+    scpsys: scpsys@10006000 {
+        #power-domain-cells = <1>;
+        compatible = "mediatek,mt8173-scpsys";
+        reg = <0 0x10006000 0 0x1000>;
+        infracfg = <&infracfg>;
+        clocks = <&clk26m>,
+                 <&topckgen CLK_TOP_MM_SEL>,
+                 <&topckgen CLK_TOP_VENC_SEL>,
+                 <&topckgen CLK_TOP_VENC_LT_SEL>;
+        clock-names = "mfg", "mm", "venc", "venc_lt";
+    };
