@@ -1,0 +1,64 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Matt Porter
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/st,tda7419.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: ST TDA7419 audio processor
+
+maintainers:
+  - Matt Porter <mporter@konsulko.com>
+
+description: |
+  TDA7419 audio processor
+
+  This device supports I2C only.
+
+  Pins on the device (for linking into audio routes):
+
+    * SE3L
+    * SE3R
+    * SE2L
+    * SE2R
+    * SE1L
+    * SE1R
+    * DIFFL
+    * DIFFR
+    * MIX
+    * OUTLF
+    * OUTRF
+    * OUTLR
+    * OUTRR
+    * OUTSW
+
+properties:
+  compatible:
+    items:
+      - const: st,tda7419
+
+  reg:
+    items:
+      - description: I2C address of the device
+
+  st,mute-gpios:
+    maxItems: 1
+    description: GPIO to control the MUTE pin
+
+  vdd-supply:
+    description: Regulator for common power supply (8-10V)
+
+required:
+  - compatible
+  - reg
+  - vdd-supply
+
+additionalProperties: false
+
+examples:
+  - |
+      ap: tda7419@44 {
+          compatible = "st,tda7419";
+          reg = <0x44>;
+          vdd-supply = <&vdd_9v0_reg>;
+      };
