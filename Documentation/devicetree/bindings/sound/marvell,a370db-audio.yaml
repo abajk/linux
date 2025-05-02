@@ -1,0 +1,50 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Linaro Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/marvell,a370db-audio.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Armada 370 DB audio
+
+maintainers:
+  - Rob Herring <robh@kernel.org>
+  - Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+
+description: |
+  Device Tree bindings for the Armada 370 DB audio
+
+  These Device Tree bindings are used to describe the audio complex
+  found on the Armada 370 DB platform.
+
+properties:
+  compatible:
+    items:
+      - const: marvell,a370db-audio
+
+  marvell,audio-controller:
+    description: Phandle to the Armada 370 SoC audio controller
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  marvell,audio-codec:
+    description: Three phandles for the connected audio codec and SPDIF interfaces
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    items:
+      - description: Analog audio codec
+      - description: S/PDIF transceiver
+      - description: S/PDIF receiver
+
+required:
+  - compatible
+  - marvell,audio-controller
+  - marvell,audio-codec
+
+additionalProperties: false
+
+examples:
+  - |
+      sound {
+          compatible = "marvell,a370db-audio";
+          marvell,audio-controller = <&audio_controller>;
+          marvell,audio-codec = <&audio_codec &spdif_out &spdif_in>;
+      };
