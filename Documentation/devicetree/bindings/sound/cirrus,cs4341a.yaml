@@ -1,0 +1,57 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Alexander Shiyan <shc_work@mail.ru>, Rob Herring <robh@kernel.org>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/cirrus,cs4341a.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Cirrus Logic CS4341 audio DAC
+
+maintainers:
+  - Alexander Shiyan <shc_work@mail.ru>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  Cirrus Logic CS4341 audio DAC
+
+  This device supports both I2C and SPI (configured with pin strapping on the board).
+
+  For required properties on I2C-bus, please consult
+  dtschema schemas/i2c/i2c-controller.yaml
+  For required properties on SPI-bus, please consult
+  Documentation/devicetree/bindings/spi/spi-bus.txt
+
+properties:
+  compatible:
+    description: Device compatibility string.
+    items:
+      - const: cirrus,cs4341a
+
+  reg:
+    description: The I2C address for I2C devices or the SPI chip select number.
+    items:
+      - description: Address or chip select
+
+  spi-max-frequency:
+    description: SPI bus maximum frequency in Hz.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  '#sound-dai-cells':
+    description: Number of cells for the sound-dai-cells property.
+    const: 0
+
+required:
+  - compatible
+  - reg
+  - '#sound-dai-cells'
+
+additionalProperties: false
+
+examples:
+  - |
+    codec: cs4341@0 {
+        #sound-dai-cells = <0>;
+        compatible = "cirrus,cs4341a";
+        reg = <0>;
+        spi-max-frequency = <6000000>;
+    };
