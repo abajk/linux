@@ -1,0 +1,62 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/rtc/cdns,rtc-r109v3.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Cadence Real Time Clock
+
+maintainers:
+  - Jan Kotas <jank@cadence.com>
+
+description: |
+  Cadence Real Time Clock
+
+  The Cadence RTC controller with date, time and alarm capabilities.
+  The alarm may wake the system from low-power state.
+
+properties:
+  compatible:
+    items:
+      - const: cdns,rtc-r109v3
+
+  reg:
+    items:
+      - description: Base physical address of the register area.
+      - description: Size of the register area.
+
+  clocks:
+    description: >
+      Two clocks: pclk for the APB registers clock and ref_clk for the reference
+      1Hz or 100Hz clock, depending on IP configuration.
+    items:
+      - description: APB registers clock.
+      - description: Reference clock, 1Hz or 100Hz, depending on IP configuration.
+
+  clock-names:
+    items:
+      - const: pclk
+      - const: ref_clk
+
+  interrupts:
+    description: A single interrupt specifier.
+    items:
+      - description: Interrupt specifier.
+
+required:
+  - compatible
+  - reg
+  - clocks
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    rtc0: rtc@fd080000 {
+        compatible = "cdns,rtc-r109v3";
+        reg = <0xfd080000 0x1000>;
+        clock-names = "pclk", "ref_clk";
+        clocks = <&sysclock>, <&refclock>;
+        interrupts = <0 6 IRQ_TYPE_LEVEL_HIGH>;
+    };
