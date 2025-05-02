@@ -1,0 +1,50 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/ti,pcm1789.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Texas Instruments PCM1789 audio codec
+
+maintainers:
+  - Mylène Josserand <mylene.josserand@bootlin.com>
+
+description: |
+  Texas Instruments pcm1789 DT bindings
+
+  PCM1789 is a simple audio codec that can be connected via
+  I2C or SPI. Currently, only I2C bus is supported.
+
+properties:
+  compatible:
+    items:
+      - const: ti,pcm1789
+
+  reg:
+    items:
+      - description: I2C address
+
+  reset-gpios:
+    maxItems: 1
+    description: GPIO to control the RESET pin
+
+  '#sound-dai-cells':
+    # The core schema handles that this must be a single integer.
+    const: 0
+
+additionalProperties: false
+
+required:
+  - compatible
+  - reg
+  - reset-gpios
+  - '#sound-dai-cells'
+
+examples:
+  - |
+    audio-codec@4c {
+        compatible = "ti,pcm1789";
+        reg = <0x4c>;
+        reset-gpios = <&gpio2 14 GPIO_ACTIVE_LOW>;
+        #sound-dai-cells = <0>;
+    };
