@@ -1,0 +1,197 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2018-2025 Texas Instruments
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/soc/ti/ti,keystone-navigator-qmss.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Texas Instruments Keystone Navigator Queue Management SubSystem
+maintainers:
+  - Eric Engestrom <eric@engestrom.ch>
+  - Mathieu Malaterre <malat@debian.org>
+  - Murali Karicheri <m-karicheri2@ti.com>
+  - Sandeep Nair <sandeep_n@ti.com>
+
+description: |
+  * Texas Instruments Keystone Navigator Queue Management SubSystem driver
+
+  The QMSS (Queue Manager Sub System) found on Keystone SOCs is one of
+  the main hardware sub system which forms the backbone of the Keystone
+  multi-core Navigator. QMSS consist of queue managers, packed-data structure
+  processors (PDSP), linking RAM, descriptor pools and infrastructure
+  Packet DMA.
+  The Queue Manager is a hardware module that is responsible for accelerating
+  management of the packet queues. Packets are queued/de-queued by writing or
+  reading descriptor address to a particular memory mapped location. The PDSPs
+  perform QMSS related functions like accumulation, QoS, or event management.
+  Linking RAM registers are used to link the descriptors which are stored in
+  descriptor RAM. Descriptor RAM is configurable as internal or external memory.
+  The QMSS driver manages the PDSP setups, linking RAM regions,
+  queue pool management (allocation, push, pop and notify) and descriptor
+  pool management.
+
+properties:
+  compatible:
+    items:
+      - const: ti,keystone-navigator-qmss
+      - const: ti,66ak2g-navss-qm
+
+  clocks:
+    description: Reference clock for this device.
+    maxItems: 1
+
+  dma-coherent: true
+
+  queue-range:
+    description: Total range of queue numbers for the device.
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+    items:
+      - description: Base queue number
+        minimum: 0
+      - description: Number of queues
+        minimum: 0
+
+  linkram0:
+    description: Internal link RAM address and total entries.
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+    items:
+      - description: Base address
+      - description: Total link RAM entries
+
+  linkram1:
+    description: |
+      External link RAM address and total entries.
+      If entries is 0, memory is allocated by the driver.
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+    items:
+      - description: Base address
+      - description: Total link RAM entries
+
+  qmgrs:
+    description: Child nodes describing individual queue managers.
+    type: object
+    additionalProperties: false
+    patternProperties:
+      '.*':
+        type: object
+        additionalProperties: false
+        properties:
+          managed-queues:
+            description: Base queue and number of queues managed by this queue manager.
+            $ref: /schemas/types.yaml#/definitions/uint32-array
+            items:
+              - description: Base queue number
+                minimum: 0
+              - description: Number of queues
+                minimum: 0
+          reg:
+            description: Address and size of register regions for this queue manager.
+            items:
+              - description: Queue Peek region
+              - description: Queue status RAM
+              - description: Queue configuration region
+              - description: Descriptor memory setup region
+              - description: Queue Management/Queue Proxy region for queue Push
+              - description: Queue Management/Queue Proxy region for queue Pop
+        required:
+          - managed-queues
+          - reg
+
+  queue-pools:
+    description: Child node classifying queue ranges into pools.
+    type: object
+    additionalProperties: false
+    patternProperties:
+      '.*':
+        type: object
+        additionalProperties: false
+        properties:
+          qrange:
+            description: Base queue and number of queues for this range.
+            $ref: /schemas/types.yaml#/definitions/uint32-array
+            items:
+              - description: Base queue number
+                minimum: 0
+              - description: Number of queues
+                minimum: 0
+          interrupts:
+            maxItems: 1
+            
+          qalloc-by-id:
+            description: Queues in this range can only be allocated by queue id.
+            type: boolean
+          accumulator:
+            description: Accumulator channel specification.
+            $ref: /schemas/types.yaml#/definitions/uint32-array
+            items:
+              - description: PDSP id
+              - description: Channel
+              - description: Number of entries
+              - description: Pacing mode
+              - description: Latency in microseconds
+        required:
+          - qrange
+
+  descriptor-regions:
+    description: Child node describing memory regions for packet DMA descriptors.
+    type: object
+    additionalProperties: false
+    patternProperties:
+      '.*':
+        type: object
+        additionalProperties: false
+        properties:
+          id:
+            description: Region number in QMSS.
+            $ref: /schemas/types.yaml#/definitions/uint32
+          region-spec:
+            description: Number of descriptors and descriptor size.
+            $ref: /schemas/types.yaml#/definitions/uint32-array
+            items:
+              - description: Number of descriptors
+              - description: Descriptor size in bytes
+          link-index:
+            description: Index of the first descriptor in the region.
+            $ref: /schemas/types.yaml#/definitions/uint32
+        required:
+          - id
+          - region-spec
+          - link-index
+
+  pdsps:
+    description: Child node describing the PDSP configuration.
+    type: object
+    additionalProperties: false
+    patternProperties:
+      '.*':
+        type: object
+        additionalProperties: false
+        properties:
+          firmware:
+            description: Firmware to be loaded on the PDSP.
+            $ref: /schemas/types.yaml#/definitions/string
+          id:
+            description: QMSS PDSP id.
+            $ref: /schemas/types.yaml#/definitions/uint32
+          reg:
+            description: Address and size of the register set for the PDSP.
+            items:
+              - description: PDSP internal RAM region
+              - description: PDSP control/status region registers
+              - description: QMSS interrupt distributor registers
+              - description: PDSP command interface region
+        required:
+          - reg
+          - id
+
+required:
+  - compatible
+  - clocks
+  - queue-range
+  - linkram0
+  - linkram1
+  - qmgrs
+  - queue-pools
+  - descriptor-regions
+
+additionalProperties: false
