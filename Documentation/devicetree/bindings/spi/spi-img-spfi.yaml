@@ -1,0 +1,98 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Imagination Technologies
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/spi-img-spfi.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: IMG Synchronous Peripheral Flash Interface (SPFI) controller
+
+maintainers:
+  - Andrew Bresticker <abrestic@chromium.org>
+  - Ezequiel Garcia <ezequiel.garcia@imgtec.com>
+  - Sifan Naeem <sifan.naeem@imgtec.com>
+
+description: |
+  IMG Synchronous Peripheral Flash Interface (SPFI) controller
+
+properties:
+  compatible:
+    description: Device compatible with IMG SPFI controller.
+    items:
+      - const: img,spfi
+
+  reg:
+    description: Base address and length of the SPFI registers.
+
+  interrupts:
+    description: SPFI interrupt.
+
+  clocks:
+    description: List of clocks required by the SPFI controller.
+    items:
+      - description: SPI operating clock
+      - description: SPI system interface clock
+
+  clock-names:
+    description: Names of the clocks required by the SPFI controller.
+    items:
+      - const: spfi
+      - const: sys
+
+  dmas:
+    description: List of DMA channels used by the SPFI controller.
+    items:
+      - description: RX DMA channel
+      - description: TX DMA channel
+
+  dma-names:
+    description: Names of the DMA channels used by the SPFI controller.
+    items:
+      - const: rx
+      - const: tx
+
+  cs-gpios:
+    description: GPIOs used for chipselect lines.
+
+  '#address-cells':
+    const: 1
+
+  '#size-cells':
+    const: 0
+
+  img,supports-quad-mode:
+    description: Indicates support for quad mode SPI transfers.
+    type: boolean
+
+  spfi-max-frequency:
+    description: Maximum speed supported by the SPFI block in Hertz.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - clocks
+  - clock-names
+  - dmas
+  - dma-names
+  - cs-gpios
+  - '#address-cells'
+  - '#size-cells'
+
+additionalProperties: false
+
+examples:
+  - |
+    spi@18100f00 {
+        compatible = "img,spfi";
+        reg = <0x18100f00 0x100>;
+        interrupts = <GIC_SHARED 22 IRQ_TYPE_LEVEL_HIGH>;
+        clocks = <&spi_clk>, <&system_clk>;
+        clock-names = "spfi", "sys";
+        dmas = <&mdc 9 0xffffffff 0>, <&mdc 10 0xffffffff 0>;
+        dma-names = "rx", "tx";
+        cs-gpios = <&gpio0 0>;
+        #address-cells = <1>;
+        #size-cells = <0>;
+    };
