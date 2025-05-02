@@ -1,0 +1,42 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 MediaTek Inc.
+%YAML 1.2
+---
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+$id: http://devicetree.org/schemas/mediatek,mt6797-mt6351-sound.yaml#
+
+title: MT6797 with MT6351 CODEC
+
+maintainers:
+  - Kai Chieh Chuang <kaichieh.chuang@mediatek.com>
+
+description: |
+  MT6797 with MT6351 CODEC
+
+properties:
+  compatible:
+    const: mediatek,mt6797-mt6351-sound
+    description: Device compatible string
+
+  mediatek,platform:
+    description: Phandle to the MT6797 ASoC platform
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  mediatek,audio-codec:
+    description: Phandle to the MT6351 audio codec
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+required:
+  - compatible
+  - mediatek,platform
+  - mediatek,audio-codec
+
+additionalProperties: false
+
+examples:
+  - |
+    sound {
+        compatible = "mediatek,mt6797-mt6351-sound";
+        mediatek,audio-codec = <&mt6351_snd>;
+        mediatek,platform = <&afe>;
+    };
