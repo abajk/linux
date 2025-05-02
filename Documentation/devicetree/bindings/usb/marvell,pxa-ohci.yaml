@@ -1,0 +1,72 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/usb/marvell,pxa-ohci.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: PXA USB controllers OHCI
+maintainers:
+  - Daniel Mack <zonque@gmail.com>
+  - Robert Jarzmik <robert.jarzmik@free.fr>
+  - Rob Herring <robh@kernel.org>
+description: |
+  PXA USB controllers
+
+  OHCI
+
+properties:
+  compatible:
+    items:
+      - const: marvell,pxa-ohci
+    description: Compatible string for the PXA OHCI USB controller.
+  reg:
+    maxItems: 1
+
+  interrupts:
+    maxItems: 1
+
+  marvell,enable-port1:
+    type: boolean
+    description: Enables port 1 of the controller.
+  marvell,enable-port2:
+    type: boolean
+    description: Enables port 2 of the controller.
+  marvell,enable-port3:
+    type: boolean
+    description: Enables port 3 of the controller.
+  marvell,port-mode:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [1, 2, 3]
+    description: "Selects the mode of the ports: 1=PMM_NPS_MODE, 2=PMM_GLOBAL_MODE, 3=PMM_PERPORT_MODE."
+  marvell,power-sense-low:
+    type: boolean
+    description: Power sense pin is low-active.
+  marvell,power-control-low:
+    type: boolean
+    description: Power control pin is low-active.
+  marvell,no-oc-protection:
+    type: boolean
+    description: Disable over-current protection.
+  marvell,oc-mode-perport:
+    type: boolean
+    description: Enable per-port over-current protection.
+  marvell,power_on_delay:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Power On to Power Good time, in ms.
+
+required:
+  - compatible
+  - reg
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    usb0: ohci@4c000000 {
+        compatible = "marvell,pxa-ohci";
+        reg = <0x4c000000 0x100000>;
+        interrupts = <18>;
+        marvell,enable-port1;
+        marvell,port-mode = <2>; /* PMM_GLOBAL_MODE */
+    };
