@@ -1,0 +1,100 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/cirrus,cs35l33.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Cirrus Logic CS35L33 Speaker Amplifier
+
+maintainers:
+  - Paul Handrigan <Paul.Handrigan@cirrus.com>
+
+description: |
+  CS35L33 Speaker Amplifier
+
+  Optional H/G Algorithm sub-node:
+
+  The cs35l33 node can have a single "cirrus,hg-algo" sub-node that will
+  enable the internal H/G Algorithm.
+
+properties:
+  compatible:
+    items:
+      - const: cirrus,cs35l33
+
+  reg:
+    description: I2C address of the device
+    items:
+      - description: I2C address (7-bit)
+
+  VA-supply:
+    description: Power supply for VA
+
+  VP-supply:
+    description: Power supply for VP
+
+  reset-gpios:
+    maxItems: 1
+
+  interrupts:
+    maxItems: 1
+
+  cirrus,boost-ctl:
+    description: Booster control; if 0 VBST=VP, else VBST=3300mV + (value-1)*100mV.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  cirrus,ramp-rate:
+    description: "Soft ramp rate: 0 disables (20ms), 1=40ms, 2=60ms, 3=100ms, 4=175ms."
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 1, 2, 3]
+
+  cirrus,boost-ipk:
+    description: Maximum current for the boost converter in microamperes.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    minimum: 1850000
+    maximum: 3600000
+    multipleOf: 15625
+    default: 2500000
+
+  cirrus,imon-adc-scale:
+    description: Scaling of IMON ADC data bits.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 6, 7, 8]
+
+  cirrus,hg-algo:
+    description: Internal Class H/G algorithm controlling the amplifier supplies.
+    type: boolean
+
+required:
+  - compatible
+  - reg
+  - VA-supply
+  - VP-supply
+
+additionalProperties: false
+
+examples:
+  - |
+    cs35l33@40 {
+        compatible = "cirrus,cs35l33";
+        reg = <0x40>;
+        VA-supply = <&ldo5_reg>;
+        VP-supply = <&ldo5_reg>;
+        interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
+        reset-gpios = <&cs47l91 34 0>;
+        cirrus,ramp-rate = <0x0>;
+        cirrus,boost-ctl = <0x30>;
+        cirrus,boost-ipk = <0xE0>;
+        cirrus,imon-adc-scale = <0>;
+        cirrus,hg-algo {
+            cirrus,mem-depth = <0x3>;
+            cirrus,release-rate = <0x3>;
+            cirrus,ldo-thld = <0x1>;
+            cirrus,ldo-path-disable;
+            cirrus,ldo-entry-delay = <0x4>;
+            cirrus,vp-hg-auto;
+            cirrus,vp-hg = <0xF>;
+            cirrus,vp-hg-rate = <0x2>;
+            cirrus,vp-hg-va = <0x0>;
+        };
+    };
