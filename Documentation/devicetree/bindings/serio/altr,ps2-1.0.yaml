@@ -1,0 +1,33 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/serio/altr,ps2-1.0.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Altera UP PS/2 controller
+
+maintainers:
+  - Dinh Nguyen <dinguyen@altera.com>
+  - Walter Goossens <waltergoossens@home.nl>
+
+description: |
+  Altera UP PS/2 controller
+
+properties:
+  compatible:
+    description: Compatibility string for the Altera UP PS/2 controller.
+    items:
+      - enum:
+          - ALTR,ps2-1.0
+          - altr,ps2-1.0
+
+required:
+  - compatible
+
+additionalProperties: false
+
+examples:
+  - |
+    ps2 {
+        compatible = "altr,ps2-1.0";
+    };
