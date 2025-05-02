@@ -1,0 +1,50 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Maintainers: Steven Eckhoff <steven.eckhoff.opensource@gmail.com>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/tempo,tscs454.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TSCS454 Audio CODEC
+
+maintainers:
+  - Steven Eckhoff <steven.eckhoff.opensource@gmail.com>
+
+description: |
+  TSCS454 Audio CODEC
+
+  Note: If clock is not provided then bit clock is assumed
+
+properties:
+  '#sound-dai-cells':
+    description: Number of cells for the sound DAI
+    const: 1
+  compatible:
+    items:
+      - const: tempo,tscs454
+  reg:
+    items:
+      - description: Codec register address
+  clock-names:
+    items:
+      - enum: [xtal, mclk1, mclk2]
+  clocks:
+    description: Phandle of the clock that provides the codec sysclk
+    maxItems: 1
+
+required:
+  - compatible
+  - reg
+  - clock-names
+
+additionalProperties: false
+
+examples:
+  - |
+    redwood: codec@69 {
+        #sound-dai-cells = <1>;
+        compatible = "tempo,tscs454";
+        reg = <0x69>;
+        clock-names = "mclk1";
+        clocks = <&audio_mclk>;
+    };
