@@ -1,0 +1,49 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Sergio Prado
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/usb/samsung,s3c2410-ohci.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Samsung S3C2410 OHCI USB controller
+maintainers:
+  - Sergio Prado <sergio.prado@e-labworks.com>
+  - Weitao Hou <houweitaoo@gmail.com>
+
+properties:
+  compatible:
+    items:
+      - const: samsung,s3c2410-ohci
+
+  reg:
+    maxItems: 1
+
+  interrupts:
+    maxItems: 1
+
+  clocks:
+    items:
+      - description: USB bus clock.
+      - description: USB host clock.
+
+  clock-names:
+    items:
+      - const: usb-bus-host
+      - const: usb-host
+
+required:
+  - compatible
+  - reg
+  - interrupts
+
+examples:
+  - |
+    usb0: usb@49000000 {
+        compatible = "samsung,s3c2410-ohci";
+        reg = <0x49000000 0x100>;
+        interrupts = <0 0 26 3>;
+        clocks = <&clocks UCLK>, <&clocks HCLK_USBH>;
+        clock-names = "usb-bus-host", "usb-host";
+    };
+
+additionalProperties: false
