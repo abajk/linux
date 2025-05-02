@@ -1,0 +1,140 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Broadcom Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/brcm,cygnus-audio.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+title: BROADCOM Cygnus Audio I2S/TDM/SPDIF controller
+maintainers:
+  - Rob Herring <robh@kernel.org>
+  - Simran Rai <ssimran@broadcom.com>
+description: |
+  BROADCOM Cygnus Audio I2S/TDM/SPDIF controller
+properties:
+  compatible:
+    description: Device compatibility
+    items:
+      - const: brcm,cygnus-audio
+  "#address-cells":
+    description: Number of address cells for child nodes
+    const: 1
+  "#size-cells":
+    description: Number of size cells for child nodes
+    const: 0
+  reg:
+    description: Audio registers locations and length
+    items:
+      - description: Set of DMA, I2S_OUT and SPDIF registers
+      - description: Set of I2S_IN registers
+  reg-names:
+    description: Names corresponding to entries in reg property
+    items:
+      - const: aud
+      - const: i2s_in
+  clocks:
+    description: PLL and leaf clocks used by audio ports
+    items:
+      - description: PLL audio clock channel 0
+      - description: PLL audio clock channel 1
+      - description: PLL audio clock channel 2
+  assigned-clocks:
+    description: PLL and leaf clocks assigned to audio ports
+    items:
+      - description: PLL audio clock
+      - description: Leaf clock for audio channel 0
+      - description: Leaf clock for audio channel 1
+      - description: Leaf clock for audio channel 2
+  assigned-clock-parents:
+    description: Parent clocks of the assigned clocks (usually the PLL)
+    items:
+      - description: Parent PLL audio clock
+  assigned-clock-rates:
+    description: List of clock frequencies of the assigned clocks
+    items:
+      - description: Rate of PLL audio clock in Hz
+      - description: Rate of channel 0 leaf clock in Hz
+      - description: Rate of channel 1 leaf clock in Hz
+      - description: Rate of channel 2 leaf clock in Hz
+  clock-names:
+    description: Names of leaf clocks used by audio ports
+    items:
+      - const: ch0_audio
+      - const: ch1_audio
+      - const: ch2_audio
+  interrupts:
+    description: Audio DMA interrupt specifier
+    items:
+      - description: Interrupt controller phandle
+      - description: Interrupt number
+      - description: Interrupt type
+patternProperties:
+  "^ssp_port@[0-2]$":
+    description: SSP port subnode
+    type: object
+    properties:
+      reg:
+        description: Index of the SSP port interface to use
+        items:
+          - const: 0
+    required:
+      - reg
+    additionalProperties: false
+  "^spdif_port@[3]$":
+    description: SPDIF port subnode
+    type: object
+    properties:
+      reg:
+        description: Index of the SPDIF port interface to use
+        items:
+          - const: 3
+    required:
+      - reg
+    additionalProperties: false
+required:
+  - compatible
+  - "#address-cells"
+  - "#size-cells"
+  - reg
+  - reg-names
+  - clocks
+  - assigned-clocks
+  - assigned-clock-parents
+  - assigned-clock-rates
+  - clock-names
+  - interrupts
+additionalProperties: false
+examples:
+  - |
+    audio@180ae000 {
+        compatible = "brcm,cygnus-audio";
+        #address-cells = <1>;
+        #size-cells = <0>;
+        reg = <0x180ae000 0xafd>, <0x180aec00 0x1f8>;
+        reg-names = "aud", "i2s_in";
+        clocks = <&audiopll BCM_CYGNUS_AUDIOPLL_CH0>,
+                 <&audiopll BCM_CYGNUS_AUDIOPLL_CH1>,
+                 <&audiopll BCM_CYGNUS_AUDIOPLL_CH2>;
+        assigned-clocks = <&audiopll BCM_CYGNUS_AUDIOPLL>,
+                          <&audiopll BCM_CYGNUS_AUDIOPLL_CH0>,
+                          <&audiopll BCM_CYGNUS_AUDIOPLL_CH1>,
+                          <&audiopll BCM_CYGNUS_AUDIOPLL_CH2>;
+        assigned-clock-parents = <&audiopll BCM_CYGNUS_AUDIOPLL>;
+        assigned-clock-rates = <1769470191>,
+                                <0>,
+                                <0>,
+                                <0>;
+        clock-names = "ch0_audio", "ch1_audio", "ch2_audio";
+        interrupts = <GIC_SPI 143 IRQ_TYPE_LEVEL_HIGH>;
+        ssp0: ssp_port@0 {
+            reg = <0>;
+        };
+        ssp1: ssp_port@1 {
+            reg = <1>;
+        };
+        ssp2: ssp_port@2 {
+            reg = <2>;
+        };
+        spdif: spdif_port@3 {
+            reg = <3>;
+        };
+    };
