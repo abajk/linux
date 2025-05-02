@@ -1,0 +1,48 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 MEN Micro
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/men,a021-wdt.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: MEN A021 Watchdog
+maintainers:
+  - Johannes Thumshirn <johannes.thumshirn@men.de>
+
+description: |
+  Bindings for MEN A21 Watchdog device connected to GPIO lines
+
+properties:
+  compatible:
+    oneOf:
+      - items:
+          - enum:
+              - men,a021-wdt
+
+  gpios:
+    description: Specifies the pins that control the Watchdog, in order
+    items:
+      - description: Watchdog enable
+      - description: Watchdog fast-mode
+      - description: Watchdog trigger
+      - description: Watchdog reset cause bit 0
+      - description: Watchdog reset cause bit 1
+      - description: Watchdog reset cause bit 2
+
+required:
+  - compatible
+  - gpios
+
+additionalProperties: false
+
+examples:
+  - |
+    watchdog {
+        compatible = "men,a021-wdt";
+        gpios = <&gpio3 9 1 /* WD_EN */
+                  &gpio3 10 1 /* WD_FAST */
+                  &gpio3 11 1 /* WD_TRIG */
+                  &gpio3 6 1 /* RST_CAUSE[0] */
+                  &gpio3 7 1 /* RST_CAUSE[1] */
+                  &gpio3 8 1 /* RST_CAUSE[2] */>;
+    };
