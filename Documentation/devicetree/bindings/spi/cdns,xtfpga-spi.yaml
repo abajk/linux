@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/spi/cdns,xtfpga-spi.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Cadence Xtensa XTFPGA platform SPI controller
+
+maintainers:
+  - Max Filippov <jcmvbkbc@gmail.com>
+
+description: |
+  Cadence Xtensa XTFPGA platform SPI controller.
+
+  This simple SPI master controller is built into xtfpga bitstreams and is used
+  to control daughterboard audio codec.
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - cdns,xtfpga-spi
+  reg:
+    items:
+      - description: physical base address of the controller
+      - description: length of memory mapped region
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    spi@1000 {
+        compatible = "cdns,xtfpga-spi";
+        reg = <0x1000 0x100>;
+    };
