@@ -1,0 +1,56 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Daniel Mack
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/mrvl,pxa-ssp-dai.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Marvell PXA SSP CPU DAI
+
+maintainers:
+  - Daniel Mack <daniel@zonque.org>
+  - Daniel Mack <zonque@gmail.com>
+
+description: |
+  Marvell PXA SSP CPU DAI bindings
+
+properties:
+  compatible:
+    description: Must be "mrvl,pxa-ssp-dai".
+    items:
+      - const: mrvl,pxa-ssp-dai
+
+  port:
+    description: A phandle reference to a PXA SSP upstream device.
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  '#sound-dai-cells':
+    description: Number of cells in the DAI phandle; must be zero.
+    const: 0
+
+  clock-names:
+    description: Names of external clocks; only extclk is supported.
+    items:
+      - const: extclk
+
+  clocks:
+    description: External clock phandles; if extclk is present, it is set to the mclk rate of
+      the audio stream and used as clock provider of the DAI.
+    maxItems: 1
+
+required:
+  - compatible
+  - port
+  - '#sound-dai-cells'
+
+additionalProperties: false
+
+examples:
+  - |
+    ssp_dai0: ssp_dai@0 {
+        compatible = "mrvl,pxa-ssp-dai";
+        port = <&ssp1>;
+        #sound-dai-cells = <0>;
+        clock-names = "extclk";
+        clocks = <&extclk>;
+    };
