@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/wlf,wm8770.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: WM8770 audio CODEC
+
+maintainers:
+  - Fabio Estevam <fabio.estevam@nxp.com>
+  - Mark Brown <broonie@opensource.wolfsonmicro.com>
+
+description: |
+  WM8770 audio CODEC
+
+  This device supports SPI.
+
+properties:
+  compatible:
+    description: Compatible string for WM8770 audio CODEC
+    items:
+      - const: wlf,wm8770
+
+  reg:
+    items:
+      - description: Chip select number for SPI bus
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    wm8770: codec@1 {
+        compatible = "wlf,wm8770";
+        reg = <1>;
+    };
