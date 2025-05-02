@@ -1,0 +1,61 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Steven Eckhoff
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/tempo,tscs42A1.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: tempo,tscs42A1 Audio CODEC
+
+maintainers:
+  - Steven Eckhoff <steven.eckhoff.opensource@gmail.com>
+
+description: |
+  TSCS42XX Audio CODEC
+
+  Required Properties:
+    - compatible: "tempo,tscs42A1" for analog mic
+      "tempo,tscs42A2" for digital mic
+    - reg: <0x71> for analog mic
+      <0x69> for digital mic
+    - clock-names: Must be one of the following "mclk1", "xtal", "mclk2"
+    - clocks: phandle of the clock that provides the codec sysclk
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - tempo,tscs42A1
+          - tempo,tscs42A2
+
+  reg:
+    items:
+      - description: Codec register address. Must be 0x71 for analog mic or 0x69 for digital mic.
+
+  clocks:
+    maxItems: 1
+    description: Phandle to clock that provides the codec sysclk.
+
+  clock-names:
+    items:
+      - enum:
+          - mclk1
+          - xtal
+          - mclk2
+
+required:
+  - compatible
+  - reg
+  - clocks
+  - clock-names
+
+additionalProperties: false
+
+examples:
+  - |
+    wookie: codec@69 {
+        compatible = "tempo,tscs42A2";
+        reg = <0x69>;
+        clock-names = "xtal";
+        clocks = <&audio_xtal>;
+    };
