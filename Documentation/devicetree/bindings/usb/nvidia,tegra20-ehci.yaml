@@ -1,0 +1,74 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/usb/nvidia,tegra20-ehci.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: NVIDIA Tegra20 EHCI USB controller
+maintainers:
+  - Paul Walmsley <paul@pwsan.com>
+  - Stephen Warren <swarren@nvidia.com>
+  - Venu Byravarasu <vbyravarasu@nvidia.com>
+
+description: |
+  Tegra SOC USB controllers
+
+  The device node for a USB controller that is part of a Tegra
+  SOC is as described in the document "Open Firmware Recommended
+  Practice : Universal Serial Bus" with the following modifications
+  and additions :
+
+properties:
+  compatible:
+    oneOf:
+      - items:
+          - const: "nvidia,tegra20-ehci"
+      - items:
+          - const: "nvidia,tegra30-ehci"
+      - items:
+          - enum:
+              - "nvidia,tegra20-ehci"
+              - "nvidia,tegra30-ehci"
+          - enum:
+              - "nvidia,tegra114-ehci"
+              - "nvidia,tegra124-ehci"
+              - "nvidia,tegra132-ehci"
+              - "nvidia,tegra210-ehci"
+
+  nvidia,phy:
+    description: Phandle of the PHY that the controller is connected to.
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  clocks:
+    description: Module clock.
+    maxItems: 1
+
+  resets:
+    description: Reset phandles for each entry in reset-names.
+
+  reset-names:
+    items:
+      - const: usb
+
+  nvidia,needs-double-reset:
+    description: Set for some Tegra20 USB ports which need reset twice due to hardware issues.
+    type: boolean
+
+required:
+  - compatible
+  - nvidia,phy
+  - clocks
+  - resets
+  - reset-names
+
+additionalProperties: false
+
+examples:
+  - |
+    usb@7000c000 {
+      compatible = "nvidia,tegra20-ehci";
+      nvidia,phy = <&usb2_hsphy>;
+      clocks = <&usb2_module_clk>;
+      resets = <&usb2_rst>;
+      reset-names = "usb";
+    };
