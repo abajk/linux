@@ -1,0 +1,43 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 MediaTek Inc.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/mediatek,mt8173-rt5650-rt5514.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: MT8173 with RT5650 RT5514 CODECS
+
+maintainers:
+  - Koro Chen <koro.chen@mediatek.com>
+
+description: |
+  MT8173 with RT5650 RT5514 CODECS
+
+properties:
+  compatible:
+    items:
+      - const: "mediatek,mt8173-rt5650-rt5514"
+    description: Binding compatible string
+  mediatek,audio-codec:
+    description: Phandles of RT5650 and RT5514 codecs
+    items:
+      - $ref: /schemas/types.yaml#/definitions/phandle
+      - $ref: /schemas/types.yaml#/definitions/phandle
+  mediatek,platform:
+    description: Phandle of MT8173 ASoC platform
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+required:
+  - compatible
+  - mediatek,audio-codec
+  - mediatek,platform
+
+additionalProperties: false
+
+examples:
+  - |
+    sound {
+        compatible = "mediatek,mt8173-rt5650-rt5514";
+        mediatek,audio-codec = <&rt5650 &rt5514>;
+        mediatek,platform = <&afe>;
+    };
