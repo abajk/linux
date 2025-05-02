@@ -1,0 +1,48 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Stephen Boyd
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/usb/smsc,usb4604.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: smsc,usb4604
+
+maintainers:
+  - Stephen Boyd <stephen.boyd@linaro.org>
+
+description: |
+  SMSC USB4604 High-Speed Hub Controller
+
+properties:
+  compatible:
+    items:
+      - const: smsc,usb4604
+    description: Compatible string identifying the controller.
+
+  reg:
+    description: I2C slave address of the hub.
+    items:
+      - description: I2C slave address (7-bit address).
+
+  reset-gpios:
+    maxItems: 1
+    description: GPIO used to reset the hub.
+
+  initial-mode:
+    description: Initial mode of the hub (1=HUB mode, 2=STANDBY mode).
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [1, 2]
+
+required:
+  - compatible
+
+additionalProperties: false
+
+examples:
+  - |
+    usb-hub@2d {
+        compatible = "smsc,usb4604";
+        reg = <0x2d>;
+        reset-gpios = <&gpx3 5 1>;
+        initial-mode = <1>;
+    };
