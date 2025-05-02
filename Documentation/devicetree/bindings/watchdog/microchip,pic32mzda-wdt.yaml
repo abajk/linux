@@ -1,0 +1,49 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Microchip
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/microchip,pic32mzda-wdt.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Microchip PIC32 Watchdog Timer
+
+maintainers:
+  - Joshua Henderson <joshua.henderson@microchip.com>
+  - Purna Chandra Mandal <purna.mandal@microchip.com>
+
+description: |
+  * Microchip PIC32 Watchdog Timer
+
+  When enabled, the watchdog peripheral can be used to reset the device if the
+  WDT is not cleared periodically in software.
+
+properties:
+  compatible:
+    description: Device tree compatible string.
+    items:
+      - const: microchip,pic32mzda-wdt
+
+  reg:
+    description: Physical base address and length of the memory mapped region.
+    items:
+      - description: Physical base address of the controller.
+      - description: Length of the memory mapped region.
+
+  clocks:
+    description: Phandle of the source clock.
+    maxItems: 1
+
+required:
+  - compatible
+  - reg
+  - clocks
+
+additionalProperties: false
+
+examples:
+  - |
+    watchdog@1f800800 {
+        compatible = "microchip,pic32mzda-wdt";
+        reg = <0x1f800800 0x200>;
+        clocks = <&rootclk LPRCCLK>;
+    };
