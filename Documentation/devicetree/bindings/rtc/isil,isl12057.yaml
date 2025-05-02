@@ -1,0 +1,97 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Arnaud Ebalard <arno@natisbad.org>
+# Copyright 2025 Heiner Kallweit <hkallweit1@gmail.com>
+# Copyright 2025 Rob Herring <robh@kernel.org>
+# Copyright 2025 Sudeep Holla <sudeep.holla@arm.com>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/rtc/isil,isl12057.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Intersil ISL12057 I2C RTC/Alarm chip
+
+maintainers:
+  - Arnaud Ebalard <arno@natisbad.org>
+  - Heiner Kallweit <hkallweit1@gmail.com>
+  - Rob Herring <robh@kernel.org>
+  - Sudeep Holla <sudeep.holla@arm.com>
+
+description: |
+  Intersil ISL12057 I2C RTC/Alarm chip
+
+  ISL12057 is a trivial I2C device (it has simple device tree bindings,
+  consisting of a compatible field, an address and possibly an interrupt
+  line).
+
+  Nonetheless, it also supports an option boolean property ("wakeup-source")
+  to handle the specific use-case found on at least three in-tree users
+  of the chip (NETGEAR ReadyNAS 102, 104 and 2120 ARM-based NAS); On those
+  devices, the IRQ#2 pin of the chip (associated with the alarm supported
+  by the driver) is not connected to the SoC but to a PMIC. It allows the
+  device to be powered up when RTC alarm rings. In order to mark the device
+  has a wakeup source and get access to the 'wakealarm' sysfs entry, this
+  specific property can be set when the IRQ#2 pin of the chip is not
+  connected to the SoC but can wake up the device.
+
+properties:
+  compatible:
+    items:
+      - const: isil,isl12057
+
+  reg:
+    items:
+      - description: I2C bus address of the device
+
+  interrupts:
+    items:
+      - description: IRQ number for alarm input
+      - description: IRQ trigger type (IRQ_TYPE flags)
+
+  wakeup-source:
+    description: Mark the chip as a wakeup source when interrupt pin not connected to SoC
+    type: boolean
+
+  pinctrl-0:
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    description: Pin control state for alarm interrupt
+
+  pinctrl-names:
+    $ref: /schemas/types.yaml#/definitions/string-array
+    items:
+      - const: default
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    isl12057@68 {
+        compatible = "isil,isl12057";
+        reg = <0x68>;
+    };
+
+  - |
+    pinctrl {
+        rtc_alarm_pin: rtc_alarm_pin {
+            marvell,pins = "mpp6";
+            marvell,function = "gpio";
+        };
+    };
+
+    isl12057@68 {
+        compatible = "isil,isl12057";
+        reg = <0x68>;
+        pinctrl-0 = <&rtc_alarm_pin>;
+        pinctrl-names = "default";
+        interrupts = <6 IRQ_TYPE_EDGE_FALLING>;
+    };
+
+  - |
+    isl12057@68 {
+        compatible = "isil,isl12057";
+        reg = <0x68>;
+        wakeup-source;
+    };
