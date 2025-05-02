@@ -1,0 +1,95 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/mediatek,mt2701-cs42448-machine.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: mediatek,mt2701-cs42448-machine
+maintainers:
+  - Garlic Tseng <garlic.tseng@mediatek.com>
+
+description: |
+  MT2701 with CS42448 CODEC
+
+properties:
+  compatible:
+    oneOf:
+      - items:
+          - const: mediatek,mt2701-cs42448-machine
+
+  mediatek,platform:
+    description: the phandle of MT2701 ASoC platform
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  audio-routing:
+    description: a list of the connections between audio
+    $ref: /schemas/types.yaml#/definitions/string-array
+
+  mediatek,audio-codec:
+    description: the phandles of cs42448 codec
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  mediatek,audio-codec-bt-mrg:
+    description: the phandles of bt-sco dummy codec
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  pinctrl-names:
+    description: Should contain only one value - "default"
+    items:
+      - const: default
+
+  pinctrl-0:
+    description: pin control groups used for this controller
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+
+  i2s1-in-sel-gpio1:
+    description: Should specify a gpio pin to control I2S1-in mux
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+
+  i2s1-in-sel-gpio2:
+    description: Should specify a gpio pin to control I2S1-in mux
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+
+required:
+  - compatible
+  - mediatek,platform
+  - audio-routing
+  - mediatek,audio-codec
+  - mediatek,audio-codec-bt-mrg
+  - pinctrl-names
+  - pinctrl-0
+  - i2s1-in-sel-gpio1
+  - i2s1-in-sel-gpio2
+
+additionalProperties: false
+
+examples:
+  - |
+    sound:sound {
+        compatible = "mediatek,mt2701-cs42448-machine";
+        mediatek,platform = <&afe>;
+        /* CS42448 Machine name */
+        audio-routing =
+            "Line Out Jack", "AOUT1L",
+            "Line Out Jack", "AOUT1R",
+            "Line Out Jack", "AOUT2L",
+            "Line Out Jack", "AOUT2R",
+            "Line Out Jack", "AOUT3L",
+            "Line Out Jack", "AOUT3R",
+            "Line Out Jack", "AOUT4L",
+            "Line Out Jack", "AOUT4R",
+            "AIN1L", "AMIC",
+            "AIN1R", "AMIC",
+            "AIN2L", "Tuner In",
+            "AIN2R", "Tuner In",
+            "AIN3L", "Satellite Tuner In",
+            "AIN3R", "Satellite Tuner In",
+            "AIN3L", "AUX In",
+            "AIN3R", "AUX In";
+        mediatek,audio-codec = <&cs42448>;
+        mediatek,audio-codec-bt-mrg = <&bt_sco_codec>;
+        pinctrl-names = "default";
+        pinctrl-0 = <&aud_pins_default>;
+        i2s1-in-sel-gpio1 = <&pio 53 0>;
+        i2s1-in-sel-gpio2 = <&pio 54 0>;
+    };
