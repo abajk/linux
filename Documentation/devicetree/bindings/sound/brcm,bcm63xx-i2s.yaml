@@ -1,0 +1,71 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Broadcom Inc.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/brcm,bcm63xx-i2s.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Broadcom DSL/PON BCM63xx Audio I2S controller
+
+maintainers:
+  - Kevin Li <kevin-ke.li@broadcom.com>
+
+description: |
+  Broadcom DSL/PON BCM63xx Audio I2S controller
+
+  (1) : The generated clock is required only when any of TX and RX
+        works on Master Mode.
+  (2) : The fixed 200MHz clock is from internal chip and always on
+
+properties:
+  '#address-cells':
+    # A simple case where the value must always be '1'.
+    const: 1
+
+  '#size-cells':
+    # A simple case where the value must always be '0'.
+    const: 0
+
+  compatible:
+    items:
+      - const: brcm,bcm63xx-i2s
+
+  reg:
+    description: Audio registers location and length.
+
+  interrupts:
+    description: Interrupt for the audio controller.
+
+  clocks:
+    description: Clock phandles for the I2S bus.
+    items:
+      - description: Generated clock used for I2S when TX or RX in master mode.
+      - description: Fixed 200MHz clock from internal chip.
+
+  clock-names:
+    items:
+      - const: i2sclk
+      - const: i2sosc
+
+required:
+  - '#address-cells'
+  - '#size-cells'
+  - compatible
+  - reg
+  - interrupts
+  - clocks
+  - clock-names
+
+additionalProperties: false
+
+examples:
+  - |
+    i2s: bcm63xx-i2s {
+        #address-cells = <1>;
+        #size-cells = <0>;
+        compatible = "brcm,bcm63xx-i2s";
+        reg = <0xFF802080 0xFF>;
+        interrupts = <GIC_SPI 84 IRQ_TYPE_LEVEL_HIGH>;
+        clocks = <&i2sclk>, <&osc>;
+        clock-names = "i2sclk", "i2sosc";
+    };
