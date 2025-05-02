@@ -1,0 +1,63 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 NXP
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/fsl,mpc8360-qe-pario-bank.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: QE Parallel I/O Bank
+maintainers:
+  - Marco Franchi <marco.franchi@nxp.com>
+  - Zhao Qiang <qiang.zhao@nxp.com>
+
+description: |
+  * Parallel I/O Ports
+
+  This node configures Parallel I/O ports for CPUs with QE support.
+  The node should reside in the "soc" node of the tree.  For each
+  device that using parallel I/O ports, a child node should be created.
+  See the definition of the Pin configuration nodes below for more
+  information.
+
+  Note that "par_io" nodes are obsolete, and should not be used for
+  the new device trees.  Instead, each Par I/O bank should be represented
+  via its own gpio-controller node:
+
+properties:
+  compatible:
+    description: Device compatible strings for the QE parallel I/O bank.
+    items:
+      - enum:
+          - "fsl,mpc8360-qe-pario-bank"
+          - "fsl,mpc8323-qe-pario-bank"
+
+  '#gpio-cells':
+    const: 2
+    description: Number of GPIO specifier cells, must be 2.
+
+  reg:
+    description: Register address and size.
+    items:
+      - description: Register offset.
+      - description: Register length.
+
+  gpio-controller: true
+    # The core schema checks this is a boolean, so just have to list it here to be valid for this binding.
+
+required:
+  - compatible
+  - '#gpio-cells'
+  - reg
+  - gpio-controller
+
+additionalProperties: false
+
+examples:
+  - |
+    qe_pio_a: gpio-controller@1400 {
+        #gpio-cells = <2>;
+        compatible = "fsl,mpc8360-qe-pario-bank",
+                     "fsl,mpc8323-qe-pario-bank";
+        reg = <0x1400 0x18>;
+        gpio-controller;
+    };
