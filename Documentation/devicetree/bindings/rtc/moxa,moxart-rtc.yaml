@@ -1,0 +1,48 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonas Jensen <jonas.jensen@gmail.com>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/rtc/moxa,moxart-rtc.yaml#
+# $schema is the meta-schema this schema should be validated with.
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: MOXA ART real-time clock
+
+maintainers:
+  - Dmitry Torokhov <dmitry.torokhov@gmail.com>
+  - Jonas Jensen <jonas.jensen@gmail.com>
+
+description: |
+  MOXA ART real-time clock
+
+properties:
+  compatible:
+    items:
+      - const: moxa,moxart-rtc
+    description: Device is compatible with the MOXA ART real-time clock.
+  rtc-sclk-gpios:
+    maxItems: 1
+    description: RTC serial clock GPIO line with zero flags.
+  rtc-data-gpios:
+    maxItems: 1
+    description: RTC data GPIO line with zero flags.
+  rtc-reset-gpios:
+    maxItems: 1
+    description: RTC reset GPIO line with zero flags.
+
+required:
+  - compatible
+  - rtc-sclk-gpios
+  - rtc-data-gpios
+  - rtc-reset-gpios
+
+additionalProperties: false
+
+examples:
+  - |
+    rtc: rtc {
+        compatible = "moxa,moxart-rtc";
+        rtc-sclk-gpios = <&gpio 5 0>;
+        rtc-data-gpios = <&gpio 6 0>;
+        rtc-reset-gpios = <&gpio 7 0>;
+    };
