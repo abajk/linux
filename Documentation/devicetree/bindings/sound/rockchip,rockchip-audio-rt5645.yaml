@@ -1,0 +1,44 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Zhengxing
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/rockchip,rockchip-audio-rt5645.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Rockchip Audio RT5645/RT5650 Codecs
+
+maintainers:
+  - zhengxing <zhengxing@rock-chips.com>
+
+description: |
+  ROCKCHIP with RT5645/RT5650 CODECS
+
+properties:
+  compatible:
+    const: rockchip,rockchip-audio-rt5645
+  rockchip,model:
+    description: The user-visible name of this sound complex
+    $ref: /schemas/types.yaml#/definitions/string
+  rockchip,i2s-controller:
+    description: The phandle of the Rockchip I2S controller that's connected to the CODEC
+    $ref: /schemas/types.yaml#/definitions/phandle
+  rockchip,audio-codec:
+    description: The phandle of the RT5645/RT5650 audio codec
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+required:
+  - compatible
+  - rockchip,model
+  - rockchip,i2s-controller
+  - rockchip,audio-codec
+
+additionalProperties: false
+
+examples:
+  - |
+      sound {
+          compatible = "rockchip,rockchip-audio-rt5645";
+          rockchip,model = "ROCKCHIP-I2S";
+          rockchip,i2s-controller = <&i2s>;
+          rockchip,audio-codec = <&rt5645>;
+      };
