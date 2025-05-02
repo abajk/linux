@@ -1,0 +1,83 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/rtc/ti,da830-rtc.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI Real Time Clock
+
+maintainers:
+  - Afzal Mohammed <afzal@ti.com>
+  - Hebbar Gururaja <gururaja.hebbar@ti.com>
+  - Johan Hovold <johan@kernel.org>
+  - Keerthy <j-keerthy@ti.com>
+  - Marcin Niestroj <m.niestroj@grinn-global.com>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  TI Real Time Clock
+
+properties:
+  compatible:
+    enum:
+      - ti,da830-rtc
+      - ti,am3352-rtc
+      - ti,am4372-rtc
+
+  reg:
+    maxItems: 1
+
+  interrupts:
+    items:
+      - description: RTC timer interrupt
+      - description: alarm interrupts
+
+  system-power-controller:
+    description: Whether the RTC controls system power via pmic_power_en
+    type: boolean
+
+  clocks:
+    maxItems: 2
+
+  clock-names:
+    items:
+      - const: ext-clk
+      - const: int-clk
+
+  ext-wakeup:
+    description: Pin settings for external wakeup subnode
+    type: object
+    additionalProperties: false
+    properties:
+      pins:
+        description: Names of external wakeup pins to configure
+        $ref: /schemas/types.yaml#/definitions/string-array
+      input-enable:
+        description: Enables the external wakeup input
+        type: boolean
+      ti,active-high:
+        description: Set input active high (default is active low)
+        type: boolean
+    required:
+      - pins
+
+additionalProperties: false
+
+examples:
+  - |
+    rtc@1c23000 {
+      compatible = "ti,da830-rtc";
+      reg = <0x23000 0x1000>;
+      interrupts = <19 19>;
+      system-power-controller;
+      clocks = <&clk_32k_rtc>, <&clk_32768_ck>;
+      clock-names = "ext-clk", "int-clk";
+      pinctrl-0 = <&ext_wakeup>;
+      pinctrl-names = "default";
+
+      ext_wakeup: ext-wakeup {
+        pins = "ext_wakeup0";
+        input-enable;
+        ti,active-high;
+      };
+    };
