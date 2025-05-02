@@ -1,0 +1,112 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/usb/stericsson,db8500-musb.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Ux500 MUSB
+
+maintainers:
+  - Lee Jones <lee@kernel.org>
+  - Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+
+description: |
+  Ux500 MUSB
+
+properties:
+  compatible:
+    description: Device compatible string
+    items:
+      - const: "stericsson,db8500-musb"
+
+  reg:
+    description: Offset and length of registers
+    items:
+      - description: Register base address
+      - description: Register size
+
+  interrupts:
+    description: Interrupt; mode, number and trigger
+    items:
+      - description: Interrupt controller phandle
+      - description: Interrupt number
+      - description: Interrupt trigger flags
+
+  interrupt-names:
+    description: Name of the interrupt
+    items:
+      - const: mc
+
+  dr_mode:
+    description: Dual-role; host, peripheral or otg
+    enum:
+      - host
+      - peripheral
+      - otg
+
+  dmas:
+    description: A list of DMA channel specifiers; dma-controller, event-line, fixed-channel, flags
+    maxItems: 4
+
+  dma-names:
+    description: Ordered list of channel names corresponding to 'dmas'
+    $ref: /schemas/types.yaml#/definitions/string-array
+    items:
+      - const: iep_1_9
+      - const: oep_1_9
+      - const: iep_2_10
+      - const: oep_2_10
+      - const: iep_3_11
+      - const: oep_3_11
+      - const: iep_4_12
+      - const: oep_4_12
+      - const: iep_5_13
+      - const: oep_5_13
+      - const: iep_6_14
+      - const: oep_6_14
+      - const: iep_7_15
+      - const: oep_7_15
+      - const: iep_8
+      - const: oep_8
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - dr_mode
+
+additionalProperties: false
+
+examples:
+  - |
+    usb_per5@a03e0000 {
+        compatible = "stericsson,db8500-musb";
+        reg = <0xa03e0000 0x10000>;
+        interrupts = <0 23 0x4>;
+        interrupt-names = "mc";
+        dr_mode = "otg";
+        dmas = <&dma 38 0 0x2>, /* Logical - DevToMem */
+               <&dma 38 0 0x0>, /* Logical - MemToDev */
+               <&dma 37 0 0x2>, /* Logical - DevToMem */
+               <&dma 37 0x0>, /* Logical - MemToDev */
+               <&dma 36 0x2>, /* Logical - DevToMem */
+               <&dma 36 0x0>, /* Logical - MemToDev */
+               <&dma 19 0x2>, /* Logical - DevToMem */
+               <&dma 19 0x0>, /* Logical - MemToDev */
+               <&dma 18 0x2>, /* Logical - DevToMem */
+               <&dma 18 0x0>, /* Logical - MemToDev */
+               <&dma 17 0x2>, /* Logical - DevToMem */
+               <&dma 17 0x0>, /* Logical - MemToDev */
+               <&dma 16 0x2>, /* Logical - DevToMem */
+               <&dma 16 0x0>, /* Logical - MemToDev */
+               <&dma 39 0x2>, /* Logical - DevToMem */
+               <&dma 39 0x0>; /* Logical - MemToDev */
+        dma-names = "iep_1_9", "oep_1_9",
+                    "iep_2_10", "oep_2_10",
+                    "iep_3_11", "oep_3_11",
+                    "iep_4_12", "oep_4_12",
+                    "iep_5_13", "oep_5_13",
+                    "iep_6_14", "oep_6_14",
+                    "iep_7_15", "oep_7_15",
+                    "iep_8", "oep_8";
+    };
