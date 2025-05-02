@@ -1,0 +1,82 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Secret Lab Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/xlnx,ip-cores.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Xilinx IP cores
+maintainers:
+  - Grant Likely <grant.likely@secretlab.ca>
+  - Michal Simek <michal.simek@amd.com>
+  - Nava kishore Manne <nava.manne@xilinx.com>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  The Xilinx EDK toolchain ships with a set of IP cores (devices) for use
+  in Xilinx Spartan and Virtex FPGAs. The devices cover the whole range
+  of standard device types (network, serial, etc.) and miscellaneous
+  devices (gpio, LCD, spi, etc). Also, since these devices are
+  implemented within the FPGA fabric every instance of the device can be
+  synthesised with different options that change the behaviour.
+
+  Each IP-core has a set of parameters which the FPGA designer can use to
+  control how the core is synthesized. Historically, the EDK tool would
+  extract the device parameters relevant to device drivers and copy them
+  into an 'xparameters.h' in the form of #define symbols. This tells the
+  device drivers how the IP cores are configured, but it requires the kernel
+  to be recompiled every time the FPGA bitstream is resynthesized.
+
+  The new approach is to export the parameters into the device tree and
+  generate a new device tree each time the FPGA bitstream changes. The
+  parameters which used to be exported as #defines will now become
+  properties of the device node.
+
+  Typically, the compatible list will include the exact IP core version
+  followed by an older IP core version which implements the same
+  interface or any other device with the same interface.
+
+  'reg' and 'interrupts' are all optional properties.
+
+properties:
+  device_type:
+    $ref: /schemas/types.yaml#/definitions/string
+    description: >-
+      An open firmware–style device type describing the generic class of the
+      IP core, such as 'serial' or 'ethernet'.
+
+  reg:
+    description: >-
+      Register address space of the IP core.
+    items:
+      - description: Base address of the IP core.
+      - description: Size of the IP core register range in bytes.
+  interrupts:
+    description: >-
+      Interrupt specifier(s) for the IP core.
+    items:
+      - description: Interrupt number and flags as defined by the parent interrupt controller.
+  current-speed:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: >-
+      Standard serial device property specifying the current baud rate.
+  clock-frequency:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: >-
+      Standard device property specifying the clock frequency.
+  xlnx,data-bits:
+    description: >-
+      Number of data bits for the UART core.
+  xlnx,odd-parity:
+    type: boolean
+    description: >-
+      Parity type for the UART core: true for odd parity.
+  xlnx,use-parity:
+    type: boolean
+    description: >-
+      Enables parity checking in the UART core when true.
+
+required:
+  - compatible
+
+additionalProperties: true
