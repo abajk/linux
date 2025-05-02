@@ -1,0 +1,51 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Cavium, Inc.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/rtc/isil,isl12026.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: ISL12026 I2C RTC/EEPROM
+
+maintainers:
+  - David Daney <david.daney@cavium.com>
+
+description: |
+  ISL12026 is an I2C RTC/EEPROM combination device. The RTC and control
+  registers respond at bus address 0x6f, and the EEPROM array responds
+  at bus address 0x57. The canonical "reg" value will be for the RTC portion.
+
+properties:
+  compatible:
+    description: Device compatible string.
+    items:
+      - const: isil,isl12026
+
+  reg:
+    items:
+      - description: I2C slave address for RTC registers (always 0x6f)
+
+  isil,pwr-bsw:
+    description: PWR.BSW bit must be set to the specified value for proper operation.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 1]
+
+  isil,pwr-sbib:
+    description: PWR.SBIB bit must be set to the specified value for proper operation.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 1]
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    rtc@6f {
+        compatible = "isil,isl12026";
+        reg = <0x6f>;
+        isil,pwr-bsw = <0>;
+        isil,pwr-sbib = <1>;
+    };
