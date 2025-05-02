@@ -1,0 +1,73 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Robert Jarzmik <robert.jarzmik@free.fr>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/marvell,pxa2xx-ac97.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Marvell PXA2xx AC97 audio complex
+
+maintainers:
+  - Robert Jarzmik <robert.jarzmik@free.fr>
+
+description: |
+  Marvell PXA2xx audio complex
+
+  This description matches the AC97 controller found in pxa2xx and pxa3xx series.
+
+properties:
+  compatible:
+    enum:
+      - marvell,pxa250-ac97
+      - marvell,pxa270-ac97
+      - marvell,pxa300-ac97
+
+  reg:
+    description: MMIO address space for the AC97 controller.
+    items:
+      - description: Address and size for AC97 registers.
+
+  interrupts:
+    description: Interrupt line used by the AC97 controller.
+    items:
+      - description: AC97 interrupt.
+
+  clocks:
+    description: Input clock for the AC97 controller.
+    maxItems: 1
+
+  reset-gpios:
+    description: GPIO used to reset the AC97 controller.
+    maxItems: 1
+
+  pinctrl-names:
+    description: Pin control state names.
+    items:
+      - const: default
+
+  pinctrl-0:
+    description: Pin control configuration for default state.
+
+  '#sound-dai-cells':
+    description: Number of cells for sound DAI.
+    const: 1
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - clocks
+
+additionalProperties: false
+
+examples:
+  - |
+    ac97: sound@40500000 {
+        compatible = "marvell,pxa250-ac97";
+        reg = <0x40500000 0x1000>;
+        interrupts = <14>;
+        reset-gpios = <&gpio 113 GPIO_ACTIVE_HIGH>;
+        #sound-dai-cells = <1>;
+        pinctrl-names = "default";
+        pinctrl-0 = <&pmux_ac97_default>;
+    };
