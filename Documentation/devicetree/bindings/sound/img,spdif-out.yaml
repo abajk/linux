@@ -1,0 +1,89 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Imagination Technologies
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/img,spdif-out.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Imagination Technologies SPDIF Output Controller
+
+maintainers:
+  - Damien.Horsley <Damien.Horsley@imgtec.com>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  Imagination Technologies SPDIF Output Controller
+
+properties:
+  compatible:
+    const: img,spdif-out
+
+  reg:
+    items:
+      - description: Offset and length of the register set for the device.
+
+  '#sound-dai-cells':
+    const: 0
+
+  interrupts:
+    description: Parallel audio output interrupt.
+    items:
+      - description: Interrupt specifier (GIC_SHARED, IRQ number, flags).
+
+  dmas:
+    description: DMA controller channels used by the SPDIF controller.
+    items:
+      - description: DMA controller phandle, channel number, and flags.
+
+  dma-names:
+    items:
+      - const: tx
+
+  clocks:
+    description: Clock inputs to the SPDIF controller.
+    items:
+      - description: System clock.
+      - description: Reference clock.
+
+  clock-names:
+    items:
+      - const: sys
+      - const: ref
+
+  resets:
+    description: Reset controls for the SPDIF controller.
+    items:
+      - description: Reset phandle and specifier.
+
+  reset-names:
+    items:
+      - const: rst
+
+required:
+  - compatible
+  - reg
+  - '#sound-dai-cells'
+  - dmas
+  - dma-names
+  - clocks
+  - clock-names
+  - resets
+  - reset-names
+
+additionalProperties: false
+
+examples:
+  - |
+    spdif_out: spdif-out@18100d00 {
+        compatible = "img,spdif-out";
+        reg = <0x18100D00 0x100>;
+        interrupts = <GIC_SHARED 21 IRQ_TYPE_LEVEL_HIGH>;
+        dmas = <&mdc 14 0xffffffff 0>;
+        dma-names = "tx";
+        clocks = <&cr_periph SYS_CLK_SPDIF_OUT>,
+                 <&clk_core CLK_SPDIF>;
+        clock-names = "sys", "ref";
+        resets = <&pistachio_reset PISTACHIO_RESET_SPDIF_OUT>;
+        reset-names = "rst";
+        #sound-dai-cells = <0>;
+    };
