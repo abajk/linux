@@ -1,0 +1,105 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/realtek,rt5663.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: realtek,rt5663 audio CODEC
+
+maintainers:
+  - Bard Liao <bardliao@realtek.com>
+  - Bjorn Helgaas <bhelgaas@google.com>
+  - Cheng-Yi Chiang <cychiang@chromium.org>
+  - Fabio Estevam <fabio.estevam@nxp.com>
+  - Oder Chiou <oder_chiou@realtek.com>
+  - oder_chiou@realtek.com <oder_chiou@realtek.com>
+
+description: |
+  RT5663 audio CODEC
+
+  This device supports I2C only.
+
+  Required properties:
+
+  - compatible: "realtek,rt5663".
+  - reg: The I2C address of the device.
+  - interrupts: The CODEC's interrupt output.
+  - avdd-supply: Power supply for AVDD, providing 1.8V.
+  - cpvdd-supply: Power supply for CPVDD, providing 3.5V.
+
+  Optional properties:
+
+  - realtek,dc_offset_l_manual
+  - realtek,dc_offset_r_manual
+  - realtek,dc_offset_l_manual_mic
+  - realtek,dc_offset_r_manual_mic
+  - realtek,impedance_sensing_num
+  - realtek,impedance_sensing_table
+
+properties:
+  compatible:
+    items:
+      - enum: [realtek, rt5663]
+  reg:
+    description: I2C address of the device.
+    items:
+      - description: I2C address
+  interrupts:
+    description: CODEC's interrupt output.
+    items:
+      - description: Interrupt specifier
+  interrupt-controller: true
+  avdd-supply:
+    description: Power supply for AVDD, providing 1.8V.
+  cpvdd-supply:
+    description: Power supply for CPVDD, providing 3.5V.
+  realtek,dc_offset_l_manual:
+    description: Manual DC offset for left headphone channel.
+    $ref: /schemas/types.yaml#/definitions/uint32
+  realtek,dc_offset_r_manual:
+    description: Manual DC offset for right headphone channel.
+    $ref: /schemas/types.yaml#/definitions/uint32
+  realtek,dc_offset_l_manual_mic:
+    description: Manual DC offset for left microphone channel.
+    $ref: /schemas/types.yaml#/definitions/uint32
+  realtek,dc_offset_r_manual_mic:
+    description: Manual DC offset for right microphone channel.
+    $ref: /schemas/types.yaml#/definitions/uint32
+  realtek,impedance_sensing_num:
+    description: Number of impedance sensing table rows; 0 indicates unsupported.
+    $ref: /schemas/types.yaml#/definitions/uint32
+  realtek,impedance_sensing_table:
+    description: Matrix rows of the impedance sensing table.
+    items:
+      - description: Minimum impedance.
+        $ref: /schemas/types.yaml#/definitions/uint32
+      - description: Maximum impedance.
+        $ref: /schemas/types.yaml#/definitions/uint32
+      - description: Volume.
+        $ref: /schemas/types.yaml#/definitions/uint32
+      - description: DC offset without microphone for left channel.
+        $ref: /schemas/types.yaml#/definitions/uint32
+      - description: DC offset without microphone for right channel.
+        $ref: /schemas/types.yaml#/definitions/uint32
+      - description: DC offset with microphone for left channel.
+        $ref: /schemas/types.yaml#/definitions/uint32
+      - description: DC offset with microphone for right channel.
+        $ref: /schemas/types.yaml#/definitions/uint32
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - interrupt-controller
+
+additionalProperties: false
+
+examples:
+  - |
+    rt5663: codec@12 {
+        compatible = "realtek,rt5663";
+        reg = <0x12>;
+        interrupts = <7 IRQ_TYPE_EDGE_FALLING>;
+        avdd-supply = <&pp1800_a_alc5662>;
+        cpvdd-supply = <&pp3500_a_alc5662>;
+    };
