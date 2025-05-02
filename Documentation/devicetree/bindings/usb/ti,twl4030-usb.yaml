@@ -1,0 +1,59 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/ti,twl4030-usb.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI TWL4030 USB PHY and comparator
+
+maintainers:
+  - Graeme Gregory <gg@slimlogic.co.uk>
+  - Kishon Vijay Abraham I <kishon@kernel.org>
+  - NeilBrown <neilb@suse.de>
+
+description: |
+  USB COMPARATOR OF TWL CHIPS
+
+  TWL4030 USB PHY AND COMPARATOR
+
+properties:
+  compatible:
+    items:
+      - const: ti,twl4030-usb
+
+  interrupts:
+    description: >-
+      The interrupt numbers to the cpu. First interrupt number raises ID and
+      VBUS interrupts. Second interrupt number is optional for RX interrupts.
+    minItems: 1
+    items:
+      - description: OTG and VBUS interrupt
+      - description: RX interrupt
+
+  usb1v5-supply:
+    description: Phandle to the regulator device tree node for 1.5V USB supply.
+
+  usb1v8-supply:
+    description: Phandle to the regulator device tree node for 1.8V USB supply.
+
+  usb3v1-supply:
+    description: Phandle to the regulator device tree node for 3.1V USB supply.
+
+  usb_mode:
+    description: >-
+      The mode used by the phy to connect to the controller. 1 specifies ULPI mode;
+      2 specifies CEA2011_3PIN mode.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+additionalProperties: false
+
+examples:
+  - |
+    twl4030-usb {
+        compatible = "ti,twl4030-usb";
+        interrupts = <10 4>;
+        usb1v5-supply = <&vusb1v5>;
+        usb1v8-supply = <&vusb1v8>;
+        usb3v1-supply = <&vusb3v1>;
+        usb_mode = <1>;
+    };
