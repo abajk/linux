@@ -1,0 +1,75 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Microchip Technology
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/mikroe,mikroe-proto.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Mikroe-PROTO audio board
+
+maintainers:
+  - Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+
+description: |
+  Mikroe-PROTO audio board
+
+  Required properties:
+    - compatible: "mikroe,mikroe-proto"
+    - dai-format: Must be "i2s".
+    - i2s-controller: The phandle of the I2S controller.
+    - audio-codec: The phandle of the WM8731 audio codec.
+
+  Optional properties:
+    - model: The user-visible name of this sound complex.
+    - bitclock-master: Indicates dai-link bit clock master; for details see simple-card.txt (1).
+    - frame-master: Indicates dai-link frame master; for details see simple-card.txt (1).
+
+    (1): There must be the same master for both bit and frame clocks.
+
+properties:
+  compatible:
+    items:
+      - const: mikroe,mikroe-proto
+
+  model:
+    description: The user-visible name of this sound complex.
+    $ref: /schemas/types.yaml#/definitions/string
+
+  i2s-controller:
+    description: The phandle of the I2S controller.
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  audio-codec:
+    description: The phandle of the WM8731 audio codec.
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  dai-format:
+    description: Must be "i2s".
+    $ref: /schemas/types.yaml#/definitions/string
+    enum: [i2s]
+
+  bitclock-master:
+    description: Indicates dai-link bit clock master; for details see simple-card.txt (1).
+    type: boolean
+
+  frame-master:
+    description: Indicates dai-link frame master; for details see simple-card.txt (1).
+    type: boolean
+
+required:
+  - compatible
+  - dai-format
+  - i2s-controller
+  - audio-codec
+
+additionalProperties: false
+
+examples:
+  - |
+    sound {
+        compatible = "mikroe,mikroe-proto";
+        model = "wm8731 @ sama5d2_xplained";
+        i2s-controller = <&i2s0>;
+        audio-codec = <&wm8731>;
+        dai-format = "i2s";
+    };
