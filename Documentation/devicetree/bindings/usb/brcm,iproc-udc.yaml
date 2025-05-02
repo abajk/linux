@@ -1,0 +1,63 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Broadcom Corporation
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/usb/brcm,iproc-udc.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Broadcom IProc USB Device Controller
+
+maintainers:
+  - Raviteja Garimella <raviteja.garimella@broadcom.com>
+
+description: |
+  Broadcom IPROC USB Device controller.
+
+  The device node is used for UDCs integrated into Broadcom's
+  iProc family (Northstar2, Cygnus) of SoCs'. The UDC is based
+  on Synopsys Designware Cores AHB Subsystem Device Controller IP.
+
+properties:
+  compatible:
+    # Must be one of the supported USB device controller compatible strings.
+    oneOf:
+      - items:
+          - enum:
+              - brcm,ns2-udc
+          - const: brcm,iproc-udc
+      - items:
+          - enum:
+              - brcm,cygnus-udc
+          - const: brcm,iproc-udc
+
+  reg:
+    description: UDC register base address and size
+    items:
+      - description: UDC register base address
+      - description: UDC register size
+
+  interrupts:
+    # Interrupt specifier: phandle to interrupt controller, interrupt number, and flags
+    items:
+      - description: "Interrupt specifier: phandle to interrupt controller, interrupt number, and flags"
+
+  phys:
+    maxItems: 1
+    description: Phandle to USB PHY
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - phys
+
+additionalProperties: false
+
+examples:
+  - |
+    udc_dwc: usb@664e0000 {
+        compatible = "brcm,ns2-udc", "brcm,iproc-udc";
+        reg = <0x664e0000 0x2000>;
+        interrupts = <GIC_SPI 424 IRQ_TYPE_LEVEL_HIGH>;
+        phys = <&usbdrd_phy>;
+    };
