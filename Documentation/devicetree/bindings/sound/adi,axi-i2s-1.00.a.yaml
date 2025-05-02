@@ -1,0 +1,86 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/adi,axi-i2s-1.00.a.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: ADI AXI-I2S controller
+
+maintainers:
+  - Lars-Peter Clausen <lars@metafoo.de>
+  - Luca Ceresoli <luca.ceresoli@bootlin.com>
+  - Mathieu Malaterre <malat@debian.org>
+
+description: |
+  ADI AXI-I2S controller
+
+  The core can be generated with transmit (playback), only receive (capture) or both directions enabled.
+
+  Required properties:
+    - compatible: Must be "adi,axi-i2s-1.00.a"
+    - reg: Must contain I2S core's registers location and length
+    - clocks: Pairs of phandle and specifier referencing the controller's clocks.
+      The controller expects two clocks, the clock used for the AXI interface and the
+      clock used as the sampling rate reference clock.
+    - clock-names: "axi" for the clock to the AXI interface, "ref" for the sampling rate reference clock.
+    - dmas: Pairs of phandle and specifier for the DMA channels that are used by the core.
+      The core expects two DMA channels if both transmit and receive are enabled,
+      one channel otherwise.
+    - dma-names: "tx" for the transmit channel, "rx" for the receive channel.
+
+  For more details on the 'dma', 'dma-names', 'clock' and 'clock-names' properties please check:
+    * resource-names.txt
+    * clock/clock-bindings.txt
+    * dma/dma.txt
+
+properties:
+  compatible:
+    const: adi,axi-i2s-1.00.a
+
+  reg:
+    items:
+      - description: Base address of the I2S core register block
+      - description: Size of the I2S core register block
+
+  clocks:
+    description: A list of two phandle and specifier tuples for the clocks required by the controller.
+    items:
+      - description: Clock for the AXI interface
+      - description: Sampling rate reference clock
+
+  clock-names:
+    items:
+      - const: axi
+      - const: ref
+
+  dmas:
+    description: DMA channels used by the controller.
+    items:
+      - description: Transmit DMA channel phandle and specifier
+      - description: Receive DMA channel phandle and specifier
+
+  dma-names:
+    items:
+      - const: tx
+      - const: rx
+
+required:
+  - compatible
+  - reg
+  - clocks
+  - clock-names
+  - dmas
+  - dma-names
+
+additionalProperties: false
+
+examples:
+  - |
+    i2s: i2s@77600000 {
+        compatible = "adi,axi-i2s-1.00.a";
+        reg = <0x77600000 0x1000>;
+        clocks = <&clk 15>, <&audio_clock>;
+        clock-names = "axi", "ref";
+        dmas = <&ps7_dma 0>, <&ps7_dma 1>;
+        dma-names = "tx", "rx";
+    };
