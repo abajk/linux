@@ -1,0 +1,68 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2018 Linaro Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/nokia,n900-audio.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Nokia N900 audio
+
+maintainers:
+  - Sebastian Reichel <sre@kernel.org>
+
+description: |
+  * Nokia N900 audio setup
+
+properties:
+  compatible:
+    items:
+      - const: nokia,n900-audio
+    description: Should contain "nokia,n900-audio"
+  nokia,cpu-dai:
+    description: phandle for the McBSP node
+    $ref: /schemas/types.yaml#/definitions/phandle
+  nokia,audio-codec:
+    description: phandles for the main TLV320AIC3X node and the auxiliary TLV320AIC3X node (in this order)
+    items:
+      - $ref: /schemas/types.yaml#/definitions/phandle
+      - $ref: /schemas/types.yaml#/definitions/phandle
+  nokia,headphone-amplifier:
+    description: phandle for the TPA6130A2 node
+    $ref: /schemas/types.yaml#/definitions/phandle
+  tvout-selection-gpios:
+    description: GPIO for tvout selection
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+  jack-detection-gpios:
+    description: GPIO for jack detection
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+  eci-switch-gpios:
+    description: GPIO for ECI (Enhancement Control Interface) switch
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+  speaker-amplifier-gpios:
+    description: GPIO for speaker amplifier
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+
+required:
+  - compatible
+  - nokia,cpu-dai
+  - nokia,audio-codec
+  - nokia,headphone-amplifier
+  - tvout-selection-gpios
+  - jack-detection-gpios
+  - eci-switch-gpios
+  - speaker-amplifier-gpios
+
+additionalProperties: false
+
+examples:
+  - |
+    sound {
+        compatible = "nokia,n900-audio";
+        nokia,cpu-dai = <&mcbsp2>;
+        nokia,audio-codec = <&tlv320aic3x>, <&tlv320aic3x_aux>;
+        nokia,headphone-amplifier = <&tpa6130a2>;
+        tvout-selection-gpios = <&gpio2 8 GPIO_ACTIVE_HIGH>; /* 40 */
+        jack-detection-gpios = <&gpio6 17 GPIO_ACTIVE_HIGH>; /* 177 */
+        eci-switch-gpios = <&gpio6 22 GPIO_ACTIVE_HIGH>; /* 182 */
+        speaker-amplifier-gpios = <&twl_gpio 7 GPIO_ACTIVE_HIGH>;
+    };
