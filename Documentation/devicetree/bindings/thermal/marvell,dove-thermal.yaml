@@ -1,0 +1,41 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Andrew Lunn <andrew@lunn.ch>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/marvell,dove-thermal.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Marvell Dove Thermal
+
+maintainers:
+  - Andrew Lunn <andrew@lunn.ch>
+
+description: |
+  This driver is for Dove SoCs which contain a thermal sensor.
+
+  Required properties:
+    - compatible: "marvell,dove-thermal"
+    - reg: Address range of the thermal registers
+
+properties:
+  compatible:
+    const: "marvell,dove-thermal"
+
+  reg:
+    description: Address range of the thermal registers
+    items:
+      - description: Thermal Manager registers
+      - description: Thermal Diode Control Registers
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    thermal@10078 {
+        compatible = "marvell,dove-thermal";
+        reg = <0xd001c 0x0c>, <0xd005c 0x08>;
+    };
