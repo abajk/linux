@@ -1,0 +1,55 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/soc/fsl/cpm_qe/cpm/fsl,qe-usb.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Freescale CPM QE USB Controller
+
+maintainers:
+  - Zhao Qiang <qiang.zhao@nxp.com>
+
+description: |
+  Universal Serial Bus Controller.
+  Supports controllers compatible with fsl,cpm1-usb, fsl,cpm2-usb, and fsl,qe-usb.
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - fsl,cpm1-usb
+          - fsl,cpm2-usb
+          - fsl,qe-usb
+
+  reg:
+    description: |
+      Register base and size pairs: first for the control registers,
+      second for the data registers.
+    items:
+      - description: control registers
+      - description: data registers
+
+  interrupts:
+    description: |
+      Interrupt lines: first TX or combined interrupt, second RX interrupt.
+    items:
+      - description: tx or combined interrupt
+      - description: rx interrupt
+
+  fsl,cpm-command:
+    description: CPM command register base address.
+    items:
+      - description: command register base
+
+additionalProperties: false
+
+examples:
+  - |
+    usb@11bc0 {
+        #address-cells = <1>;
+        #size-cells = <0>;
+        compatible = "fsl,cpm2-usb";
+        reg = <0x11b60 0x18>, <0x8b00 0x100>;
+        interrupts = <0xb 0x8>;
+        fsl,cpm-command = <0x2e600000>;
+    };
