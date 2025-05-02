@@ -1,0 +1,74 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Linaro Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/watchdog/st,stih407-lpc.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: STMicroelectronics Low Power Controller (LPC) - Watchdog
+
+maintainers:
+  - Lee Jones <lee@kernel.org>
+  - Peter Griffin <peter.griffin@linaro.org>
+
+description: |
+  LPC currently supports Watchdog OR Real Time Clock OR Clocksource functionality.
+
+  [See: ../rtc/rtc-st-lpc.txt for RTC options]
+
+  [See: ../timer/st,stih407-lpc for Clocksource options]
+
+properties:
+  compatible:
+    const: st,stih407-lpc
+
+  reg:
+    maxItems: 1
+
+  interrupts:
+    maxItems: 1
+
+  clocks:
+    maxItems: 1
+
+  st,lpc-mode:
+    description: |
+      The LPC can run either one of three modes: ST_LPC_MODE_RTC [0],
+      ST_LPC_MODE_WDT [1], ST_LPC_MODE_CLKSRC [2]. One (and only one) mode
+      must be selected.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 1, 2]
+
+  st,syscfg:
+    description: Phandle to syscfg node used to enable watchdog and configure CPU reset type.
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  timeout-sec:
+    description: Watchdog timeout in seconds
+
+  st,warm-reset:
+    description: If present reset type will be 'warm' - if not it will be cold
+    type: boolean
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - clocks
+  - st,lpc-mode
+  - st,syscfg
+  - timeout-sec
+
+additionalProperties: false
+
+examples:
+  - |
+    lpc@fde05000 {
+      compatible = "st,stih407-lpc";
+      reg = <0xfde05000 0x1000>;
+      clocks = <&clk_s_d3_flexgen CLK_LPC_0>;
+      st,syscfg = <&syscfg_core>;
+      timeout-sec = <120>;
+      st,lpc-mode = <ST_LPC_MODE_WDT>;
+      st,warm-reset;
+    };
