@@ -1,0 +1,61 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Texas Instruments
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/ti,tas5720.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Texas Instruments TAS5720 Mono Audio amplifier
+
+maintainers:
+  - Alexander A. Klimov <grandmaster@al2klimov.de>
+  - Andreas Dannenberg <dannenberg@ti.com>
+  - Rob Herring <robh@kernel.org>
+  - Steffen Aschbacher <steffen.aschbacher@stihl.de>
+
+description: |
+  Texas Instruments TAS5720 Mono Audio amplifier
+
+  The TAS5720 serial control bus communicates through the I2C protocol only. The
+  serial bus is also used for periodic codec fault checking/reporting during
+  audio playback. For more product information please see the links below:
+
+  https://www.ti.com/product/TAS5720L
+  https://www.ti.com/product/TAS5720M
+  https://www.ti.com/product/TAS5720A-Q1
+  https://www.ti.com/product/TAS5722L
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - ti,tas5720
+          - ti,tas5720a-q1
+          - ti,tas5722
+
+  reg:
+    items:
+      - description: I2C slave address
+
+  dvdd-supply:
+    description: phandle to a 3.3-V supply for the digital circuitry
+
+  pvdd-supply:
+    description: phandle to a supply used for the Class-D amp and analog section
+
+required:
+  - compatible
+  - reg
+  - dvdd-supply
+  - pvdd-supply
+
+additionalProperties: false
+
+examples:
+  - |
+    tas5720: tas5720@6c {
+        compatible = "ti,tas5720";
+        reg = <0x6c>;
+        dvdd-supply = <&vdd_3v3_reg>;
+        pvdd-supply = <&amp_supply_reg>;
+    };
