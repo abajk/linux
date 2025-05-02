@@ -1,0 +1,70 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Texas Instruments
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/thermal/ti,omap34xx-bandgap.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI OMAP SCM Bandgap
+
+maintainers:
+  - Eduardo Valentin <eduardo.valentin@ti.com>
+  - Eduardo Valentin <edubezval@gmail.com>
+  - Pavel Machek <pavel@ucw.cz>
+
+description: |
+  * Texas Instrument OMAP SCM bandgap bindings
+
+  In the System Control Module, OMAP supplies a voltage reference
+  and a temperature sensor feature that are gathered in the band
+  gap voltage and temperature sensor (VBGAPTS) module. The band
+  gap provides current and voltage reference for its internal
+  circuits and other analog IP blocks. The analog-to-digital
+  converter (ADC) produces an output value that is proportional
+  to the silicon temperature.
+
+properties:
+  compatible:
+    description: Must be one of the supported TI bandgap compatibles.
+    $ref: /schemas/types.yaml#/definitions/string-array
+    items:
+      - enum:
+          - ti,omap34xx-bandgap
+          - ti,omap36xx-bandgap
+          - ti,omap4430-bandgap
+          - ti,omap4460-bandgap
+          - ti,omap4470-bandgap
+          - ti,omap5430-bandgap
+          - ti,dra752-bandgap
+
+  reg:
+    description: Register address and size pairs for the bandgap module; mapping varies per SoC.
+    items:
+      description: Address and size in cells for each register entry.
+
+  interrupts:
+    description: Interrupt specifier for the talert signal.
+    items:
+      - description: Talert interrupt specifier
+
+  gpios:
+    description: GPIO specifier for the tshut signal, treated as an IRQ.
+    maxItems: 1
+
+required:
+  - compatible
+  - reg
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    bandgap {
+        compatible = "ti,omap4460-bandgap";
+        reg = <0x4a002260 0x4
+               0x4a00232C 0x4
+               0x4a002378 0x18>;
+        interrupts = <0 126 4>;
+        gpios = <&gpio3 22 0>;
+    };
