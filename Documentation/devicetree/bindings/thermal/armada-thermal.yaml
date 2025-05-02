@@ -1,0 +1,59 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Marvell Electronics
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/thermal/armada-thermal.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Marvell Armada thermal management
+
+maintainers:
+  - Alex Leibovich <alexl@marvell.com>
+  - Baruch Siach <baruch@tkos.co.il>
+  - Ezequiel Garcia <ezequiel.garcia@free-electrons.com>
+  - Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+  - Miquel Raynal <miquel.raynal@bootlin.com>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  Marvell Armada 370/375/380/XP thermal management
+
+  Note: these bindings are deprecated for AP806/CP110 and should instead follow the rules described in:
+    Documentation/devicetree/bindings/arm/marvell/ap80x-system-controller.txt
+    Documentation/devicetree/bindings/arm/marvell/cp110-system-controller.txt
+
+properties:
+  compatible:
+    oneOf:
+      - enum:
+          - marvell,armada370-thermal
+          - marvell,armada375-thermal
+          - marvell,armada380-thermal
+          - marvell,armadaxp-thermal
+          - marvell,armada-ap806-thermal
+          - marvell,armada-ap807-thermal
+          - marvell,armada-cp110-thermal
+  reg:
+    items:
+      - description: status register (4B)
+      - description: control register (4B or 8B)
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    thermal@d0018300 {
+        compatible = "marvell,armada370-thermal";
+        reg = <0xd0018300 0x4
+               0xd0018304 0x4>;
+    };
+  - |
+    ap_thermal: thermal@6f8084 {
+        compatible = "marvell,armada-ap806-thermal";
+        reg = <0x6f808C 0x4>,
+              <0x6f8084 0x8>;
+    };
