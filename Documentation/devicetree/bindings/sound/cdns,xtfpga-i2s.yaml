@@ -1,0 +1,56 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 NXP
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/cdns,xtfpga-i2s.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Xilinx FPGA I2S Controller
+maintainers:
+  - Marco Franchi <marco.franchi@nxp.com>
+  - Max Filippov <jcmvbkbc@gmail.com>
+
+description: |
+  Bindings for I2S controller built into xtfpga Xtensa bitstreams.
+
+properties:
+  "#sound-dai-cells":
+    description: Number of sound DAI cells.
+    const: 0
+
+  compatible:
+    const: cdns,xtfpga-i2s
+
+  reg:
+    description: Memory region (address and length) containing device registers.
+    items:
+      - description: Address of device registers
+      - description: Length of device registers
+
+  interrupts:
+    description: Interrupt for the I2S controller.
+    items:
+      - description: Interrupt specifier
+
+  clocks:
+    description: Phandle to the clock used as master clock; I2S bus clock is derived from it.
+    items:
+      - description: Master clock phandle and specifier
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - clocks
+
+additionalProperties: false
+
+examples:
+  - |
+    i2s0: xtfpga-i2s@d080000 {
+        #sound-dai-cells = <0>;
+        compatible = "cdns,xtfpga-i2s";
+        reg = <0x0d080000 0x40>;
+        interrupts = <2 1>;
+        clocks = <&cdce706 4>;
+    };
