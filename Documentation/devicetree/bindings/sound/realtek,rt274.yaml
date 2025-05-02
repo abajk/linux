@@ -1,0 +1,57 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Realtek
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/realtek,rt274.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Realtek RT274 Audio CODEC
+
+maintainers:
+  - Bard Liao <bardliao@realtek.com>
+  - Fabio Estevam <fabio.estevam@nxp.com>
+
+description: |
+  RT274 audio CODEC
+
+  This device supports I2C only.
+
+  Pins on the device (for linking into audio routes) for RT274:
+
+    * DMIC1 Pin
+    * DMIC2 Pin
+    * MIC
+    * LINE1
+    * LINE2
+    * HPO Pin
+    * SPDIF
+    * LINE3
+
+properties:
+  compatible:
+    items:
+      - const: realtek,rt274
+
+  reg:
+    description: The I2C address of the device.
+    items:
+      - description: I2C address
+
+  interrupts:
+    description: CODEC interrupt output
+    items:
+      - description: Interrupt output for the CODEC
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    rt274: codec@1c {
+        compatible = "realtek,rt274";
+        reg = <0x1c>;
+        interrupts = <7 IRQ_TYPE_EDGE_FALLING>;
+    };
