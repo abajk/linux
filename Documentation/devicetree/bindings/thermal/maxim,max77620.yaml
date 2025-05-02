@@ -1,0 +1,67 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Amit Kucheria <amit.kucheria@linaro.org>
+# Copyright 2025 Laxman Dewangan <ldewangan@nvidia.com>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/thermal/maxim,max77620.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: MAX77620 Thermal Sensor
+maintainers:
+  - Amit Kucheria <amit.kucheria@linaro.org>
+  - Laxman Dewangan <ldewangan@nvidia.com>
+description: |
+  Thermal driver for MAX77620 Power management IC from Maxim Semiconductor.
+
+  Maxim Semiconductor MAX77620 supports alarm interrupts when its
+  die temperature crosses 120C and 140C. These threshold temperatures
+  are not configurable. Device does not provide the real temperature
+  of die other than just indicating whether temperature is above or
+  below threshold level.
+
+  For more details, please refer generic thermal DT binding document
+  <devicetree/bindings/thermal/thermal*.yaml>.
+
+  Please refer <devicetree/bindings/mfd/max77620.txt> for mfd DT binding
+  document for the MAX77620.
+
+properties:
+  compatible:
+    const: maxim,max77620
+
+  reg:
+    items:
+      - description: address of the device on the I2C bus
+    description: I2C bus address of the device
+
+  '#thermal-sensor-cells':
+    const: 0
+    description: number of thermal-sensor cells; must be zero
+
+  interrupts:
+    items:
+      - description: alarm interrupt
+    description: interrupt triggered on temperature threshold crossing
+
+  interrupt-names:
+    items:
+      - const: alarm
+    description: name of the alarm interrupt
+
+required:
+  - compatible
+  - reg
+  - '#thermal-sensor-cells'
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    max77620@3c {
+        compatible = "maxim,max77620";
+        reg = <0x3c>;
+        #thermal-sensor-cells = <0>;
+        interrupts = <&intc 5 0>;
+        interrupt-names = "alarm";
+    };
