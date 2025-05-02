@@ -1,0 +1,88 @@
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/usb/cavium,octeon-7130-usb-uctl.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Cavium SuperSpeed DWC3 USB SoC controller
+
+maintainers:
+  - Felipe Balbi <felipe.balbi@linux.intel.com>
+  - Krzysztof Kozlowski <krzk@kernel.org>
+
+description: |
+  Required properties:
+  - compatible: Should contain "cavium,octeon-7130-usb-uctl"
+
+  Required child node:
+  A child node must exist to represent the core DWC3 IP block.
+  The name of the node is not important. The content of the node
+  is defined in dwc3.txt.
+
+properties:
+  compatible:
+    description: Parent node compatible string
+    items:
+      - const: cavium,octeon-7130-usb-uctl
+
+  reg:
+    description: Controller register base address and size
+    items:
+      - description: Base address and size of the DWC3 controller
+
+  ranges: true
+
+  refclk-frequency:
+    description: Reference clock frequency in Hz
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  refclk-type-ss:
+    description: Reference clock type for SuperSpeed mode
+    $ref: /schemas/types.yaml#/definitions/string
+
+  refclk-type-hs:
+    description: Reference clock type for HighSpeed mode
+    $ref: /schemas/types.yaml#/definitions/string
+
+  power:
+    description: Power supply phandle and flags
+    items:
+      - $ref: /schemas/types.yaml#/definitions/phandle
+      - description: Regulator identifier
+        type: integer
+      - description: Flags
+        type: integer
+
+patternProperties:
+  ".*":
+    description: Child node representing the DWC3 core IP
+    $ref: /schemas/usb/snps,dwc3.yaml#
+
+required:
+  - compatible
+  - reg
+  - ranges
+  - refclk-frequency
+  - refclk-type-ss
+  - refclk-type-hs
+  - power
+
+additionalProperties: false
+
+examples:
+  - |
+    uctl@1180069000000 {
+        compatible = "cavium,octeon-7130-usb-uctl";
+        reg = <0x00011800 0x69000000 0x00000000 0x00000100>;
+        ranges;
+        #address-cells = <0x00000002>;
+        #size-cells = <0x00000002>;
+        refclk-frequency = <0x05f5e100>;
+        refclk-type-ss = "dlmc_ref_clk0";
+        refclk-type-hs = "dlmc_ref_clk0";
+        power = <0x00000002 0x00000002 0x00000001>;
+        xhci@1690000000000 {
+            compatible = "cavium,octeon-7130-xhci", "snps,dwc3";
+            reg = <0x00016900 0x00000000 0x00000010 0x00000000>;
+            interrupts = <0x00000009 0x00000004>;
+        };
+    };
