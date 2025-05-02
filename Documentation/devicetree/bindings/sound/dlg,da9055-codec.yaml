@@ -1,0 +1,42 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/dlg,da9055-codec.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Dialog DA9055 Audio CODEC
+maintainers:
+  - Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
+  - Randy Dunlap <rdunlap@infradead.org>
+
+description: |
+  * Dialog DA9055 Audio CODEC
+
+  DA9055 provides Audio CODEC support (I2C only).
+
+  The Audio CODEC device in DA9055 has its own I2C address which is configurable,
+  so the device is instantiated separately from the PMIC (MFD) device.
+
+  For details on accompanying PMIC I2C device, see the following:
+  Documentation/devicetree/bindings/mfd/da9055.txt
+
+properties:
+  compatible:
+    items:
+      - const: dlg,da9055-codec
+  reg:
+    items:
+      - description: I2C slave address
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    codec: da9055-codec@1a {
+        compatible = "dlg,da9055-codec";
+        reg = <0x1a>;
+    };
