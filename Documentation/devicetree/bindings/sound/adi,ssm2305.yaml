@@ -1,0 +1,38 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Marco Felsch <m.felsch@pengutronix.de>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/adi,ssm2305.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Analog Devices SSM2305 Speaker Amplifier
+
+maintainers:
+  - Marco Felsch <m.felsch@pengutronix.de>
+
+description: |
+  Analog Devices SSM2305 Speaker Amplifier
+
+properties:
+  compatible:
+    items:
+      - const: adi,ssm2305
+
+  shutdown-gpios:
+    description: |
+      The gpio connected to the shutdown pin.
+      The gpio signal is ACTIVE_LOW.
+    maxItems: 1
+
+required:
+  - compatible
+  - shutdown-gpios
+
+additionalProperties: false
+
+examples:
+  - |
+    ssm2305: analog-amplifier {
+        compatible = "adi,ssm2305";
+        shutdown-gpios = <&gpio3 20 GPIO_ACTIVE_LOW>;
+    };
