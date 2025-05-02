@@ -1,0 +1,63 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Daniel Mack <zonque@gmail.com>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/ti,tas5086.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Texas Instruments TAS5086 6-channel PWM Processor
+maintainers:
+  - Daniel Mack <zonque@gmail.com>
+description: |
+  Texas Instruments TAS5086 6-channel PWM Processor
+
+properties:
+  compatible:
+    description: Must contain ti,tas5086
+    $ref: /schemas/types.yaml#/definitions/string-array
+    contains:
+      const: ti,tas5086
+
+  reg:
+    description: I2C address of TAS5086
+    items:
+      - description: I2C address of the device
+
+  reset-gpio:
+    description: GPIO spec for the chip's !RESET pin
+
+  ti,charge-period:
+    description: |
+      Time in microseconds for the external single-ended split-capacitor charge
+      period (hardware default 1300ms)
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  avdd-supply:
+    description: Power supply for AVDD, providing 3.3V
+
+  dvdd-supply:
+    description: Power supply for DVDD, providing 3.3V
+
+patternProperties:
+  "^ti,mid-z-channel-[1-6]$":
+    type: boolean
+    description: If true, channel <number> will start with the Mid-Z sequence
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    i2c_bus {
+      tas5086@1b {
+        compatible = "ti,tas5086";
+        reg = <0x1b>;
+        reset-gpio = <&gpio 23 0>;
+        ti,charge-period = <156000>;
+        avdd-supply = <&vdd_3v3_reg>;
+        dvdd-supply = <&vdd_3v3_reg>;
+      };
+    };
