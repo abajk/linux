@@ -1,0 +1,67 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/spi/nuvoton,npcm-pspi.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Nuvoton NPCM PSPI controller
+maintainers:
+  - Tomer Maimon <tmaimon77@gmail.com>
+
+description: >
+  Nuvoton NPCM Peripheral Serial Peripheral Interface(PSPI) controller driver
+
+  Nuvoton NPCM7xx SOC support two PSPI channels.
+
+allOf:
+  - $ref: /schemas/spi/spi-controller.yaml#
+
+properties:
+  compatible:
+    enum:
+      - nuvoton,npcm750-pspi
+      - nuvoton,npcm845-pspi
+
+  reg:
+    maxItems: 1
+
+  interrupts:
+    maxItems: 1
+
+  clocks:
+    maxItems: 1
+
+  clock-names:
+    items:
+      - const: clk_apb5
+
+  resets:
+    maxItems: 1
+
+  clock-frequency:
+    description: Input clock frequency to PSPI block in Hz
+    $ref: /schemas/types.yaml#/definitions/uint32
+    default: 25000000
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - clocks
+  - clock-names
+  - resets
+  - cs-gpios
+
+unevaluatedProperties: false
+
+examples:
+  - |
+    spi@f0200000 {
+        compatible = "nuvoton,npcm750-pspi";
+        reg = <0xf0200000 0x1000>;
+        interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>;
+        clocks = <&clk NPCM7XX_CLK_APB5>;
+        clock-names = "clk_apb5";
+        resets = <&rstc NPCM7XX_RESET_IPSRST2 NPCM7XX_RESET_PSPI1>;
+        cs-gpios = <&gpio6 11 GPIO_ACTIVE_LOW>;
+    };
