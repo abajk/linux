@@ -1,0 +1,79 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/realtek,rt5668b.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Realtek RT5668B audio CODEC
+
+maintainers:
+  - Bard Liao <bardliao@realtek.com>
+  - Krzysztof Kozlowski <krzk@kernel.org>
+
+description: |
+  RT5668B audio CODEC
+
+  This device supports I2C only.
+
+  Pins on the device (for linking into audio routes) for RT5668B:
+
+    * DMIC L1
+    * DMIC R1
+    * IN1P
+    * HPOL
+    * HPOR
+
+properties:
+  compatible:
+    items:
+      - enum: [realtek, rt5668b]
+    description: A list of compatible strings; must be "realtek,rt5668b".
+
+  reg:
+    description: I2C address of the device.
+    items:
+      - description: I2C bus address
+
+  interrupts:
+    maxItems: 1
+    description: Interrupt output from the CODEC.
+
+  realtek,dmic1-data-pin:
+    description: |
+      Determine DMIC1 data pin: 0 for not used; 1 for using GPIO2 pin; 2 for using GPIO5 pin.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 1, 2]
+
+  realtek,dmic1-clk-pin:
+    description: |
+      Determine DMIC1 clock pin: 0 for using GPIO1 pin; 1 for using GPIO3 pin.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 1]
+
+  realtek,jd-src:
+    description: |
+      Jack detect source: 0 for no JD; 1 for using JD1.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 1]
+
+  realtek,ldo1-en-gpios:
+    maxItems: 1
+    description: The GPIO that controls the CODEC's LDO1_EN pin.
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    rt5668@1a {
+        compatible = "realtek,rt5668b";
+        reg = <0x1a>;
+        interrupts = <TEGRA_GPIO(U, 6) IRQ_TYPE_LEVEL_HIGH>;
+        realtek,ldo1-en-gpios = <&gpio TEGRA_GPIO(R, 2) GPIO_ACTIVE_HIGH>;
+        realtek,dmic1-data-pin = <1>;
+        realtek,dmic1-clk-pin = <1>;
+        realtek,jd-src = <1>;
+    };
