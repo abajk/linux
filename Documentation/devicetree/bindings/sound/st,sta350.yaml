@@ -1,0 +1,169 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Daniel Mack, Hayato Suzuki, Sven Brandau, Yu-Chun Lin
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/st,sta350.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: ST STA350 audio CODEC
+
+maintainers:
+  - Daniel Mack <zonque@gmail.com>
+  - Hayato Suzuki <hytszk@gmail.com>
+  - Sven Brandau <brandau@gmx.de>
+  - Yu-Chun Lin <eleanor15x@gmail.com>
+
+description: |
+  STA350 audio CODEC
+
+  The driver for this device only supports I2C.
+
+properties:
+  compatible:
+    items:
+      - const: st,sta350
+
+  reg:
+    items:
+      - description: I2C device address
+
+  reset-gpios:
+    items:
+      - description: Reset GPIO for the device
+
+  power-down-gpios:
+    items:
+      - description: Power-down GPIO for the device
+
+  vdd-dig-supply: true
+  vdd-pll-supply: true
+  vcc-supply: true
+
+  st,output-conf:
+    description: Output configuration. Must be specified as '/bits/ 8' value.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 1, 2, 3]
+
+  st,ch1-output-mapping:
+    description: Channel 1 output mapping. Must be specified as '/bits/ 8' value.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 1, 2]
+
+  st,ch2-output-mapping:
+    description: Channel 2 output mapping. Must be specified as '/bits/ 8' value.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 1, 2]
+
+  st,ch3-output-mapping:
+    description: Channel 3 output mapping. Must be specified as '/bits/ 8' value.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 1, 2]
+
+  st,thermal-warning-recover:
+    description: Enables thermal warning recovery.
+    type: boolean
+
+  st,thermal-warning-adjustment:
+    description: Enables thermal warning adjustment.
+    type: boolean
+
+  st,fault-detect-recovery:
+    description: Enables fault detect recovery.
+    type: boolean
+
+  st,ffx-power-output-mode:
+    description: FFX power output mode.
+    $ref: /schemas/types.yaml#/definitions/string
+    enum:
+      - drop-compensation
+      - tapered-compensation
+      - full-power-mode
+      - variable-drop-compensation
+    default: variable-drop-compensation
+
+  st,drop-compensation-ns:
+    description: Drop compensation in nanoseconds.
+    minimum: 0
+    maximum: 300
+    multipleOf: 20
+    default: 140
+
+  st,overcurrent-warning-adjustment:
+    description: Enables overcurrent warning adjustment.
+    type: boolean
+
+  st,max-power-use-mpcc:
+    description: Use MPCC bits for MPC coefficients.
+    type: boolean
+
+  st,max-power-correction:
+    description: Enables power bridge correction for THD reduction near maximum power output.
+    type: boolean
+
+  st,am-reduction-mode:
+    description: Enables AM reduction mode for FFX.
+    type: boolean
+
+  st,odd-pwm-speed-mode:
+    description: Enables odd PWM speed mode (341.3 kHz) on all channels.
+    type: boolean
+
+  st,distortion-compensation:
+    description: Enables distortion compensation using the DCC coefficient.
+    type: boolean
+
+  st,invalid-input-detect-mute:
+    description: Enables automatic invalid input detect mute.
+    type: boolean
+
+  st,activate-mute-output:
+    description: Activates mute output when volume reaches lower than -76 dBFS.
+    type: boolean
+
+  st,bridge-immediate-off:
+    description: Switches off the bridge immediately after the power-down GPIO goes low.
+    type: boolean
+
+  st,noise-shape-dc-cut:
+    description: Enables noise-shaping on the DC cutoff filter.
+    type: boolean
+
+  st,powerdown-master-volume:
+    description: Makes power-down pin and I2C power-down functions act on the master volume.
+    type: boolean
+
+  st,powerdown-delay-divider:
+    description: Divider for bridge power-down time.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [1, 2, 4, 8, 16, 32, 64, 128]
+
+required:
+  - compatible
+  - reg
+  - reset-gpios
+  - power-down-gpios
+  - vdd-dig-supply
+  - vdd-pll-supply
+  - vcc-supply
+
+additionalProperties: false
+
+examples:
+  - |
+    codec: sta350@38 {
+      compatible = "st,sta350";
+      reg = <0x1c>;
+      reset-gpios = <&gpio1 19 0>;
+      power-down-gpios = <&gpio1 16 0>;
+      st,output-conf = /bits/ 8 <0x3>;    // set output to 2-channel
+                                          // (full-bridge) power,
+                                          // 2-channel data-out
+      st,ch1-output-mapping = /bits/ 8 <0>;    // set channel 1 output ch 1
+      st,ch2-output-mapping = /bits/ 8 <0>;    // set channel 2 output ch 1
+      st,ch3-output-mapping = /bits/ 8 <0>;    // set channel 3 output ch 1
+      st,max-power-correction;        // enables power bridge
+                                      // correction for THD reduction
+                                      // near maximum power output
+      st,invalid-input-detect-mute;  // mute if no valid digital
+                                      // audio signal is provided.
+    };
