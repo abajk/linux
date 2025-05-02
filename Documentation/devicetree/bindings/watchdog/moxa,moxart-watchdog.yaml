@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/moxa,moxart-watchdog.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: MOXA ART Watchdog timer
+
+maintainers:
+  - Jonas Jensen <jonas.jensen@gmail.com>
+
+description: >
+  MOXA ART Watchdog timer
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - moxa,moxart-watchdog
+
+  reg:
+    description: Register base address and size for the watchdog timer.
+    items:
+      - description: Base address of the watchdog registers
+      - description: Length of the watchdog register region
+
+  clocks:
+    maxItems: 1
+    description: Clock that drives the watchdog counter.
+
+additionalProperties: false
+
+examples:
+  - |
+      watchdog: watchdog@98500000 {
+          compatible = "moxa,moxart-watchdog";
+          reg = <0x98500000 0x10>;
+          clocks = <&coreclk>;
+      };
