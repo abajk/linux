@@ -1,0 +1,46 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Microchip Technology
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/watchdog/microchip,pic32mzda-dmt.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Microchip PIC32 Deadman Timer
+
+maintainers:
+  - Purna Chandra Mandal <purna.mandal@microchip.com>
+
+description: |
+  * Microchip PIC32 Deadman Timer
+
+  The deadman timer is used to reset the processor in the event of a software
+  malfunction. It is a free-running instruction fetch timer, which is clocked
+  whenever an instruction fetch occurs until a count match occurs.
+
+properties:
+  compatible:
+    const: microchip,pic32mzda-dmt
+
+  reg:
+    items:
+      - description: physical base address of the controller
+      - description: length of memory mapped region
+
+  clocks:
+    maxItems: 1
+    description: phandle of source clock for the deadman timer
+
+required:
+  - compatible
+  - reg
+  - clocks
+
+additionalProperties: false
+
+examples:
+  - |
+    watchdog@1f800a00 {
+        compatible = "microchip,pic32mzda-dmt";
+        reg = <0x1f800a00 0x80>;
+        clocks = <&rootclk PB7CLK>;
+    };
