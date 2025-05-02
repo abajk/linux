@@ -1,0 +1,129 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Linaro Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/usb/st,stih407-dwc3.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: ST DWC3 glue logic
+
+maintainers:
+  - Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+  - Mauro Carvalho Chehab <mchehab@kernel.org>
+  - Peter Griffin <peter.griffin@linaro.org>
+  - Rob Herring <robh@kernel.org>
+  - Yegor Yefremov <yegorslists@googlemail.com>
+
+description: |
+  ST DWC3 glue logic
+
+  This file documents the parameters for the dwc3-st driver.
+  This driver controls the glue logic used to configure the dwc3 core on
+  STiH407 based platforms.
+
+  Sub-nodes:
+  The dwc3 core should be added as subnode to ST DWC3 glue as shown in the
+  example below. The DT binding details of dwc3 can be found in:
+  Documentation/devicetree/bindings/usb/snps,dwc3.yaml
+
+  NB: The dr_mode property described in [1] is NOT optional for this driver, as the default value
+  is "otg", which isn't supported by this SoC. Valid dr_mode values for dwc3-st are either "host"
+  or "device".
+
+  [1] Documentation/devicetree/bindings/usb/usb-drd.yaml
+
+properties:
+  compatible:
+    items:
+      - const: st,stih407-dwc3
+
+  reg:
+    items:
+      - description: glue logic base address
+      - description: syscfg control register offset
+    description: Base addresses for glue logic and syscfg control registers.
+
+  reg-names:
+    items:
+      - const: reg-glue
+      - const: syscfg-reg
+    description: Names of the reg entries.
+
+  st,syscon:
+    $ref: /schemas/types.yaml#/definitions/phandle
+    description: Phandle to the system configuration node for glue registers.
+
+  resets:
+    maxItems: 2
+    description: Reset lines for powerdown and softreset.
+
+  reset-names:
+    items:
+      - const: powerdown
+      - const: softreset
+    description: Names of the reset lines.
+
+  '#address-cells':
+    const: 1
+    description: Number of address cells for child nodes.
+
+  '#size-cells':
+    const: 1
+    description: Number of size cells for child nodes.
+
+  pinctrl-names:
+    items:
+      - const: default
+    description: Name of the default pinctrl state.
+
+  pinctrl-0:
+    $ref: /schemas/types.yaml#/definitions/phandle
+    description: Pin control group for the default state.
+
+  ranges:
+    description: Enables 1:1 address translation for child nodes.
+
+  dwc3:
+    $ref: /schemas/usb/snps,dwc3.yaml#
+    description: Subnode containing the DWC3 core.
+
+required:
+  - compatible
+  - reg
+  - reg-names
+  - 'st,syscon'
+  - resets
+  - reset-names
+  - '#address-cells'
+  - '#size-cells'
+  - pinctrl-names
+  - pinctrl-0
+  - ranges
+
+additionalProperties: false
+
+examples:
+  - |
+    st_dwc3: dwc3@8f94000 {
+        compatible    = "st,stih407-dwc3";
+        reg           = <0x08f94000 0x1000>, <0x110 0x4>;
+        reg-names     = "reg-glue", "syscfg-reg";
+        st,syscon     = <&syscfg_core>;
+        resets        = <&powerdown STIH407_USB3_POWERDOWN>,
+                        <&softreset STIH407_MIPHY2_SOFTRESET>;
+        reset-names   = "powerdown", "softreset";
+        #address-cells = <1>;
+        #size-cells    = <1>;
+        pinctrl-names = "default";
+        pinctrl-0      = <&pinctrl_usb3>;
+        ranges;
+
+        dwc3: dwc3@9900000 {
+            compatible   = "snps,dwc3";
+            reg          = <0x09900000 0x100000>;
+            interrupts   = <GIC_SPI 155 IRQ_TYPE_NONE>;
+            dr_mode      = "host";
+            phy-names    = "usb2-phy", "usb3-phy";
+            phys         = <&usb2_picophy2>, <&phy_port2 PHY_TYPE_USB3>;
+        };
+    };
