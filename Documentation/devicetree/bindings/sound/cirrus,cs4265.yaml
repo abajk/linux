@@ -1,0 +1,52 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/cirrus,cs4265.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: cirrus,cs4265 codec
+
+maintainers:
+  - Paul Handrigan <Paul.Handrigan@cirrus.com>
+
+description: |
+  CS4265 audio CODEC
+
+  This device supports I2C only.
+
+properties:
+  compatible:
+    items:
+      - const: cirrus,cs4265
+
+  reg:
+    description: >
+      The I2C address of the device. The address depends on the state of the
+      AD0 pin. If AD0 is high, the address is 0x4f; if low, it is 0x4e.
+    items:
+      - description: I2C address
+
+  reset-gpios:
+    maxItems: 1
+    description: >
+      GPIO specification for the reset pin. If specified, it will be
+      deasserted before communication to the codec starts.
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    cs4265@4f {
+      compatible = "cirrus,cs4265";
+      reg = <0x4f>;
+    };
+
+  - |
+    cs4265@4e {
+      compatible = "cirrus,cs4265";
+      reg = <0x4e>;
+    };
