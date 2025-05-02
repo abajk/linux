@@ -1,0 +1,93 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/cirrus,cs35l34.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Cirrus CS35L34 Speaker Amplifier
+
+maintainers:
+  - Paul Handrigan <Paul.Handrigan@cirrus.com>
+
+description: |
+  CS35L34 Speaker Amplifier
+
+properties:
+  compatible:
+    items:
+      - const: cirrus,cs35l34
+
+  reg:
+    maxItems: 1
+
+  VA-supply:
+    description: Power supply for the VA line.
+
+  VP-supply:
+    description: Power supply for the VP line.
+
+  reset-gpios:
+    description: GPIO used to reset the amplifier.
+
+  interrupts:
+    maxItems: 1
+
+  cirrus,boost-vtge-millivolt:
+    description: Boost converter output voltage in mV. Values from VP supply voltage to 8000 mV in steps of 100 mV.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    minimum: 1000
+    maximum: 8000
+    multipleOf: 100
+
+  cirrus,boost-nanohenry:
+    description: Inductor value for boost converter in nH.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [1000, 1100, 1200, 1500, 2200]
+
+  cirrus,boost-peak-milliamp:
+    description: Boost converter peak current limit in mA.
+    minimum: 1200
+    maximum: 3840
+    multipleOf: 80
+    default: 2480
+
+  cirrus,i2s-sdinloc:
+    description: ADSP SDIN I2S channel location.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 1, 2, 3]
+    default: 0
+
+  cirrus,gain-zc-disable:
+    description: If set, the gain change will take effect without waiting for a zero cross.
+    type: boolean
+
+  cirrus,tdm-rising-edge:
+    description: If set, data is on the rising edge of SCLK. Otherwise, data is on the falling edge of SCLK.
+    type: boolean
+
+required:
+  - compatible
+  - reg
+  - VA-supply
+  - VP-supply
+  - cirrus,boost-vtge-millivolt
+  - cirrus,boost-nanohenry
+
+additionalProperties: false
+
+examples:
+  - |
+    cs35l34: cs35l34@40 {
+        compatible = "cirrus,cs35l34";
+        reg = <0x40>;
+        VA-supply = <&vdd1>;
+        VP-supply = <&vdd2>;
+        interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
+        reset-gpios = <&gpio 10 0>;
+        cirrus,boost-vtge-millivolt = <8000>; /* 8V */
+        cirrus,boost-nanohenry = <1000>;     /* 1uH */
+        cirrus,boost-peak-milliamp = <3000>; /* 3A */
+        cirrus,i2s-sdinloc = <0>;
+        cirrus,gain-zc-disable;
+        cirrus,tdm-rising-edge;
+    };
