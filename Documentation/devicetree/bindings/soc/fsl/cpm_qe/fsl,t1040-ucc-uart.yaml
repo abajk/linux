@@ -1,0 +1,45 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 NXP Semiconductors
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/soc/fsl/cpm_qe/fsl,t1040-ucc-uart.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Freescale UCC UART
+
+maintainers:
+  - Zhao Qiang <qiang.zhao@nxp.com>
+
+description: |
+  * Serial
+
+properties:
+  compatible:
+    items:
+      - const: "fsl,t1040-ucc-uart"
+    description: |
+      Freescale UCC-UART binding compatible string.
+
+  port-number:
+    description: |
+      Port number of the UCC-UART.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  rx-clock-name:
+    description: |
+      Name of the receive clock source.
+
+  tx-clock-name:
+    description: |
+      Name of the transmit clock source.
+
+additionalProperties: false
+
+examples:
+  - |
+    ucc_serial: ucc@2200 {
+        compatible = "fsl,t1040-ucc-uart";
+        port-number = <0>;
+        rx-clock-name = "brg2";
+        tx-clock-name = "brg2";
+    };
