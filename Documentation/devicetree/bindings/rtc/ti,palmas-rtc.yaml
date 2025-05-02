@@ -1,0 +1,61 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Dr. H. Nikolaus Schaller
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/ti,palmas-rtc.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI Palmas RTC controller
+
+maintainers:
+  - Dr. H. Nikolaus Schaller <hns@goldelico.com>
+  - Laxman Dewangan <ldewangan@nvidia.com>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  Palmas RTC controller bindings
+
+properties:
+  compatible:
+    description: |
+      Must be "ti,palmas-rtc" for all Palmas series RTC controllers.
+    items:
+      - const: ti,palmas-rtc
+
+  interrupts:
+    items:
+      - description: Interrupt number of RTC submodule on device.
+
+  ti,backup-battery-chargeable:
+    description: |
+      The Palmas series device like TPS65913 or TPS80036 supports the backup
+      battery for powering the RTC when main battery is removed or in very low
+      power state. This flag tells whether the battery is chargeable or not.
+      If present, the driver can enable charging.
+    type: boolean
+
+  ti,backup-battery-charge-high-current:
+    description: |
+      Enable high current charging in backup battery. Device supports < 100uA
+      and > 100uA charging. The high current will be > 100uA. Absence of this
+      property will charge battery to lower current (< 100uA).
+    type: boolean
+
+required:
+  - compatible
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    palmas: tps65913@58 {
+        ...
+        palmas_rtc: rtc {
+            compatible = "ti,palmas-rtc";
+            interrupts = <8 0>;
+            ti,backup-battery-chargeable;
+            ti,backup-battery-charge-high-current;
+        };
+        ...
+    };
