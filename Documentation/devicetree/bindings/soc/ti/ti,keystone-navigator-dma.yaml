@@ -1,0 +1,118 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Texas Instruments Incorporated
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/soc/ti/ti,keystone-navigator-dma.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Keystone Navigator DMA Controller
+
+maintainers:
+  - Santosh Shilimkar <santosh.shilimkar@ti.com>
+
+description: |
+  This document explains the device tree bindings for the packet dma
+  on keystone devices. The Keystone Navigator DMA driver sets up the dma
+  channels and flows for the QMSS (Queue Manager SubSystem) who triggers
+  the actual data movements across clients using destination queues. Every
+  client modules like NETCP (Network Coprocessor), SRIO (Serial Rapid IO),
+  CRYPTO Engines etc has its own instance of dma hardware. QMSS has also
+  an internal packet DMA module which is used as an infrastructure DMA
+  with zero copy.
+
+  Navigator DMA cloud layout:
+    ------------------
+    | Navigator DMAs |
+    ------------------
+        |
+        |-> DMA instance #0
+        |
+        |-> DMA instance #1
+            .
+            .
+        |
+        |-> DMA instance #n
+
+properties:
+  compatible:
+    items:
+      - const: ti,keystone-navigator-dma
+
+  clocks:
+    description: phandle to dma instance clocks.
+      The clock handles can be as many as the dma instances.
+      The order should be maintained as per the dma instances.
+
+  '#address-cells':
+    const: 1
+
+  '#size-cells':
+    const: 1
+
+  ranges: true
+
+  ti,navigator-cloud-address:
+    description: |
+      Should contain base address for the multi-core navigator cloud and number of
+      addresses depends on SOC integration configuration.
+      Navigator cloud global address needs to be programmed into DMA and the DMA
+      uses it as the physical addresses to reach queue managers.
+      Note that these addresses, though pointing to queue managers, are relevant
+      only from DMA perspective.
+      The QMSS may not choose to use them since it has a different address space
+      view to reach all its components.
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+
+  ti,enable-all:
+    description: |
+      Enable all DMA channels versus clients opening specific channels what they need.
+      This property is useful for the userspace fast path case where the linux drivers
+      enables the channels used by userland stack.
+    type: boolean
+
+  ti,loop-back:
+    description: To loopback Tx streaming I/F to Rx streaming I/F. Used for infrastructure transfers.
+    type: boolean
+
+  ti,rx-retry-timeout:
+    description: Number of dma cycles to wait before retry on buffer starvation.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+required:
+  - compatible
+  - clocks
+  - ti,navigator-cloud-address
+
+additionalProperties: false
+
+examples:
+  - |
+    knav_dmas: knav_dmas@0 {
+        compatible = "ti,keystone-navigator-dma";
+        clocks = <&papllclk>, <&clkxge>;
+        #address-cells = <1>;
+        #size-cells = <1>;
+        ranges;
+        ti,navigator-cloud-address = <0x23a80000 0x23a90000
+                                       0x23aa0000 0x23ab0000>;
+
+        dma_gbe: dma_gbe@0 {
+            reg = <0x2004000 0x100>,
+                  <0x2004400 0x120>,
+                  <0x2004800 0x300>,
+                  <0x2004c00 0x120>,
+                  <0x2005000 0x400>;
+            reg-names = "global", "txchan", "rxchan",
+                        "txsched", "rxflow";
+        };
+
+        dma_xgbe: dma_xgbe@0 {
+            reg = <0x2fa1000 0x100>,
+                <0x2fa1400 0x200>,
+                <0x2fa1800 0x200>,
+                <0x2fa1c00 0x200>,
+                <0x2fa2000 0x400>;
+            reg-names = "global", "txchan", "rxchan",
+                        "txsched", "rxflow";
+        };
+    };
