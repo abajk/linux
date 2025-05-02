@@ -1,0 +1,69 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Lee Jones
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/stericsson,snd-soc-mop500.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: MOP500 Audio Machine Driver
+
+maintainers:
+  - Lee Jones <lee@kernel.org>
+
+description: |
+  * MOP500 Audio Machine Driver
+
+  This node is responsible for linking together all ux500 Audio Driver components.
+
+properties:
+  compatible:
+    items:
+      - const: stericsson,snd-soc-mop500
+
+  stericsson,cpu-dai:
+    description: Phandle to the CPU-side DAI.
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+    items:
+      - $ref: /schemas/types.yaml#/definitions/phandle
+      - $ref: /schemas/types.yaml#/definitions/phandle
+
+  stericsson,audio-codec:
+    description: Phandle to the Audio CODEC.
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  stericsson,card-name:
+    description: Over-ride default card name.
+    $ref: /schemas/types.yaml#/definitions/string
+
+required:
+  - compatible
+
+additionalProperties: false
+
+examples:
+  - |
+    sound {
+        compatible = "stericsson,snd-soc-mop500";
+
+        stericsson,cpu-dai = <&msp1 &msp3>;
+        stericsson,audio-codec = <&codec>;
+    };
+
+    msp1: msp@80124000 {
+        compatible = "stericsson,ux500-msp-i2s";
+        reg = <0x80124000 0x1000>;
+        interrupts = <0 62 0x4>;
+        v-ape-supply = <&db8500_vape_reg>;
+    };
+
+    msp3: msp@80125000 {
+        compatible = "stericsson,ux500-msp-i2s";
+        reg = <0x80125000 0x1000>;
+        interrupts = <0 62 0x4>;
+        v-ape-supply = <&db8500_vape_reg>;
+    };
+
+    codec: ab8500-codec {
+        compatible = "stericsson,ab8500-codec";
+        stericsson,earpeice-cmv = <950>; /* Units in mV. */
+    };
