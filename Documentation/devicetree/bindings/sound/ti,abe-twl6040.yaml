@@ -1,0 +1,153 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 H. Nikolaus Schaller <hns@goldelico.com>
+# Copyright 2025 Peter Ujfalusi <peter.ujfalusi@ti.com>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/ti,abe-twl6040.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Texas Instruments OMAP4+ ABE TWL6040 audio setup
+
+maintainers:
+  - H. Nikolaus Schaller <hns@goldelico.com>
+  - Peter Ujfalusi <peter.ujfalusi@ti.com>
+
+description: |
+  * Texas Instruments OMAP4+ and twl6040 based audio setups
+
+  Available audio endpoints for the audio-routing table:
+
+  Board connectors:
+   * Headset Stereophone
+   * Earphone Spk
+   * Ext Spk
+   * Line Out
+   * Vibrator
+   * Headset Mic
+   * Main Handset Mic
+   * Sub Handset Mic
+   * Line In
+   * Digital Mic
+
+  twl6040 pins:
+   * HSOL
+   * HSOR
+   * EP
+   * HFL
+   * HFR
+   * AUXL
+   * AUXR
+   * VIBRAL
+   * VIBRAR
+   * HSMIC
+   * MAINMIC
+   * SUBMIC
+   * AFML
+   * AFMR
+   * Headset Mic Bias
+   * Main Mic Bias
+   * Digital Mic1 Bias
+   * Digital Mic2 Bias
+
+  Digital mic pins:
+   * DMic
+
+properties:
+  compatible:
+    items:
+      - const: ti,abe-twl6040
+  ti,model:
+    description: Name of the sound card (for example "SDP4430").
+    $ref: /schemas/types.yaml#/definitions/string
+  ti,mclk-freq:
+    description: MCLK frequency for HPPLL operation.
+  ti,mcpdm:
+    description: Phandle for the McPDM node.
+  ti,dmic:
+    description: Phandle for the OMAP dmic node.
+  ti,twl6040:
+    description: Phandle for the twl6040 core node.
+  ti,audio-routing:
+    description: |
+      List of connections between audio components; each entry is one string drawn
+      from the set of board connectors or TWL6040/dmic pins.
+      Values occur in pairs (sink, source).
+    $ref: /schemas/types.yaml#/definitions/string-array
+    items:
+      enum:
+        - Headset Stereophone
+        - Earphone Spk
+        - Ext Spk
+        - Line Out
+        - Vibrator
+        - Headset Mic
+        - Main Handset Mic
+        - Sub Handset Mic
+        - Line In
+        - Digital Mic
+        - HSOL
+        - HSOR
+        - EP
+        - HFL
+        - HFR
+        - AUXL
+        - AUXR
+        - VIBRAL
+        - VIBRAR
+        - HSMIC
+        - MAINMIC
+        - SUBMIC
+        - AFML
+        - AFMR
+        - Headset Mic Bias
+        - Main Mic Bias
+        - Digital Mic1 Bias
+        - Digital Mic2 Bias
+        - DMic
+  ti,jack-detection:
+    description: Present if jack insertion and removal detection is supported.
+    type: boolean
+
+required:
+  - compatible
+  - ti,model
+  - ti,mclk-freq
+  - ti,mcpdm
+  - ti,twl6040
+  - ti,audio-routing
+
+additionalProperties: false
+
+examples:
+  - |
+    sound {
+      compatible = "ti,abe-twl6040";
+      ti,model = "SDP4430";
+      ti,jack-detection;
+      ti,mclk-freq = <38400000>;
+      ti,mcpdm = <&mcpdm>;
+      ti,dmic = <&dmic>;
+      ti,twl6040 = <&twl6040>;
+
+      /* Audio routing */
+      ti,audio-routing =
+        "Headset Stereophone", "HSOL",
+        "Headset Stereophone", "HSOR",
+        "Earphone Spk", "EP",
+        "Ext Spk", "HFL",
+        "Ext Spk", "HFR",
+        "Line Out", "AUXL",
+        "Line Out", "AUXR",
+        "Vibrator", "VIBRAL",
+        "Vibrator", "VIBRAR",
+        "HSMIC", "Headset Mic",
+        "Headset Mic", "Headset Mic Bias",
+        "MAINMIC", "Main Handset Mic",
+        "Main Handset Mic", "Main Mic Bias",
+        "SUBMIC", "Sub Handset Mic",
+        "Sub Handset Mic", "Main Mic Bias",
+        "AFML", "Line In",
+        "AFMR", "Line In",
+        "DMic", "Digital Mic",
+        "Digital Mic", "Digital Mic1 Bias";
+    };
