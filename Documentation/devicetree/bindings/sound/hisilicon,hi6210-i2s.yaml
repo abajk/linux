@@ -1,0 +1,76 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2018 Linaro Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/hisilicon,hi6210-i2s.yaml#
+
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Hisilicon 6210 I2S controller
+
+maintainers:
+  - John Stultz <john.stultz@linaro.org>
+
+description: |
+  Hisilicon 6210 i2s controller
+
+properties:
+  compatible:
+    items:
+      - const: hisilicon,hi6210-i2s
+
+  reg:
+    items:
+      - description: physical base address of the i2s controller unit
+      - description: length of memory mapped region
+
+  interrupts:
+    maxItems: 1
+    description: Interrupt specifier for the I2S controller. Should contain the I2S interrupt.
+
+  clocks:
+    description: List of phandle and clock-specifier pairs for the controller
+    items:
+      - description: phandle and specifier for dacodec clock
+      - description: phandle and specifier for i2s-base clock
+
+  clock-names:
+    items:
+      - const: dacodec
+      - const: i2s-base
+
+  dmas:
+    description: DMA specifiers for the controller; see the DMA client binding
+    items:
+      - description: first DMA specifier
+      - description: second DMA specifier
+
+  dma-names:
+    items:
+      - const: rx
+      - const: tx
+
+  hisilicon,sysctrl-syscon: true
+
+  '#sound-dai-cells':
+    const: 1
+
+additionalProperties: false
+
+examples:
+  - |
+    i2s0: i2s@f7118000{
+        compatible = "hisilicon,hi6210-i2s";
+        reg = <0x0 0xf7118000 0x0 0x8000>; /* i2s unit */
+        interrupts = <GIC_SPI 123 IRQ_TYPE_LEVEL_HIGH>; /* 155 "DigACodec_intr"-32 */
+        clocks = <&sys_ctrl HI6220_DACODEC_PCLK>,
+                 <&sys_ctrl HI6220_BBPPLL0_DIV>;
+        clock-names = "dacodec", "i2s-base";
+        dmas = <&dma0 15 &dma0 14>;
+        dma-names = "rx", "tx";
+        hisilicon,sysctrl-syscon = <&sys_ctrl>;
+        #sound-dai-cells = <1>;
+    };
+
+    Then when referencing the i2s controller:
+        sound-dai = <&i2s0 0>; /* index 0 => S2 interface */
