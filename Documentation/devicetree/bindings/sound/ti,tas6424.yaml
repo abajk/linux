@@ -1,0 +1,56 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Texas Instruments Incorporated
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/ti,tas6424.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Texas Instruments TAS6424 Quad-Channel Audio Amplifier
+
+maintainers:
+  - Alexander A. Klimov <grandmaster@al2klimov.de>
+  - Jean-Jacques Hiblot <jjhiblot@ti.com>
+  - Michael Stecklein <m-stecklein@ti.com>
+
+description: |
+  Texas Instruments TAS6424 Quad-Channel Audio amplifier
+
+  The TAS6424 serial control bus communicates through I2C protocols.
+
+  For more product information please see the link below:
+  https://www.ti.com/product/TAS6424-Q1
+
+properties:
+  compatible:
+    items:
+      - const: "ti,tas6424"
+  reg:
+    description: I2C slave address
+    items:
+      - description: I2C slave address
+  '#sound-dai-cells':
+    description: Number of DAI cells; must be 0
+    const: 0
+  standby-gpios:
+    maxItems: 1
+    description: GPIO used to shut the TAS6424 down
+  mute-gpios:
+    maxItems: 1
+    description: GPIO used to mute all the outputs
+
+required:
+  - compatible
+  - reg
+  - '#sound-dai-cells'
+  - standby-gpios
+  - mute-gpios
+
+additionalProperties: false
+
+examples:
+  - |
+    tas6424: tas6424@6a {
+        compatible = "ti,tas6424";
+        reg = <0x6a>;
+        #sound-dai-cells = <0>;
+    };
