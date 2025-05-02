@@ -1,0 +1,33 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2018 Linaro Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/ti,ads117x.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Texas Intstruments ADS117x ADC
+
+maintainers:
+  - Florian Vaussard <florian.vaussard@gmail.com>
+
+description: |
+  Texas Intstruments ADS117x ADC
+
+properties:
+  compatible:
+    # List of supported compatible strings for this ADC
+    items:
+      - enum:
+          - ti,ads1174
+          - ti,ads1178
+
+required:
+  - compatible
+
+additionalProperties: false
+
+examples:
+  - |
+    ads1178 {
+        compatible = "ti,ads1178";
+    };
