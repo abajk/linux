@@ -1,0 +1,67 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 SiFive Inc.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sifive/sifive,blocks-ip-versioning.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: SiFive open-source IP blocks DT compatible string versioning
+
+maintainers:
+  - Paul Walmsley <paul.walmsley@sifive.com>
+
+description: |
+  DT compatible string versioning for SiFive open-source IP blocks
+
+  This document describes the version specification for DT "compatible"
+  strings for open-source SiFive IP blocks.  HDL for these IP blocks
+  can be found in this public repository:
+
+  https://github.com/sifive/sifive-blocks
+
+  IP block-specific DT compatible strings are contained within the HDL,
+  in the form "sifive,<ip-block-name><integer version number>".
+
+  Until these IP blocks (or IP integration) support version
+  auto-discovery, the maintainers of these IP blocks intend to increment
+  the suffixed number in the compatible string whenever the software
+  interface to these IP blocks changes, or when the functionality of the
+  underlying IP blocks changes in a way that software should be aware of.
+
+  Driver developers can use compatible string "match" values such as
+  "sifive,uart0" to indicate that their driver is compatible with the
+  register interface and functionality associated with the relevant
+  upstream sifive-blocks commits.  It is expected that most drivers will
+  match on these IP block-specific compatible strings.
+
+  DT data authors, when writing data for a particular SoC, should
+  continue to specify an SoC-specific compatible string value, such as
+  "sifive,fu540-c000-uart".  This way, if SoC-specific
+  integration-specific bug fixes or workarounds are needed, the kernel
+  or other system software can match on this string to apply them.
+  The IP block-specific compatible string (such as "sifive,uart0") should
+  then be specified as a subsequent value.
+
+properties:
+  compatible:
+    description: >
+      List of compatible strings; the first entry is the SoC-specific
+      integration string, and the second (if present) is the IP block-
+      specific versioned string.
+    oneOf:
+      - items:
+          - pattern: .*
+          - pattern: .*
+      - items:
+          - pattern: .*
+
+required:
+  - compatible
+
+additionalProperties: false
+
+examples:
+  - |
+    node@1000 {
+        compatible = "sifive,fu540-c000-uart", "sifive,uart0";
+    };
