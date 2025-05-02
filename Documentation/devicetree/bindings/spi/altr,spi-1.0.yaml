@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Altera
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/spi/altr,spi-1.0.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Altera SPI
+
+maintainers:
+  - Dinh Nguyen <dinguyen@altera.com>
+  - Thomas Chou <thomas@wytron.com.tw>
+
+description: |
+  Altera SPI
+
+properties:
+  compatible:
+    description: Must be "altr,spi-1.0" or the deprecated "ALTR,spi-1.0".
+    items:
+      - enum:
+          - "ALTR,spi-1.0"
+          - "altr,spi-1.0"
+
+required:
+  - compatible
+
+additionalProperties: false
