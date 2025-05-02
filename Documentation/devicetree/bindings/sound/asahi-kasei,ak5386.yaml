@@ -1,0 +1,42 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Daniel Mack <zonque@gmail.com>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/asahi-kasei,ak5386.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Asahi Kasei AK5386 ADC
+
+maintainers:
+  - Daniel Mack <zonque@gmail.com>
+
+description: |
+  AK5386 Single-ended 24-Bit 192kHz delta-sigma ADC
+
+  This device has no control interface.
+
+properties:
+  compatible:
+    items:
+      - const: asahi-kasei,ak5386
+    description: Device compatible with AK5386 ADC.
+  reset-gpio:
+    description: Reset/power-down pin.
+  va-supply:
+    description: Analog supply (5.0V).
+  vd-supply:
+    description: Digital supply (3.3V).
+
+required:
+  - compatible
+
+additionalProperties: false
+
+examples:
+  - |
+    spdif: ak5386@0 {
+        compatible = "asahi-kasei,ak5386";
+        reset-gpio = <&gpio0 23>;
+        va-supply = <&vdd_5v0_reg>;
+        vd-supply = <&vdd_3v3_reg>;
+    };
