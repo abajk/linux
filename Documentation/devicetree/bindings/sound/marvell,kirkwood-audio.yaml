@@ -1,0 +1,80 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/marvell,kirkwood-audio.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Marvell mvebu Audio Controller
+
+maintainers:
+  - Jean-Francois Moine <moinejf@free.fr>
+  - Marcin Wojtas <mw@semihalf.com>
+  - Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+
+description: |
+  * mvebu (Kirkwood, Dove, Armada 370) audio controller
+
+properties:
+  compatible:
+    items:
+      - const: marvell,kirkwood-audio
+      - const: marvell,dove-audio
+      - const: marvell,armada370-audio
+      - const: marvell,armada-380-audio
+
+  reg:
+    description: Physical base address and length of memory mapped region(s).
+    oneOf:
+      - items:
+          - description: I2S controller registers
+      - items:
+          - description: I2S controller registers
+          - description: Audio PLL configuration registers
+          - description: SoC control registers
+
+  interrupts:
+    description: Interrupts for the audio controller.
+    oneOf:
+      - items:
+          - description: Audio interrupt
+      - items:
+          - description: Data flow interrupt
+          - description: Error interrupt
+
+  clocks:
+    description: Controller clocks.
+    oneOf:
+      - items:
+          - description: Internal clock
+      - items:
+          - description: Internal clock
+          - description: External clock
+
+  clock-names:
+    description: Names for each clock phandle.
+    items:
+      - const: internal
+      - const: extclk
+
+  spdif-mode:
+    description: Enable S/PDIF mode on Armada 38x; disables I2S.
+    type: boolean
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - clocks
+  - clock-names
+
+additionalProperties: false
+
+examples:
+  - |
+    audio-controller@b4000 {
+      compatible = "marvell,dove-audio";
+      reg = <0xb4000 0x2210>;
+      interrupts = <21>, <22>;
+      clocks = <&gate_clk 13>;
+      clock-names = "internal";
+    };
