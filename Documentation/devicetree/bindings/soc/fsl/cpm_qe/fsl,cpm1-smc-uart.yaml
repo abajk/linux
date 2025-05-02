@@ -1,0 +1,72 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 NXP
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/soc/fsl/cpm_qe/fsl,cpm1-smc-uart.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Serial CPM UART
+
+maintainers:
+  - Zhao Qiang <qiang.zhao@nxp.com>
+
+description: |
+  Modem control lines connected to GPIO controllers are listed in the gpios
+  property as described in booting-without-of.txt, section IX.1 in the following
+  order:
+
+  CTS, RTS, DCD, DSR, DTR, and RI.
+
+  The gpios property is optional and can be left out when control lines are
+  not used.
+
+properties:
+  device_type:
+    const: serial
+
+  compatible:
+    items:
+      - enum:
+          - fsl,cpm1-smc-uart
+          - fsl,cpm2-smc-uart
+          - fsl,cpm1-scc-uart
+          - fsl,cpm2-scc-uart
+          - fsl,qe-uart
+          - fsl,mpc8272-scc-uart
+    description: Identifies the device as a Freescale CPM UART.
+
+  reg:
+    description: Base and size for core and auxiliary CPM registers.
+    items:
+      - description: CPM core registers.
+      - description: CPM auxiliary registers.
+
+  interrupts:
+    maxItems: 1
+
+  gpios:
+    description: "Modem control lines in order: CTS, RTS, DCD, DSR, DTR, RI."
+    minItems: 1
+    maxItems: 6
+
+  fsl,cpm-brg:
+    description: Baud rate generator setting.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  fsl,cpm-command:
+    description: CPM command register value.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+additionalProperties: false
+
+examples:
+  - |
+    serial@11a00 {
+        device_type = "serial";
+        compatible = "fsl,mpc8272-scc-uart", "fsl,cpm2-scc-uart";
+        reg = <0x11a00 0x20 0x8000 0x100>;
+        interrupts = <28 8>;
+        fsl,cpm-brg = <1>;
+        fsl,cpm-command = <0x00800000>;
+        gpios = <&gpio_c 15 0>, <&gpio_d 29 0>;
+    };
