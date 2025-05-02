@@ -1,0 +1,69 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/adi,axi-spdif-tx-1.00.a.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: ADI AXI-SPDIF controller
+
+maintainers:
+  - Andreas Färber <afaerber@suse.de>
+  - Lars-Peter Clausen <lars@metafoo.de>
+  - Mathieu Malaterre <malat@debian.org>
+
+description: |
+  ADI AXI-SPDIF controller
+
+  For more details on the 'dma', 'dma-names', 'clock' and 'clock-names' properties
+  please check:
+    * resource-names.txt
+    * clock/clock-bindings.txt
+    * dma/dma.txt
+
+properties:
+  compatible:
+    enum:
+      - adi,axi-spdif-tx-1.00.a
+
+  reg:
+    items:
+      - description: SPDIF core registers
+
+  clocks:
+    items:
+      - description: AXI interface clock
+      - description: sampling reference clock
+
+  clock-names:
+    items:
+      - const: axi
+      - const: ref
+
+  dmas:
+    items:
+      - description: transmit DMA channel
+
+  dma-names:
+    items:
+      - const: tx
+
+required:
+  - compatible
+  - reg
+  - clocks
+  - clock-names
+  - dmas
+  - dma-names
+
+additionalProperties: false
+
+examples:
+  - |
+    spdif: spdif@77400000 {
+        compatible = "adi,axi-spdif-tx-1.00.a";
+        reg = <0x77600000 0x1000>;
+        clocks = <&clk 15>, <&audio_clock>;
+        clock-names = "axi", "ref";
+        dmas = <&ps7_dma 0>;
+        dma-names = "tx";
+    };
