@@ -1,0 +1,88 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/realtek,rt5660.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Realtek RT5660 Audio CODEC
+
+maintainers:
+  - Oder Chiou <oder_chiou@realtek.com>
+
+description: |
+  RT5660 audio CODEC
+
+  This device supports I2C only.
+
+  Pins on the device (for linking into audio routes) for RT5660:
+
+    * DMIC L1
+    * DMIC R1
+    * IN1P
+    * IN1N
+    * IN2P
+    * IN3P
+    * IN3N
+    * SPO
+    * LOUTL
+    * LOUTR
+
+properties:
+  compatible:
+    description: Must be realtek,rt5660.
+    items:
+      - const: realtek,rt5660
+
+  reg:
+    description: I2C address of the device.
+    items:
+      - description: I2C address
+
+  clocks:
+    description: Phandle to the master clock to the CODEC.
+    maxItems: 1
+
+  clock-names:
+    items:
+      - const: mclk
+
+  realtek,dmic1-data-pin:
+    description: |
+      Control dmic1 data pin.
+      0: dmic1 is not used.
+      1: using GPIO2 pin as dmic1 data pin.
+      2: using IN1P pin as dmic1 data pin.
+    enum: [0, 1, 2]
+
+  realtek,in1-differential:
+    description: Indicate MIC1 input is differential, rather than single-ended.
+    type: boolean
+
+  realtek,in3-differential:
+    description: Indicate MIC3 input is differential, rather than single-ended.
+    type: boolean
+
+  realtek,poweroff-in-suspend:
+    description: |
+      If the codec will be powered off in suspend, the resume should
+      add delay time for waiting codec power ready.
+    type: boolean
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    rt5660@1c {
+        compatible = "realtek,rt5660";
+        reg = <0x1c>;
+        clocks = <&mclk>;
+        clock-names = "mclk";
+        realtek,in1-differential;
+        realtek,in3-differential;
+        realtek,poweroff-in-suspend;
+        realtek,dmic1-data-pin = <2>;
+    };
