@@ -1,0 +1,110 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Russell King <rmk+kernel@arm.linux.org.uk>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/soc/dove/marvell,dove-pmu.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Marvell Dove PMU
+
+maintainers:
+  - Russell King <rmk+kernel@arm.linux.org.uk>
+
+properties:
+  compatible:
+    oneOf:
+      - items:
+          - const: marvell,dove-pmu
+          - const: simple-bus
+      - items:
+          - const: marvell,dove-pmu
+
+  reg:
+    description: Base addresses and sizes for the PM controller and PMU.
+    items:
+      - description: PM controller registers
+      - description: PMU registers
+
+  interrupts:
+    maxItems: 1
+
+  interrupt-controller: true
+
+  '#interrupt-cells':
+    const: 1
+
+  '#reset-cells':
+    const: 1
+
+  ranges: true
+
+  domains:
+    description: Sub-node containing domain descriptions.
+    type: object
+    additionalProperties:
+      $ref: '#/definitions/domain'
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - interrupt-controller
+
+allOf:
+  - if:
+      properties:
+        compatible:
+          contains:
+            const: simple-bus
+    then:
+      required:
+        - ranges
+
+additionalProperties: false
+
+definitions:
+  domain:
+    description: Power domain description.
+    type: object
+    properties:
+      '#power-domain-cells':
+        const: 0
+      marvell,pmu_pwr_mask:
+        description: Mask value for PMU power register.
+        $ref: /schemas/types.yaml#/definitions/uint32
+      marvell,pmu_iso_mask:
+        description: Mask value for PMU isolation register.
+        $ref: /schemas/types.yaml#/definitions/uint32
+      resets:
+        description: Points to the reset manager (PMU node) and reset index.
+        maxItems: 1
+
+    required:
+      - '#power-domain-cells'
+
+examples:
+  - |
+    pmu: power-management@d0000 {
+      compatible = "marvell,dove-pmu";
+      reg = <0xd0000 0x8000>, <0xd8000 0x8000>;
+      interrupts = <33>;
+      interrupt-controller;
+      #interrupt-cells = <1>;
+      #reset-cells = <1>;
+
+      domains {
+        vpu_domain: vpu-domain {
+          #power-domain-cells = <0>;
+          marvell,pmu_pwr_mask = <0x00000008>;
+          marvell,pmu_iso_mask = <0x00000001>;
+          resets = <&pmu 16>;
+        };
+
+        gpu_domain: gpu-domain {
+          #power-domain-cells = <0>;
+          marvell,pmu_pwr_mask = <0x00000004>;
+          marvell,pmu_iso_mask = <0x00000002>;
+          resets = <&pmu 18>;
+        };
+      };
+    };
