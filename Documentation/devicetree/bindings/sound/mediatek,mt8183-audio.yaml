@@ -1,0 +1,92 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 MediaTek Inc.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/mediatek,mt8183-audio.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: mediatek,mt8183-audio
+
+maintainers:
+  - Jiaxin Yu <jiaxin.yu@mediatek.com>
+  - Shunli Wang <shunli.wang@mediatek.com>
+
+description: |
+  Mediatek AFE PCM controller for mt8183
+
+properties:
+  compatible:
+    items:
+      - const: mediatek,mt8183-audio
+
+  reg:
+    description: Register location and size
+
+  interrupts:
+    description: AFE interrupt
+    items:
+      - description: AFE interrupt
+
+  resets:
+    description: Reset controller phandle
+
+  reset-names:
+    items:
+      - const: audiosys
+
+  power-domains:
+    description: Power domain for audio
+
+  clocks:
+    description: Clocks required by PCM controller
+    items:
+      - description: infra_sys_audio_clk
+      - description: mtkaif_26m_clk
+      - description: top_mux_audio
+      - description: top_mux_aud_intbus
+      - description: top_sys_pll3_d4
+      - description: top_clk26m_clk
+
+  clock-names:
+    items:
+      - const: infra_sys_audio_clk
+      - const: mtkaif_26m_clk
+      - const: top_mux_audio
+      - const: top_mux_aud_intbus
+      - const: top_sys_pll3_d4
+      - const: top_clk26m_clk
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - resets
+  - reset-names
+  - power-domains
+  - clocks
+  - clock-names
+
+additionalProperties: false
+
+examples:
+  - |
+    afe: mt8183-afe-pcm@11220000  {
+        compatible = "mediatek,mt8183-audio";
+        reg = <0 0x11220000 0 0x1000>;
+        interrupts = <GIC_SPI 161 IRQ_TYPE_LEVEL_LOW>;
+        resets = <&watchdog MT8183_TOPRGU_AUDIO_SW_RST>;
+        reset-names = "audiosys";
+        power-domains = <&scpsys MT8183_POWER_DOMAIN_AUDIO>;
+        clocks = <&infrasys CLK_INFRA_AUDIO>,
+                 <&infrasys CLK_INFRA_AUDIO_26M_BCLK>,
+                 <&topckgen CLK_TOP_MUX_AUDIO>,
+                 <&topckgen CLK_TOP_MUX_AUD_INTBUS>,
+                 <&topckgen CLK_TOP_SYSPLL_D2_D4>,
+                 <&clk26m>;
+        clock-names = "infra_sys_audio_clk",
+                      "mtkaif_26m_clk",
+                      "top_mux_audio",
+                      "top_mux_aud_intbus",
+                      "top_sys_pll_d2_d4",
+                      "top_clk26m_clk";
+    };
