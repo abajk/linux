@@ -1,0 +1,42 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/marvell,kirkwood-thermal.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: marvell,kirkwood-thermal
+
+maintainers:
+  - Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+description: |
+  Kirkwood Thermal
+
+  This version is for Kirkwood 88F8262 & 88F6283 SoCs. Other kirkwoods
+  don't contain a thermal sensor.
+
+properties:
+  compatible:
+    description: Binding string for the Kirkwood thermal sensor.
+    items:
+      - const: marvell,kirkwood-thermal
+
+  reg:
+    description: Address range of the thermal registers.
+    items:
+      - description: Base address of the thermal registers.
+      - description: Size of the thermal registers.
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    thermal@10078 {
+        compatible = "marvell,kirkwood-thermal";
+        reg = <0x10078 0x4>;
+    };
