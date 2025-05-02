@@ -1,0 +1,163 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 BayLibre Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/ti,da830-musb.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI DA8xx MUSB
+
+maintainers:
+  - Alexandre Bailon <abailon@baylibre.com>
+  - Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+  - Petr Kulhavy <petr@barix.com>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  TI DA8xx MUSB
+
+  For DA8xx/OMAP-L1x/AM17xx/AM18xx platforms.
+
+  DMA
+  ~~~
+  - compatible: ti,da830-cppi41
+  - reg: offset and length of the following register spaces: CPPI DMA Controller,
+    CPPI DMA Scheduler, Queue Manager
+  - reg-names: "controller", "scheduler", "queuemgr"
+  - #dma-cells: should be set to 2. The first number represents the
+    channel number (0 … 3 for endpoints 1 … 4).
+    The second number is 0 for RX and 1 for TX transfers.
+  - dma-channels: should be set to 4 representing the 4 endpoints.
+  - #dma-channels: deprecated
+
+properties:
+  compatible:
+    items:
+      - const: ti,da830-musb
+
+  reg:
+    items:
+      - description: USB controller register base address
+      - description: size of register space
+
+  interrupts:
+    items:
+      - description: USB interrupt
+
+  interrupt-names:
+    items:
+      - const: mc
+
+  interrupt-controller: true
+
+  dr_mode:
+    description: USB operation mode
+    $ref: /schemas/types.yaml#/definitions/string
+    enum:
+      - host
+      - peripheral
+      - otg
+
+  vbus-supply: true
+
+  phys:
+    description: PHY device phandle
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+
+  phy-names:
+    items:
+      - const: usb-phy
+
+  dmas:
+    description: DMA channel phandles and stream IDs
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+
+  dma-names:
+    items:
+      - const: rx1
+      - const: rx2
+      - const: rx3
+      - const: rx4
+      - const: tx1
+      - const: tx2
+      - const: tx3
+      - const: tx4
+
+  # Child node for the DMA controller
+  cppi41dma:
+    description: CPPI41 DMA controller
+    type: object
+    properties:
+      compatible:
+        items:
+          - const: ti,da830-cppi41
+      reg:
+        items:
+          - description: controller registers base
+          - description: scheduler registers base
+          - description: queuemgr registers base
+      reg-names:
+        items:
+          - const: controller
+          - const: scheduler
+          - const: queuemgr
+      interrupts:
+        items:
+          - description: DMA interrupt
+      '#dma-cells':
+        const: 2
+      dma-channels:
+        description: Number of DMA channels
+    required:
+      - compatible
+      - reg
+      - reg-names
+      - interrupts
+      - '#dma-cells'
+      - dma-channels
+    additionalProperties: false
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - interrupt-controller
+
+additionalProperties: false
+
+examples:
+  - |
+    usb_phy: usb-phy {
+      compatible = "ti,da830-usb-phy";
+      #phy-cells = <0>;
+    };
+    usb0: usb@200000 {
+      compatible = "ti,da830-musb";
+      reg = <0x00200000 0x1000>;
+      ranges;
+      #address-cells = <1>;
+      #size-cells = <1>;
+      interrupts = <58>;
+      interrupt-names = "mc";
+      dr_mode = "host";
+      vbus-supply = <&usb_vbus>;
+      phys = <&usb_phy 0>;
+      phy-names = "usb-phy";
+      dmas = <&cppi41dma 0 0 &cppi41dma 1 0
+        &cppi41dma 2 0 &cppi41dma 3 0
+        &cppi41dma 0 1 &cppi41dma 1 1
+        &cppi41dma 2 1 &cppi41dma 3 1>;
+      dma-names =
+        "rx1", "rx2", "rx3", "rx4",
+        "tx1", "tx2", "tx3", "tx4";
+      cppi41dma: dma-controller@201000 {
+        compatible = "ti,da830-cppi41";
+        reg =  <0x201000 0x1000
+          0x202000 0x1000
+          0x204000 0x4000>;
+        reg-names = "controller", "scheduler", "queuemgr";
+        interrupts = <58>;
+        #dma-cells = <2>;
+        dma-channels = <4>;
+      };
+    };
