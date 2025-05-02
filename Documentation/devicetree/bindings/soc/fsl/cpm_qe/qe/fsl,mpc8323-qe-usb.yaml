@@ -1,0 +1,156 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/soc/fsl/cpm_qe/qe/fsl,mpc8323-qe-usb.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Freescale QUICC Engine USB Controller
+
+maintainers:
+  - Rob Herring <robh@kernel.org>
+  - Zhao Qiang <qiang.zhao@nxp.com>
+
+description: |
+  Freescale QUICC Engine USB Controller
+
+properties:
+  compatible:
+    items:
+      - pattern: '^fsl,.*-qe-usb$'
+      - const: fsl,mpc8323-qe-usb
+
+  reg:
+    description: Register window and PRAM ranges.
+    items:
+      - description: USB registers location and length
+      - description: PRAM location and length
+
+  interrupts:
+    maxItems: 1
+
+  interrupt-controller: true
+
+  fsl,fullspeed-clock:
+    $ref: /schemas/types.yaml#/definitions/string
+    description: Full speed USB clock source.
+    enum:
+      - none
+      - brg1
+      - brg2
+      - brg3
+      - brg4
+      - brg5
+      - brg6
+      - brg7
+      - brg8
+      - brg9
+      - brg10
+      - brg11
+      - brg12
+      - brg13
+      - brg14
+      - brg15
+      - brg16
+      - clk1
+      - clk2
+      - clk3
+      - clk4
+      - clk5
+      - clk6
+      - clk7
+      - clk8
+      - clk9
+      - clk10
+      - clk11
+      - clk12
+      - clk13
+      - clk14
+      - clk15
+      - clk16
+      - clk17
+      - clk18
+      - clk19
+      - clk20
+      - clk21
+      - clk22
+      - clk23
+      - clk24
+
+  fsl,lowspeed-clock:
+    $ref: /schemas/types.yaml#/definitions/string
+    description: Low speed USB clock source.
+    enum:
+      - none
+      - brg1
+      - brg2
+      - brg3
+      - brg4
+      - brg5
+      - brg6
+      - brg7
+      - brg8
+      - brg9
+      - brg10
+      - brg11
+      - brg12
+      - brg13
+      - brg14
+      - brg15
+      - brg16
+      - clk1
+      - clk2
+      - clk3
+      - clk4
+      - clk5
+      - clk6
+      - clk7
+      - clk8
+      - clk9
+      - clk10
+      - clk11
+      - clk12
+      - clk13
+      - clk14
+      - clk15
+      - clk16
+      - clk17
+      - clk18
+      - clk19
+      - clk20
+      - clk21
+      - clk22
+      - clk23
+      - clk24
+
+  hub-power-budget:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: USB root hub power budget in mA.
+
+  gpios:
+    description: GPIOs for USBOE, USBTP, USBTN, USBRP, USBRN, optional SPEED and POWER.
+    items:
+      - description: USBOE
+      - description: USBTP
+      - description: USBTN
+      - description: USBRP
+      - description: USBRN
+      - description: SPEED (optional)
+      - description: POWER (optional)
+      
+additionalProperties: false
+
+examples:
+  - |
+    usb@6c0 {
+        compatible = "fsl,mpc8360-qe-usb", "fsl,mpc8323-qe-usb";
+        reg = <0x6c0 0x40 0x8b00 0x100>;
+        interrupts = <11>;
+        fsl,fullspeed-clock = "clk21";
+        gpios = <&qe_pio_b  2 0 /* USBOE */
+                 &qe_pio_b  3 0 /* USBTP */
+                 &qe_pio_b  8 0 /* USBTN */
+                 &qe_pio_b  9 0 /* USBRP */
+                 &qe_pio_b 11 0 /* USBRN */
+                 &qe_pio_e 20 0 /* SPEED */
+                 &qe_pio_e 21 0 /* POWER */>;
+    };
