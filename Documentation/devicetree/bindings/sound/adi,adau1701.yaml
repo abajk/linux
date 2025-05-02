@@ -1,0 +1,79 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/adi,adau1701.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Analog Devices ADAU1701
+
+maintainers:
+  - Daniel Mack <zonque@gmail.com>
+  - Pascal Huerst <pascal.huerst@gmail.com>
+
+description: |
+  Analog Devices ADAU1701
+
+properties:
+  compatible:
+    items:
+      - const: adi,adau1701
+
+  reg:
+    description: I2C address depending on ADDR0 and ADDR1 wiring.
+    items:
+      - description: I2C 7-bit address of the ADAU1701
+
+  reset-gpio:
+    description: GPIO connected to the !RESET pin.
+    maxItems: 1
+
+  adi,pll-mode-gpios:
+    description: GPIO lines controlling the PLL mode pins before firmware load.
+    items:
+      - description: PLL mode pin 0
+      - description: PLL mode pin 1
+
+  adi,pin-config:
+    description: |
+      Pin configuration array of 12 values as described in datasheet table 53.
+      Values must be prefixed with '/bits/ 8'.
+    items:
+      - description: Configuration for pin 1
+      - description: Configuration for pin 2
+      - description: Configuration for pin 3
+      - description: Configuration for pin 4
+      - description: Configuration for pin 5
+      - description: Configuration for pin 6
+      - description: Configuration for pin 7
+      - description: Configuration for pin 8
+      - description: Configuration for pin 9
+      - description: Configuration for pin 10
+      - description: Configuration for pin 11
+      - description: Configuration for pin 12
+
+  avdd-supply:
+    description: Power supply for AVDD, providing 3.3V
+
+  dvdd-supply:
+    description: Power supply for DVDD, providing 3.3V
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    i2c_bus {
+        adau1701@34 {
+            compatible = "adi,adau1701";
+            reg = <0x34>;
+            reset-gpio = <&gpio 23 0>;
+            avdd-supply = <&vdd_3v3_reg>;
+            dvdd-supply = <&vdd_3v3_reg>;
+            adi,pll-mode-gpios = <&gpio 24 0 &gpio 25 0>;
+            adi,pin-config = /bits/ 8 <0x4 0x7 0x5 0x5 0x4 0x4
+                                 0x4 0x4 0x4 0x4 0x4 0x4>;
+        };
+    };
