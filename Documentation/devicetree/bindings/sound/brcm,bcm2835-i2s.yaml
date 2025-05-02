@@ -1,0 +1,58 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/brcm,bcm2835-i2s.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Broadcom BCM2835 SoC I2S/PCM module
+
+maintainers:
+  - Scott Branden <sbranden@broadcom.com>
+  - Stefan Wahren <wahrenst@gmx.net>
+
+description: |
+  Broadcom BCM2835 SoC I2S/PCM module
+
+properties:
+  compatible:
+    items:
+      - const: brcm,bcm2835-i2s
+
+  reg:
+    items:
+      - description: PCM registers location and length.
+
+  clocks:
+    maxItems: 1
+    description: PCM clock to use.
+
+  dmas:
+    description: List of DMA controller phandle and request line pairs.
+    items:
+      - description: Transmission DMA controller phandle and request line.
+      - description: Reception DMA controller phandle and request line.
+
+  dma-names:
+    description: Names for the DMA channels corresponding to the entries in "dmas".
+    items:
+      - const: tx
+      - const: rx
+
+required:
+  - compatible
+  - reg
+  - clocks
+  - dmas
+  - dma-names
+
+additionalProperties: false
+
+examples:
+  - |
+    i2s@7e203000 {
+        compatible = "brcm,bcm2835-i2s";
+        reg = <0x7e203000 0x24>;
+        clocks = <&clocks BCM2835_CLOCK_PCM>;
+        dmas = <&dma 2>, <&dma 3>;
+        dma-names = "tx", "rx";
+    };
