@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/unittest.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Unit Test
+maintainers:
+  - Test Maintainer <test-maintainer@example.com>
+
+description: |
+  A minimal schema just for unit‐testing.  
+
+properties: {}
+additionalProperties: false
