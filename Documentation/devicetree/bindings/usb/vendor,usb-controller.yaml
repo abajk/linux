@@ -1,0 +1,59 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Linaro Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/vendor,usb-controller.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: ULPI bus controller
+
+maintainers:
+  - Stephen Boyd <stephen.boyd@linaro.org>
+
+description: |
+  Phys that are behind a ULPI connection can be described with the following
+  binding. The host controller shall have a "ulpi" named node as a child, and
+  that node shall have one enabled node underneath it representing the ulpi
+  device on the bus.
+
+properties:
+  compatible:
+    items:
+      - enum: ["vendor,usb-controller"]
+    description: Bus controller compatible with ULPI protocol.
+
+  ulpi:
+    description: ULPI bus child node providing interface to PHY devices.
+    type: object
+    properties:
+      phy:
+        description: PHY device node on the ULPI bus.
+        type: object
+        properties:
+          compatible:
+            items:
+              - enum: ["vendor,phy"]
+            description: PHY device compatible string.
+        required:
+          - compatible
+        additionalProperties: false
+    required:
+      - phy
+    additionalProperties: false
+
+required:
+  - compatible
+
+additionalProperties: false
+
+examples:
+  - |
+    usb {
+        compatible = "vendor,usb-controller";
+
+        ulpi {
+            phy {
+                compatible = "vendor,phy";
+            };
+        };
+    };
