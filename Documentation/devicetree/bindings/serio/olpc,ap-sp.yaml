@@ -1,0 +1,46 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Daniel Drake <dsd@laptop.org>
+# Copyright 2025 Lubomir Rintel <lkundrak@v3.sk>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/serio/olpc,ap-sp.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: OLPC AP-SP serio interface
+
+maintainers:
+  - Daniel Drake <dsd@laptop.org>
+  - Lubomir Rintel <lkundrak@v3.sk>
+
+description: |
+  OLPC AP-SP serio interface
+
+properties:
+  compatible:
+    items:
+      - const: olpc,ap-sp
+    description: Must be set to "olpc,ap-sp".
+  reg:
+    items:
+      - description: Base address of SoC's WTM registers
+      - description: Length of the SoC's WTM registers
+    description: Memory-mapped registers for the WTM interface.
+  interrupts:
+    items:
+      - description: SP-AP interrupt
+    description: Interrupt line for the SP-AP communication.
+
+required:
+  - compatible
+  - reg
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    ap-sp@d4290000 {
+        compatible = "olpc,ap-sp";
+        reg = <0xd4290000 0x1000>;
+        interrupts = <40>;
+    };
