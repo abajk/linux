@@ -1,0 +1,70 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/rockchip,rockchip-audio-max98090.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Rockchip MAX98090 Audio CODEC
+
+maintainers:
+  - Cheng-Yi Chiang <cychiang@chromium.org>
+  - zhengxing <zhengxing@rock-chips.com>
+
+description: |
+  ROCKCHIP with MAX98090 CODEC
+
+properties:
+  compatible:
+    const: "rockchip,rockchip-audio-max98090"
+  rockchip,model:
+    description: The user-visible name of this sound complex.
+    $ref: /schemas/types.yaml#/definitions/string
+  rockchip,i2s-controller:
+    description: The phandle of the Rockchip I2S controller that's connected to the CODEC.
+    $ref: /schemas/types.yaml#/definitions/phandle
+  rockchip,audio-codec:
+    description: The phandle of the MAX98090 audio codec.
+    $ref: /schemas/types.yaml#/definitions/phandle
+  rockchip,headset-codec:
+    description: The phandle of Ext chip for jack detection. This is required if there
+      is rockchip,audio-codec.
+    $ref: /schemas/types.yaml#/definitions/phandle
+  rockchip,hdmi-codec:
+    description: The phandle of HDMI device for HDMI codec.
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+required:
+  - compatible
+  - rockchip,model
+  - rockchip,i2s-controller
+
+dependencies:
+  rockchip,headset-codec: [ 'rockchip,audio-codec' ]
+
+additionalProperties: false
+
+examples:
+  - |
+    sound {
+        compatible = "rockchip,rockchip-audio-max98090";
+        rockchip,model = "ROCKCHIP-I2S";
+        rockchip,i2s-controller = <&i2s>;
+        rockchip,audio-codec = <&max98090>;
+        rockchip,headset-codec = <&headsetcodec>;
+    };
+  - |
+    sound {
+        compatible = "rockchip,rockchip-audio-max98090";
+        rockchip,model = "ROCKCHIP-I2S";
+        rockchip,i2s-controller = <&i2s>;
+        rockchip,hdmi-codec = <&hdmi>;
+    };
+  - |
+    sound {
+        compatible = "rockchip,rockchip-audio-max98090";
+        rockchip,model = "ROCKCHIP-I2S";
+        rockchip,i2s-controller = <&i2s>;
+        rockchip,audio-codec = <&max98090>;
+        rockchip,headset-codec = <&headsetcodec>;
+        rockchip,hdmi-codec = <&hdmi>;
+    };
