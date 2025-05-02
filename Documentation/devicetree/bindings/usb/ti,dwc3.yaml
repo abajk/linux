@@ -1,0 +1,93 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/usb/ti,dwc3.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI OMAP DWC3 Glue
+
+maintainers:
+  - Anatol Pomozov <anatol.pomozov@gmail.com>
+  - George Cherian <george.cherian@ti.com>
+  - Kishon Vijay Abraham I <kishon@kernel.org>
+  - Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+  - Roger Quadros <rogerq@ti.com>
+
+description: |
+  OMAP GLUE AND OTHER OMAP SPECIFIC COMPONENTS
+
+  OMAP DWC3 GLUE
+
+  Sub-nodes:
+    The dwc3 core should be added as subnode to omap dwc3 glue. The binding details
+    of dwc3 can be found in:
+    Documentation/devicetree/bindings/usb/snps,dwc3.yaml
+
+properties:
+  compatible:
+    oneOf:
+      - items:
+          - const: ti,dwc3
+          - const: ti,am437x-dwc3
+
+  ti,hwmods:
+    description: Hardware modules used by the glue driver
+    $ref: /schemas/types.yaml#/definitions/string
+
+  reg:
+    items:
+      - description: Address of the register set for the device
+      - description: Length of the register set for the device
+
+  interrupts:
+    items:
+      - description: The IRQ number used to interrupt the MPU
+
+  "#address-cells":
+    const: 1
+
+  "#size-cells":
+    const: 1
+
+  utmi-mode:
+    description: Controls the source of UTMI/PIPE status for VBUS and OTG ID (1=HW mode,2=SW mode)
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum:
+      - 1
+      - 2
+
+  ranges:
+    description: Child address space mapped 1:1 onto the parent address space
+    maxItems: 1
+
+  extcon:
+    description: Phandle for the extcon device used to detect connect/disconnect events
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  vbus-supply:
+    description: Phandle to the regulator device node if needed
+
+  dwc3:
+    description: DWC3 core subnode
+    $ref: /schemas/usb/snps,dwc3.yaml
+
+required:
+  - compatible
+  - ti,hwmods
+  - reg
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    omap_dwc3 {
+        compatible = "ti,dwc3";
+        ti,hwmods = "usb_otg_ss";
+        reg = <0x4a020000 0x1ff>;
+        interrupts = <0 93 4>;
+        #address-cells = <1>;
+        #size-cells = <1>;
+        utmi-mode = <2>;
+        ranges;
+    };

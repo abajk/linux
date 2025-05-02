@@ -1,0 +1,97 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/ti,omap4-musb.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI OMAP MUSB Glue
+
+maintainers:
+  - Anatol Pomozov <anatol.pomozov@gmail.com>
+  - George Cherian <george.cherian@ti.com>
+  - Kishon Vijay Abraham I <kishon@kernel.org>
+  - Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+  - Roger Quadros <rogerq@ti.com>
+
+properties:
+  compatible:
+    enum:
+      - ti,omap4-musb
+      - ti,omap3-musb
+
+  ti,hwmods:
+    description: Hardware modules used by the glue driver
+    type: string
+
+  multipoint:
+    description: Indicates the musb controller supports multipoint
+    const: 1
+
+  num-eps:
+    description: Specifies the number of endpoints
+    $ref: /schemas/types.yaml#/definitions/uint32
+    const: 16
+
+  ram-bits:
+    description: Specifies the RAM address size
+    const: 12
+
+  ctrl-module:
+    description: Phandle of the control module this glue uses to write to mailbox
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  interface-type:
+    description: Type of interface between the controller and the PHY (0=ULPI,1=UTMI)
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum:
+      - 0
+      - 1
+
+  mode:
+    description: Operating mode (1=HOST,2=PERIPHERAL,3=OTG)
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum:
+      - 1
+      - 2
+      - 3
+
+  power:
+    description: Maximum current (in mA) the controller can supply in host mode
+    $ref: /schemas/types.yaml#/definitions/uint32
+    const: 50
+
+  usb-phy:
+    description: Phandle for the PHY device
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  phys:
+    description: Phandle for the PHY device (used by generic PHY framework)
+    maxItems: 1
+
+  phy-names:
+    items:
+      - const: usb2-phy
+
+required:
+  - compatible
+  - ti,hwmods
+  - multipoint
+  - num-eps
+  - ram-bits
+  - phys
+  - phy-names
+
+additionalProperties: false
+
+examples:
+  - |
+    usb_otg_hs: usb_otg_hs@4a0ab000 {
+        compatible = "ti,omap4-musb";
+        ti,hwmods = "usb_otg_hs";
+        multipoint = <1>;
+        num-eps = <16>;
+        ram-bits = <12>;
+        ctrl-module = <&omap_control_usb>;
+        phys = <&usb2_phy>;
+        phy-names = "usb2-phy";
+    };
