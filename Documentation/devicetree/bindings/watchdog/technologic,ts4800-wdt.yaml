@@ -1,0 +1,47 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/technologic,ts4800-wdt.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TS4800 Watchdog
+maintainers:
+  - Damien Riegel <damien.riegel@savoirfairelinux.com>
+
+description: |
+  Technologic Systems Watchdog
+
+properties:
+  compatible:
+    description: Must be "technologic,ts4800-wdt".
+    const: technologic,ts4800-wdt
+
+  syscon:
+    description: phandle / integer array that points to the syscon node which
+      describes the FPGA's syscon registers.
+    items:
+      - description: phandle to FPGA's syscon
+      - description: offset to the watchdog register
+
+  timeout-sec:
+    description: Watchdog timeout in seconds.
+
+required:
+  - compatible
+  - syscon
+
+additionalProperties: false
+
+examples:
+  - |
+    syscon: syscon@b0010000 {
+        compatible = "syscon", "simple-mfd";
+        reg = <0xb0010000 0x3d>;
+        reg-io-width = <2>;
+
+        wdt@e {
+            compatible = "technologic,ts4800-wdt";
+            syscon = <&syscon 0xe>;
+            timeout-sec = <10>;
+        };
+    };
