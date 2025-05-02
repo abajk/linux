@@ -1,0 +1,48 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 NXP
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/soc/fsl/cpm_qe/cpm/pic.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Freescale CPM/QE PIC
+
+maintainers:
+  - Zhao Qiang <qiang.zhao@nxp.com>
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - fsl,cpm1-pic
+          - fsl,pq1-pic
+          - fsl,cpm2-pic
+          - mpc8272-pic
+
+  reg:
+    items:
+      - description: Register block for the interrupt controller
+
+  interrupt-controller: true
+
+  '#interrupt-cells':
+    enum:
+      - 1
+      - 2
+
+required:
+  - compatible
+  - reg
+  - interrupt-controller
+  - '#interrupt-cells'
+
+additionalProperties: false
+
+examples:
+  - |
+      interrupt-controller@10c00 {
+          compatible = "mpc8272-pic", "fsl,cpm2-pic";
+          reg = <0x10c00 0x80>;
+          interrupt-controller;
+          #interrupt-cells = <2>;
+      };
