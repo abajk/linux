@@ -1,0 +1,50 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Realtek
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/realtek,rt1011.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Realtek RT1011 Mono Class D Audio Amplifier
+
+maintainers:
+  - Shuming Fan <shumingf@realtek.com>
+
+description: |
+  RT1011 Mono Class D Audio Amplifier
+
+  This device supports I2C only.
+
+properties:
+  compatible:
+    # exactly one compatible string
+    items:
+      - const: "realtek,rt1011"
+
+  reg:
+    description: I2C address of the device, determined by ASEL1 and ASEL2 input pins.
+    items:
+      - enum: [56, 57, 58, 59]
+
+  realtek,temperature_calib:
+    description: "Temperature measured during calibration (units: Celsius degrees)"
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  realtek,r0_calib:
+    description: Factory-mode r0 calibration data
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    rt1011: codec@38 {
+        compatible = "realtek,rt1011";
+        reg = <0x38>;
+        realtek,temperature_calib = <25>;
+        realtek,r0_calib = <0x224050>;
+    };
