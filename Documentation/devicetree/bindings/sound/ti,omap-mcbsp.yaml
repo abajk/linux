@@ -1,0 +1,78 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/ti,omap-mcbsp.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: TI OMAP McBSP
+
+maintainers:
+  - Peter Ujfalusi <peter.ujfalusi@ti.com>
+  - Rob Herring <robh@kernel.org>
+
+description: |
+  * Texas Instruments OMAP2+ McBSP module
+
+properties:
+  compatible:
+    description: Compatible string for the McBSP port on OMAP SoCs.
+    items:
+      - enum:
+          - ti,omap2420-mcbsp
+          - ti,omap2430-mcbsp
+          - ti,omap3-mcbsp
+          - ti,omap4-mcbsp
+  reg:
+    description: Register location and size. For OMAP4+ this can be an array of two address-size tuples.
+    items:
+      - description: MPU access base address and size
+      - description: L3 interconnect address and size
+  reg-names:
+    $ref: /schemas/types.yaml#/definitions/string-array
+    items:
+      - const: mpu
+      - const: sidetone
+  interrupts:
+    description: Interrupt numbers for the McBSP port on OMAP SoCs.
+    items:
+      - description: OCP compliant irq
+      - description: TX irq
+      - description: RX irq
+      - description: Sidetone irq
+  interrupt-names:
+    $ref: /schemas/types.yaml#/definitions/string-array
+    items:
+      - const: common
+      - const: tx
+      - const: rx
+      - const: sidetone
+  ti,buffer-size:
+    description: Size of the FIFO on the port (OMAP2430 and newer SoC)
+    $ref: /schemas/types.yaml#/definitions/uint32
+  ti,hwmods:
+    description: Name of the hwmod associated to the McBSP port.
+    $ref: /schemas/types.yaml#/definitions/string
+
+required:
+  - compatible
+  - reg
+  - interrupts
+  - interrupt-names
+
+additionalProperties: false
+
+examples:
+  - |
+    mcbsp2: mcbsp@49022000 {
+      compatible = "ti,omap3-mcbsp";
+      reg = <0x49022000 0xff>,
+            <0x49028000 0xff>;
+      reg-names = "mpu", "sidetone";
+      interrupts = <0 17 0x4>, /* OCP compliant interrupt */
+                   <0 62 0x4>, /* TX interrupt */
+                   <0 63 0x4>, /* RX interrupt */
+                   <0 4 0x4>;  /* Sidetone */
+      interrupt-names = "common", "tx", "rx", "sidetone";
+      ti,buffer-size = <1280>;
+      ti,hwmods = "mcbsp2";
+    };
