@@ -1,0 +1,90 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/realtek,rt5665.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Realtek RT5665/RT5666 audio CODEC
+
+maintainers:
+  - Bard Liao <bardliao@realtek.com>
+  - Joe Perches <joe@perches.com>
+  - Krzysztof Kozlowski <krzk@kernel.org>
+
+description: |
+  RT5665/RT5666 audio CODEC
+
+  This device supports I2C only.
+
+properties:
+  compatible:
+    description: Vendor and model of the audio CODEC.
+    items:
+      - enum: [realtek, rt5665]
+      - enum: [realtek, rt5666]
+
+  reg:
+    description: I2C address of the CODEC.
+    items:
+      - description: I2C address
+
+  interrupts:
+    description: CODEC interrupt output.
+    items:
+      - description: Interrupt output
+
+  realtek,in1-differential:
+    description: MIC1 input is differential if true.
+    type: boolean
+
+  realtek,in2-differential:
+    description: MIC2 input is differential if true.
+    type: boolean
+
+  realtek,in3-differential:
+    description: MIC3 input is differential if true.
+    type: boolean
+
+  realtek,in4-differential:
+    description: MIC4 input is differential if true.
+    type: boolean
+
+  realtek,dmic1-data-pin:
+    description: Data pin selection for DMIC1.
+    items:
+      - const: 0  # dmic1 is not used
+      - const: 1  # using GPIO4 pin as dmic1 data pin
+      - const: 2  # using IN2N pin as dmic1 data pin
+
+  realtek,dmic2-data-pin:
+    description: Data pin selection for DMIC2.
+    items:
+      - const: 0  # dmic2 is not used
+      - const: 1  # using GPIO5 pin as dmic2 data pin
+      - const: 2  # using IN2P pin as dmic2 data pin
+
+  realtek,jd-src:
+    description: Jack detect source selection.
+    items:
+      - const: 0  # No JD is used
+      - const: 1  # using JD1 as JD source
+
+  realtek,ldo1-en-gpios:
+    description: The GPIO that controls the CODEC's LDO1_EN pin.
+    maxItems: 1
+
+required:
+  - compatible
+  - reg
+  - interrupts
+
+additionalProperties: false
+
+examples:
+  - |
+    codec@1b {
+      compatible = "realtek,rt5665";
+      reg = <0x1b>;
+      interrupts = <TEGRA_GPIO(W, 3) IRQ_TYPE_LEVEL_HIGH>;
+      realtek,ldo1-en-gpios = <&gpio TEGRA_GPIO(V, 3) GPIO_ACTIVE_HIGH>;
+    };
