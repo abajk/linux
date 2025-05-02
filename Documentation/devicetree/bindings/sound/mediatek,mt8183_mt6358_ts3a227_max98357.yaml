@@ -1,0 +1,56 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 MediaTek
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/mediatek,mt8183_mt6358_ts3a227_max98357.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: MT8183 with MT6358, TS3A227, MAX98357, and RT1015 codecs
+
+maintainers:
+  - Shunli Wang <shunli.wang@mediatek.com>
+  - Tzung-Bi Shih <tzungbi@kernel.org>
+
+description: |
+  MT8183 with MT6358, TS3A227, MAX98357, and RT1015 CODECS
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - mediatek,mt8183_mt6358_ts3a227_max98357
+          - mediatek,mt8183_mt6358_ts3a227_max98357b
+          - mediatek,mt8183_mt6358_ts3a227_rt1015
+          - mediatek,mt8183_mt6358_ts3a227_rt1015p
+
+  mediatek,headset-codec:
+    description: TS3A227 headset codec phandles
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+
+  mediatek,ec-codec:
+    description: EC codec phandle
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  mediatek,hdmi-codec:
+    description: HDMI codec phandles
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+
+  mediatek,platform:
+    description: MT8183 ASoC platform phandle
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+required:
+  - compatible
+  - mediatek,platform
+
+additionalProperties: false
+
+examples:
+  - |
+    sound {
+        compatible = "mediatek,mt8183_mt6358_ts3a227_max98357";
+        mediatek,headset-codec = <&ts3a227>;
+        mediatek,ec-codec = <&ec_codec>;
+        mediatek,hdmi-codec = <&it6505dptx>;
+        mediatek,platform = <&afe>;
+    };
