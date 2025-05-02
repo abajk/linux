@@ -1,0 +1,41 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/mediatek,mt8173-max98090.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: MT8173 with MAX98090 CODEC
+
+maintainers:
+  - Koro Chen <koro.chen@mediatek.com>
+
+description: |
+  MT8173 with MAX98090 CODEC
+
+properties:
+  compatible:
+    items:
+      - const: mediatek,mt8173-max98090
+
+  mediatek,audio-codec:
+    description: The phandle of the MAX98090 audio codec
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  mediatek,platform:
+    description: The phandle of MT8173 ASoC platform
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+required:
+  - compatible
+  - mediatek,audio-codec
+  - mediatek,platform
+
+additionalProperties: false
+
+examples:
+  - |
+    sound {
+        compatible = "mediatek,mt8173-max98090";
+        mediatek,audio-codec = <&max98090>;
+        mediatek,platform = <&afe>;
+    };
