@@ -1,0 +1,87 @@
+---
+$id: http://devicetree.org/schemas/st,st-ehci-300x.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: ST USB EHCI controller
+
+maintainers:
+  - Mathieu Malaterre <malat@debian.org>
+  - Mauro Carvalho Chehab <mchehab@kernel.org>
+  - Peter Griffin <peter.griffin@linaro.org>
+  - Rob Herring <robh@kernel.org>
+  - Yegor Yefremov <yegorslists@googlemail.com>
+
+description: |
+  ST USB EHCI controller
+
+properties:
+  compatible:
+    items:
+      - const: "st,st-ehci-300x"
+
+  reg:
+    description: Physical base address and size of the memory-mapped EHCI registers.
+    items:
+      - description: register start address
+      - description: register region length
+
+  interrupts:
+    description: Interrupt specifier for the EHCI controller.
+    items:
+      - description: interrupt specifier (GIC SPI <irq> IRQ_TYPE_NONE)
+
+  pinctrl-names:
+    items:
+      - const: default
+
+  pinctrl-0:
+    description: Phandle to pin configuration for the USB controller.
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+
+  clocks:
+    description: USB clocks.
+    items:
+      - description: interconnect clock
+      - description: 48 MHz clock
+
+  clock-names:
+    items:
+      - const: ic
+      - const: clk48
+
+  phys:
+    description: Phandle to the USB PHY.
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+
+  phy-names:
+    items:
+      - const: usb
+
+  resets:
+    description: Reset controls for the USB IP.
+    items:
+      - description: powerdown line
+      - description: softreset line
+
+  reset-names:
+    items:
+      - const: power
+      - const: softreset
+
+additionalProperties: false
+
+examples:
+  - |
+    ehci1: usb@fe203e00 {
+        compatible = "st,st-ehci-300x";
+        reg = <0xfe203e00 0x100>;
+        interrupts = <GIC_SPI 148 IRQ_TYPE_NONE>;
+        pinctrl-names = "default";
+        pinctrl-0 = <&pinctrl_usb1>;
+        clocks = <&clk_s_a1_ls 0>;
+        phys = <&usb2_phy>;
+        phy-names = "usb";
+        resets = <&powerdown STIH416_USB1_POWERDOWN>,
+                 <&softreset STIH416_USB1_SOFTRESET>;
+        reset-names = "power", "softreset";
+    };
