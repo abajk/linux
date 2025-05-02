@@ -1,0 +1,112 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2018 Linaro Ltd.
+
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/spi/nuvoton,npcm-fiu.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Nuvoton FLASH Interface Unit (FIU) SPI Controller
+
+maintainers:
+  - Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+  - Tomer Maimon <tmaimon77@gmail.com>
+
+description: |
+  Nuvoton FLASH Interface Unit (FIU) SPI Controller
+
+  NPCM FIU supports single, dual and quad communication interface.
+
+  The NPCM7XX supports three FIU modules,
+  FIU0 and FIUx supports two chip selects,
+  FIU3 support four chip select.
+
+  The NPCM8XX supports four FIU modules,
+  FIU0 and FIUx supports two chip selects,
+  FIU1 and FIU3 supports four chip selects.
+
+  Aliases:
+  All the FIU controller nodes should be represented in the aliases node using
+  the following format 'fiu{n}' where n is a unique number for the alias.
+  In the NPCM7XX BMC:
+      fiu0 represent fiu 0 controller
+      fiu1 represent fiu 3 controller
+      fiu2 represent fiu x controller
+
+  In the NPCM8XX BMC:
+      fiu0 represent fiu 0 controller
+      fiu1 represent fiu 1 controller
+      fiu2 represent fiu 3 controller
+      fiu3 represent fiu x controller
+
+properties:
+  compatible:
+    description: Compatible string for Nuvoton NPCM FIU SPI controllers.
+    items:
+      - enum:
+          - nuvoton,npcm750-fiu
+          - nuvoton,npcm845-fiu
+
+  '#address-cells':
+    description: Must be 1.
+
+  '#size-cells':
+    description: Must be 0.
+
+  reg:
+    description: |
+      The first region contains register address and length;
+      the second contains memory mapping address and length.
+    items:
+      - description: register region
+      - description: memory mapping region
+
+  reg-names:
+    description: Names for the register regions.
+    items:
+      - const: control
+      - const: memory
+
+  clocks:
+    description: FIU reference clock.
+    items:
+      - description: FIU reference clock
+
+  pinctrl-names:
+    description: A pinctrl state named "default" must be defined.
+    items:
+      - const: default
+
+  pinctrl-0:
+    description: Phandle referencing pin configuration of the device.
+    maxItems: 1
+
+  nuvoton,spix-mode:
+    description: Enable spix-mode for an expansion bus to an ASIC or CPLD.
+    type: boolean
+
+required:
+  - compatible
+  - '#address-cells'
+  - '#size-cells'
+  - reg
+  - reg-names
+  - clocks
+
+examples:
+  - |
+    fiu3: spi@c00000000 {
+        compatible = "nuvoton,npcm750-fiu";
+        #address-cells = <1>;
+        #size-cells = <0>;
+        reg = <0xfb000000 0x1000>, <0x80000000 0x10000000>;
+        reg-names = "control", "memory";
+        clocks = <&clk NPCM7XX_CLK_AHB>;
+        pinctrl-names = "default";
+        pinctrl-0 = <&spi3_pins>;
+        flash@0 {
+            ...
+        };
+    };
+
+additionalProperties: false
