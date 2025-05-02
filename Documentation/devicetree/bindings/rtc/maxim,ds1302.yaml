@@ -1,0 +1,74 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Sergey Yanovich <ynvich@gmail.com>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/rtc/maxim,ds1302.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Maxim DS1302 RTC
+
+maintainers:
+  - Sergey Yanovich <ynvich@gmail.com>
+
+description: |
+  * Maxim/Dallas Semiconductor DS-1302 RTC
+
+  Simple device which could be used to store date/time between reboots.
+
+  The device uses the standard MicroWire half-duplex transfer timing.
+  Master output is set on low clock and sensed by the RTC on the rising
+  edge. Master input is set by the RTC on the trailing edge and is sensed
+  by the master on low clock.
+
+properties:
+  compatible:
+    items:
+      - const: maxim,ds1302
+
+  reg:
+    items:
+      - description: Chip select index within the controller
+
+  spi-max-frequency:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Maximum SPI clock frequency (500 kHz at 2.2 V, 2 MHz at 5 V)
+
+  spi-3wire:
+    type: boolean
+    description: Shared data in/out line
+
+  spi-lsb-first:
+    type: boolean
+    description: Least significant bit first transfers
+
+  spi-cs-high:
+    type: boolean
+    description: Active high chip select line
+
+required:
+  - compatible
+  - reg
+  - spi-max-frequency
+  - spi-3wire
+  - spi-lsb-first
+  - spi-cs-high
+
+additionalProperties: false
+
+examples:
+  - |
+    spi@901c {
+        #address-cells = <1>;
+        #size-cells = <0>;
+        compatible = "icpdas,lp8841-spi-rtc";
+        reg = <0x901c 0x1>;
+
+        rtc@0 {
+            compatible = "maxim,ds1302";
+            reg = <0>;
+            spi-max-frequency = <500000>;
+            spi-3wire;
+            spi-lsb-first;
+            spi-cs-high;
+        };
+    };
