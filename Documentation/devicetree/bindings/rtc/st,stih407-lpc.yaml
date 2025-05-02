@@ -1,0 +1,57 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/st,stih407-lpc.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: STMicroelectronics Low Power Controller (LPC) - RTC
+
+maintainers:
+  - Lee Jones <lee@kernel.org>
+
+description: |
+  STMicroelectronics Low Power Controller (LPC) - RTC
+
+  LPC currently supports Watchdog OR Real Time Clock OR Clocksource functionality.
+
+  See: ../watchdog/st_lpc_wdt.txt for Watchdog options
+  See: ../timer/st,stih407-lpc for Clocksource options
+
+properties:
+  compatible:
+    items:
+      - const: st,stih407-lpc
+  reg:
+    description: LPC registers base address and size
+    items:
+      - description: LPC registers base address
+      - description: LPC registers size
+  clocks:
+    maxItems: 1
+    description: "Clock used by the LPC device. See: ../clock/clock-bindings.txt"
+  interrupts:
+    items:
+      - description: LPC interrupt line number and associated flags
+  st,lpc-mode:
+    description: "The LPC mode: ST_LPC_MODE_RTC (0), ST_LPC_MODE_WDT (1) or ST_LPC_MODE_CLKSRC (2)"
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 1, 2]
+
+required:
+  - compatible
+  - reg
+  - clocks
+  - interrupts
+  - st,lpc-mode
+
+additionalProperties: false
+
+examples:
+  - |
+    lpc@fde05000 {
+      compatible = "st,stih407-lpc";
+      reg = <0xfde05000 0x1000>;
+      clocks = <&clk_s_d3_flexgen CLK_LPC_0>;
+      interrupts = <10 0>;
+      st,lpc-mode = <ST_LPC_MODE_RTC>;
+    };
