@@ -1,0 +1,65 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/cirrus,cs53l30.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: CS53L30 audio CODEC
+
+maintainers:
+  - Bjorn Helgaas <bhelgaas@google.com>
+  - Nicolin Chen <nicoleotsuka@gmail.com>
+
+description: |
+  CS53L30 audio CODEC
+
+properties:
+  compatible:
+    items:
+      - enum: ["cirrus,cs53l30"]
+    description: Device compatible string.
+
+  reg:
+    items:
+      - description: I2C address of the device
+
+  VA-supply: true
+  VP-supply: true
+
+  reset-gpios:
+    maxItems: 1
+    description: Reset pin GPIO spec.
+
+  mute-gpios:
+    maxItems: 1
+    description: Mute pin GPIO spec. Active state handled automatically.
+
+  cirrus,micbias-lvl:
+    description: >-
+      Set the output voltage level on the MICBIAS pin.
+      0 = Hi-Z, 1 = 1.80 V, 2 = 2.75 V.
+    enum: [0, 1, 2]
+
+  cirrus,use-sdout2:
+    description: >-
+      If present, hardware design connects both SDOUT1 and SDOUT2 pins
+      to output data. Otherwise, only SDOUT1 is connected.
+    type: boolean
+
+required:
+  - compatible
+  - reg
+  - VA-supply
+  - VP-supply
+
+additionalProperties: false
+
+examples:
+  - |-
+    codec: cs53l30@48 {
+        compatible = "cirrus,cs53l30";
+        reg = <0x48>;
+        reset-gpios = <&gpio 54 0>;
+        VA-supply = <&cs53l30_va>;
+        VP-supply = <&cs53l30_vp>;
+    };
