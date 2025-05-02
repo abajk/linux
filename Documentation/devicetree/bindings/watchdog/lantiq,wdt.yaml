@@ -1,0 +1,70 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Hauke Mehrtens
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/watchdog/lantiq,wdt.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Lantiq WDT Watchdog
+maintainers:
+  - Hauke Mehrtens <hauke@hauke-m.de>
+
+description: |
+  Lantiq WDT watchdog binding
+
+  This describes the binding of the Lantiq watchdog driver.
+
+properties:
+  compatible:
+    oneOf:
+      - items:
+          - enum: [ "lantiq,xrx200-wdt" ]
+          - const: "lantiq,xrx100-wdt"
+      - items:
+          - const: "lantiq,wdt"
+      - items:
+          - const: "lantiq,xrx100-wdt"
+      - items:
+          - const: "lantiq,falcon-wdt"
+
+  reg:
+    description: Register block for the watchdog
+    items:
+      - description: Watchdog register base address
+      - description: Watchdog register size
+
+  lantiq,rcu:
+    description: A phandle to the RCU syscon
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+required:
+  - compatible
+  - reg
+
+allOf:
+  - if:
+      properties:
+        compatible:
+          contains:
+            const: "lantiq,xrx100-wdt"
+    then:
+      required:
+        - lantiq,rcu
+  - if:
+      properties:
+        compatible:
+          contains:
+            const: "lantiq,falcon-wdt"
+    then:
+      required:
+        - lantiq,rcu
+
+additionalProperties: false
+
+examples:
+  - |
+    watchdog@803f0 {
+        compatible = "lantiq,xrx200-wdt", "lantiq,xrx100-wdt";
+        reg = <0x803f0 0x10>;
+        lantiq,rcu = <&rcu0>;
+    };
