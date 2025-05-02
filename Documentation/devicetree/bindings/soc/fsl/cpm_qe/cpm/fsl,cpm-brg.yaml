@@ -1,0 +1,57 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 NXP
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/soc/fsl/cpm_qe/cpm/fsl,cpm-brg.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Freescale CPM Baud Rate Generator
+maintainers:
+  - Zhao Qiang <qiang.zhao@nxp.com>
+
+description: |
+  * Baud Rate Generators
+
+  Currently defined compatibles:
+  fsl,cpm-brg
+  fsl,cpm1-brg
+  fsl,cpm2-brg
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - fsl,cpm-brg
+          - fsl,cpm1-brg
+          - fsl,cpm2-brg
+          - fsl,mpc8272-brg
+    description: >
+      List of supported compatible strings for this binding.
+
+  reg:
+    description: >
+      Register specification entries; BRG numbers assigned in order.
+    items:
+      description: BRG number and its configuration tuple.
+
+  clock-frequency:
+    description: >
+      Specifies the base frequency driving the BRG.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+required:
+  - compatible
+  - reg
+  - clock-frequency
+
+additionalProperties: false
+
+examples:
+  - |
+    brg@119f0 {
+        compatible = "fsl,mpc8272-brg",
+                     "fsl,cpm2-brg",
+                     "fsl,cpm-brg";
+        reg = <119f0 10 115f0 10>;
+        clock-frequency = <d#25000000>;
+    };
