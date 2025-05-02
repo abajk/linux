@@ -1,0 +1,33 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Florian Meier <florian.meier@koalo.de>
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/ti,pcm5102a.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: ti,pcm5102a
+
+maintainers:
+  - Florian Meier <florian.meier@koalo.de>
+
+description: |
+  PCM5102a audio CODECs
+
+  These devices does not use I2C or SPI.
+
+properties:
+  compatible:
+    description: Must be set to "ti,pcm5102a" for PCM5102a audio codecs.
+    items:
+      - const: ti,pcm5102a
+
+required:
+  - compatible
+
+additionalProperties: false
+
+examples:
+  - |
+    pcm5102a: pcm5102a {
+        compatible = "ti,pcm5102a";
+    };
