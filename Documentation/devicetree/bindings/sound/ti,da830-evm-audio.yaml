@@ -1,0 +1,97 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/ti,da830-evm-audio.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Texas Instruments DA830 EVM Audio
+
+maintainers:
+  - Hebbar, Gururaja <gururaja.hebbar@ti.com>
+  - Jyri Sarha <jsarha@ti.com>
+
+description: |
+  * Texas Instruments SoC audio setups with TLV320AIC3X Codec
+
+  Board connectors:
+
+  * Headphone Jack
+  * Line Out
+  * Mic Jack
+  * Line In
+
+properties:
+  compatible:
+    description: Must be "ti,da830-evm-audio".
+    items:
+      - const: ti,da830-evm-audio
+
+  ti,model:
+    description: The user-visible name of this sound complex.
+    $ref: /schemas/types.yaml#/definitions/string
+
+  ti,audio-codec:
+    description: The phandle of the TLV320AIC3x audio codec.
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  ti,mcasp-controller:
+    description: The phandle of the McASP controller.
+    $ref: /schemas/types.yaml#/definitions/phandle
+
+  ti,codec-clock-rate:
+    description: The Codec Clock rate (in Hz) applied to the Codec.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  clocks:
+    maxItems: 1
+    description: Reference to the master clock.
+
+  clock-names:
+    items:
+      - const: mclk
+
+  ti,audio-routing:
+    description:
+      A list of the connections between audio components. Each entry is a pair of
+      strings, the first being the connection's sink, the second being the
+      connection's source.
+    $ref: /schemas/types.yaml#/definitions/string-array
+    items:
+      - type: string
+      - type: string
+
+additionalProperties: false
+
+required:
+  - compatible
+  - ti,model
+  - ti,audio-codec
+  - ti,mcasp-controller
+
+anyOf:
+  - required:
+      - ti,codec-clock-rate
+  - required:
+      - clocks
+
+examples:
+  - |
+    sound {
+        compatible = "ti,da830-evm-audio";
+        ti,model = "DA830 EVM";
+        ti,audio-codec = <&tlv320aic3x>;
+        ti,mcasp-controller = <&mcasp1>;
+        ti,codec-clock-rate = <12000000>;
+        ti,audio-routing =
+            "Headphone Jack",       "HPLOUT",
+            "Headphone Jack",       "HPROUT",
+            "Line Out",             "LLOUT",
+            "Line Out",             "RLOUT",
+            "MIC3L",                "Mic Bias 2V",
+            "MIC3R",                "Mic Bias 2V",
+            "Mic Bias 2V",          "Mic Jack",
+            "LINE1L",               "Line In",
+            "LINE2L",               "Line In",
+            "LINE1R",               "Line In",
+            "LINE2R",               "Line In";
+    };
