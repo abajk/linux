@@ -1,0 +1,96 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2018 Linaro Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/spi/ti,dm6441-spi.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Davinci SPI controller
+
+maintainers:
+  - Alexander A. Klimov <grandmaster@al2klimov.de>
+  - Franklin Cooper <fcooper@ti.com>
+  - Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+  - Masanari Iida <standby24x7@gmail.com>
+  - Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+  - Murali Karicheri <m-karicheri2@ti.com>
+
+allOf:
+  - $ref: /schemas/spi/spi-controller.yaml#
+
+description: |
+  Davinci SPI controller device bindings
+
+  Links on DM:
+  Keystone 2 - https://www.ti.com/lit/ug/sprugp2a/sprugp2a.pdf
+  dm644x - https://www.ti.com/lit/ug/sprue32a/sprue32a.pdf
+  OMAP-L138/da830 - http://www.ti.com/lit/ug/spruh77a/spruh77a.pdf
+
+  Below is timing diagram which shows functional meaning of
+  "ti,spi-wdelay" parameter.
+
+             +-+ +-+ +-+ +-+ +-+                           +-+ +-+ +-+
+  SPI_CLK      | | | | | | | | | |                           | | | | | |
+    +----------+ +-+ +-+ +-+ +-+ +---------------------------+ +-+ +-+ +-
+
+  SPI_SOMI/SIMO+-----------------+                           +-----------
+    +----------+ word1           +---------------------------+word2
+               +-----------------+                           +-----------
+                                            WDELAY
+                                  <-------------------------->
+
+allOf:
+  - $ref: /schemas/spi/spi-controller.yaml#
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - ti,dm6441-spi
+          - ti,da830-spi
+          - ti,keystone-spi
+
+  reg:
+    maxItems: 1
+
+  num-cs:
+    description: Number of chip selects, including internal and GPIO chip selects.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  interrupts:
+    maxItems: 1
+
+  clocks:
+    maxItems: 1
+
+  power-domains:
+    maxItems: 1
+
+  ti,davinci-spi-intr-line:
+    description: Interrupt line used to connect the SPI IP to the interrupt controller.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 1]
+
+  ti,spi-wdelay:
+    description: Delay between transmission of words, specified in number of SPI module clock periods.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+required:
+  - compatible
+  - reg
+  - interrupts
+
+unevaluatedProperties: false
+
+examples:
+  - |
+    spi@20bf0000 {
+      #address-cells = <1>;
+      #size-cells = <0>;
+      compatible = "ti,dm6441-spi";
+      reg = <0x20BF0000 0x1000>;
+      num-cs = <4>;
+      ti,davinci-spi-intr-line = <0>;
+      interrupts = <338>;
+      clocks = <&clkspi>;
+    };
