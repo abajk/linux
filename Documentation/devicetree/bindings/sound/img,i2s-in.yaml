@@ -1,0 +1,86 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/img,i2s-in.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Imagination Technologies I2S Input Controller
+
+maintainers:
+  - Damien.Horsley <Damien.Horsley@imgtec.com>
+
+description: |
+  Imagination Technologies I2S Input Controller
+
+properties:
+  compatible:
+    contains:
+      const: img,i2s-in
+
+  '#sound-dai-cells':
+    const: 0
+
+  reg:
+    maxItems: 1
+
+  clocks:
+    # Single system clock entry.
+    maxItems: 1
+    description: System clock.
+
+  clock-names:
+    items:
+      - const: sys
+
+  dmas:
+    # Single DMA channel entry.
+    maxItems: 1
+    description: DMA channels used by the I2S input controller.
+
+  dma-names:
+    items:
+      - const: rx
+
+  img,i2s-channels:
+    description: Number of I2S channels instantiated.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  interrupts:
+    description: I2S input interrupts, one per channel in ascending channel order.
+    maxItems: 1
+
+  resets:
+    description: Reset signals for the I2S input controller.
+    maxItems: 1
+
+  reset-names:
+    items:
+      - const: rst
+
+required:
+  - compatible
+  - '#sound-dai-cells'
+  - reg
+  - clocks
+  - clock-names
+  - dmas
+  - dma-names
+  - img,i2s-channels
+
+additionalProperties: false
+
+examples:
+  - |
+    i2s_in: i2s-in@18100800 {
+        compatible = "img,i2s-in";
+        reg = <0x18100800 0x200>;
+        clocks = <&cr_periph SYS_CLK_I2S_IN>;
+        clock-names = "sys";
+        dmas = <&mdc 30 0xffffffff 0>;
+        dma-names = "rx";
+        img,i2s-channels = <6>;
+        #sound-dai-cells = <0>;
+        interrupts = <GIC_SHARED 7 IRQ_TYPE_LEVEL_HIGH>;
+        resets = <&rst>;
+        reset-names = "rst";
+    };
