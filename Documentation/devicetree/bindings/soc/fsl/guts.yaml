@@ -1,0 +1,56 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/soc/fsl/guts.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Freescale/NXP Global Utilities Block
+
+maintainers:
+  - yangbo lu <yangbo.lu@nxp.com>
+
+description: |
+  The global utilities block controls power management, I/O device
+  enabling, power-on-reset configuration monitoring, general-purpose
+  I/O signal configuration, alternate function selection for multiplexed
+  signals, and clock control.
+
+properties:
+  compatible:
+    description: Device compatible strings supported by this binding.
+    items:
+      - const: fsl,qoriq-device-config-1.0
+      - const: fsl,qoriq-device-config-2.0
+      - pattern: '^fsl,[^,]+-device-config$'
+      - pattern: '^fsl,[^,]+-guts$'
+  reg:
+    description: Offset and length of the register set for the device.
+    items:
+      - description: core registers
+  fsl,has-rstcr:
+    description: |
+      Indicates that the global utilities register set contains a functioning
+      "reset control register" (i.e. the board is wired to reset upon setting
+      the HRESET_REQ bit in this register).
+    type: boolean
+  fsl,liodn-bits:
+    description: Indicates the number of defined bits in the LIODN registers.
+  little-endian:
+    description: Indicates that the global utilities block is little endian. The default is big endian.
+    type: boolean
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    global-utilities@e0000 {
+        compatible = "fsl,mpc8548-guts";
+        reg = <0xe0000 0xe00>;
+        fsl,has-rstcr;
+        #sleep-cells = <1>;
+        fsl,liodn-bits = <12>;
+    };
