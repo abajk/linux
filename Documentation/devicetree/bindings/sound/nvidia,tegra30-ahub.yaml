@@ -1,0 +1,216 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/nvidia,tegra30-ahub.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: NVIDIA Tegra30 AHUB (Audio Hub)
+
+maintainers:
+  - Paul Walmsley <paul@pwsan.com>
+  - Stephen Warren <swarren@nvidia.com>
+
+description: |
+  NVIDIA Tegra30 AHUB (Audio Hub)
+
+  Required properties:
+  - compatible : For Tegra30, must contain "nvidia,tegra30-ahub".  For Tegra114,
+    must contain "nvidia,tegra114-ahub".  For Tegra124, must contain
+    "nvidia,tegra124-ahub".  Otherwise, must contain "nvidia,<chip>-ahub",
+    plus at least one of the above, where <chip> is tegra132.
+  - reg : Should contain the register physical address and length for each of
+    the AHUB's register blocks.
+    - Tegra30 requires 2 entries, for the APBIF and AHUB/AUDIO register blocks.
+    - Tegra114 requires an additional entry, for the APBIF2 register block.
+  - interrupts : Should contain AHUB interrupt.
+  - clocks : Must contain an entry for each entry in clock-names.
+    See ../clocks/clock-bindings.txt for details.
+  - clock-names : Must include the following entries:
+    - d_audio
+    - apbif
+  - resets : Must contain an entry for each entry in reset-names.
+    See ../reset/reset.txt for details.
+  - reset-names : Must include the following entries:
+    Tegra30 and later:
+    - d_audio
+    - apbif
+    - i2s0
+    - i2s1
+    - i2s2
+    - i2s3
+    - i2s4
+    - dam0
+    - dam1
+    - dam2
+    - spdif
+    Tegra114 and later additionally require:
+    - amx
+    - adx
+    Tegra124 and later additionally require:
+    - amx1
+    - adx1
+    - afc0
+    - afc1
+    - afc2
+    - afc3
+    - afc4
+    - afc5
+  - ranges : The bus address mapping for the configlink register bus.
+    Can be empty since the mapping is 1:1.
+  - dmas : Must contain an entry for each DMA channel.
+  - dma-names : Must include the following entries:
+    - rx0 .. rx<n>
+    - tx0 .. tx<n>
+      ... where n is:
+      Tegra30: 3
+      Tegra114, Tegra124: 9
+  - "#address-cells" : For the configlink bus. Should be <1>.
+  - "#size-cells" : For the configlink bus. Should be <1>.
+
+  AHUB client modules need to specify the IDs of their CIFs (Client Interfaces).
+  For RX CIFs, the numbers indicate the register number within AHUB routing
+  register space (APBIF 0..3 RX, I2S 0..5 RX, DAM 0..2 RX 0..1, SPDIF RX 0..1).
+  For TX CIFs, the numbers indicate the bit position within the AHUB routing
+  registers (APBIF 0..3 TX, I2S 0..5 TX, DAM 0..2 TX, SPDIF TX 0..1).
+
+properties:
+  compatible:
+    items:
+      - enum:
+          - nvidia,tegra30-ahub
+          - nvidia,tegra114-ahub
+          - nvidia,tegra124-ahub
+          - nvidia,tegra132-ahub
+
+  reg:
+    items:
+      - description: APBIF register block
+      - description: AHUB/AUDIO register block
+
+  interrupts:
+    items:
+      - description: AHUB interrupt
+
+  nvidia,dma-request-selector:
+    description: >
+      Selects the DMA request line for the AHUB.
+      Contains a phandle to the DMA controller plus a numeric specifier.
+    $ref: /schemas/types.yaml#/definitions/phandle-array
+
+  clocks:
+    items:
+      - description: Clock for d_audio
+      - description: Clock for apbif
+
+  clock-names:
+    items:
+      - const: d_audio
+      - const: apbif
+
+  resets:
+    items:
+      - description: Reset for d_audio
+      - description: Reset for apbif
+      - description: Reset for i2s0
+      - description: Reset for i2s1
+      - description: Reset for i2s2
+      - description: Reset for i2s3
+      - description: Reset for i2s4
+      - description: Reset for dam0
+      - description: Reset for dam1
+      - description: Reset for dam2
+      - description: Reset for spdif
+      - description: Reset for amx
+      - description: Reset for adx
+      - description: Reset for amx1
+      - description: Reset for adx1
+      - description: Reset for afc0
+      - description: Reset for afc1
+      - description: Reset for afc2
+      - description: Reset for afc3
+      - description: Reset for afc4
+      - description: Reset for afc5
+
+  reset-names:
+    items:
+      - const: d_audio
+      - const: apbif
+      - const: i2s0
+      - const: i2s1
+      - const: i2s2
+      - const: i2s3
+      - const: i2s4
+      - const: dam0
+      - const: dam1
+      - const: dam2
+      - const: spdif
+      - const: amx
+      - const: adx
+      - const: amx1
+      - const: adx1
+      - const: afc0
+      - const: afc1
+      - const: afc2
+      - const: afc3
+      - const: afc4
+      - const: afc5
+
+  ranges:
+    description: The bus address mapping for the configlink register bus.
+      Can be empty since the mapping is 1:1.
+
+  dmas:
+    items:
+      - description: DMA channel for rx0
+      - description: DMA channel for tx0
+      - description: DMA channel for rx1
+      - description: DMA channel for tx1
+      - description: DMA channel for rx2
+      - description: DMA channel for tx2
+      - description: DMA channel for rx3
+      - description: DMA channel for tx3
+
+  dma-names:
+    items:
+      - const: rx0
+      - const: tx0
+      - const: rx1
+      - const: tx1
+      - const: rx2
+      - const: tx2
+      - const: rx3
+      - const: tx3
+
+  "#address-cells":
+    const: 1
+
+  "#size-cells":
+    const: 1
+
+additionalProperties: false
+
+examples:
+  - |
+    ahub@70080000 {
+        compatible = "nvidia,tegra30-ahub";
+        reg = <0x70080000 0x200 0x70080200 0x100>;
+        interrupts = <0 103 0x04>;
+        nvidia,dma-request-selector = <&apbdma 1>;
+        clocks = <&tegra_car 106>, <&tegra_car 107>;
+        clock-names = "d_audio", "apbif";
+        resets = <&tegra_car 106>, <&tegra_car 107>, <&tegra_car 30>,
+            <&tegra_car 11>, <&tegra_car 18>, <&tegra_car 101>,
+            <&tegra_car 102>, <&tegra_car 108>, <&tegra_car 109>,
+            <&tegra_car 110>, <&tegra_car 10>;
+        reset-names = "d_audio", "apbif", "i2s0", "i2s1", "i2s2",
+            "i2s3", "i2s4", "dam0", "dam1", "dam2",
+            "spdif";
+        dmas = <&apbdma 1>, <&apbdma 1>,
+               <&apbdma 2>, <&apbdma 2>,
+               <&apbdma 3>, <&apbdma 3>,
+               <&apbdma 4>, <&apbdma 4>;
+        dma-names = "rx0", "tx0", "rx1", "tx1", "rx2", "tx2", "rx3", "tx3";
+        ranges;
+        #address-cells = <1>;
+        #size-cells = <1>;
+    };
