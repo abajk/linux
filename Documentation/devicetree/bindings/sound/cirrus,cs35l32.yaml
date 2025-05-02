@@ -1,0 +1,72 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+# Copyright 2025 Cirrus Logic
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/sound/cirrus,cs35l32.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Cirrus CS35L32 audio CODEC
+
+maintainers:
+  - Brian Austin <brian.austin@cirrus.com>
+
+description: |
+  CS35L32 audio CODEC
+
+properties:
+  compatible:
+    items:
+      - enum: [cirrus, cs35l32]
+  reg:
+    items:
+      - description: |
+          the I2C address of the device as determined by the level of the AD0 pin.
+          Level 0 is 0x40 while Level 1 is 0x41.
+  reset-gpios:
+    maxItems: 1
+    description: |
+      A GPIO spec for the reset pin.
+      If specified, it will be deasserted before communication to the codec starts.
+  VA-supply:
+    description: Power supply for VA; see Documentation/devicetree/bindings/regulator/regulator.txt.
+  VP-supply:
+    description: Power supply for VP; see Documentation/devicetree/bindings/regulator/regulator.txt.
+  cirrus,battery-recovery:
+    description: Low battery nominal recovery threshold, rising VP.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 1, 2, 3]
+  cirrus,battery-threshold:
+    description: Low battery nominal threshold, falling VP.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 1, 2, 3, 4, 5]
+  cirrus,boost-manager:
+    description: Boost voltage control.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 1, 2, 3]
+  cirrus,sdout-datacfg:
+    description: Data configuration for dual CS35L32 applications only.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 1, 2, 3]
+  cirrus,sdout-share:
+    description: SDOUT sharing. Determines whether one or two CS35L32 devices are on board sharing SDOUT.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [0, 1]
+
+required:
+  - compatible
+  - reg
+  - VA-supply
+  - VP-supply
+
+additionalProperties: false
+
+examples:
+  - |
+    codec: codec@40 {
+        compatible = "cirrus,cs35l32";
+        reg = <0x40>;
+        reset-gpios = <&gpio 10 0>;
+        cirrus,boost-manager = <0x03>;
+        cirrus,sdout-datacfg = <0x02>;
+        VA-supply = <&reg_audio>;
+    };
