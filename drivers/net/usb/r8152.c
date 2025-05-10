@@ -26,6 +26,8 @@
 #include <linux/atomic.h>
 #include <linux/acpi.h>
 #include <linux/firmware.h>
+#include <linux/leds.h>
+#include <uapi/linux/uleds.h>
 #include <crypto/hash.h>
 #include <linux/usb/r8152.h>
 #include <net/gso.h>
@@ -355,6 +357,13 @@
 #define MWF_EN			0x0020
 #define UWF_EN			0x0010
 #define LAN_WAKE_EN		0x0002
+
+/* PLA_LEDSEL */
+#define RTL8152_LED_CTRL_OPTION2	BIT(15)
+#define RTL8152_LED_CTRL_ACT		BIT(3)
+#define RTL8152_LED_CTRL_LINK_1000	BIT(2)
+#define RTL8152_LED_CTRL_LINK_100	BIT(1)
+#define RTL8152_LED_CTRL_LINK_10	BIT(0)
 
 /* PLA_LED_FEATURE */
 #define LED_MODE_MASK		0x0700
@@ -866,6 +875,14 @@ struct tx_agg {
 	u32 skb_len;
 };
 
+#define RTL8152_NUM_LEDS	3
+
+struct r8152_led_classdev {
+	struct led_classdev led;
+	struct net_device *ndev;
+	int index;
+};
+
 struct r8152 {
 	unsigned long flags;
 	struct usb_device *udev;
@@ -878,6 +895,7 @@ struct r8152 {
 	struct list_head rx_done, tx_free;
 	struct sk_buff_head tx_queue, rx_queue;
 	spinlock_t rx_lock, tx_lock;
+	struct mutex led_lock;	/* serialize LED ctrl RMW access */
 	struct delayed_work schedule, hw_phy_work;
 	struct mii_if_info mii;
 	struct mutex control;	/* use for hw setting */
@@ -960,6 +978,8 @@ struct r8152 {
 	u8 autoneg;
 
 	unsigned int reg_access_reset_count;
+
+	struct r8152_led_classdev *leds;
 };
 
 /**
@@ -1216,12 +1236,14 @@ static unsigned int agg_buf_sz = 16384;
 static void rtl_set_inaccessible(struct r8152 *tp)
 {
 	set_bit(RTL8152_INACCESSIBLE, &tp->flags);
+	printk(KERN_ERR "%s: set inaccessible\n", __func__);
 	smp_mb__after_atomic();
 }
 
 static void rtl_set_accessible(struct r8152 *tp)
 {
 	clear_bit(RTL8152_INACCESSIBLE, &tp->flags);
+	printk(KERN_ERR "%s: clear inaccessible\n", __func__);
 	smp_mb__after_atomic();
 }
 
@@ -1233,8 +1255,10 @@ int r8152_control_msg(struct r8152 *tp, unsigned int pipe, __u8 request,
 	struct usb_device *udev = tp->udev;
 	int ret;
 
-	if (test_bit(RTL8152_INACCESSIBLE, &tp->flags))
+	if (test_bit(RTL8152_INACCESSIBLE, &tp->flags)) {
+		printk(KERN_ERR "%s: now inaccessible\n", __func__);
 		return -ENODEV;
+	}
 
 	ret = usb_control_msg(udev, pipe, request, requesttype,
 			      value, index, data, size,
@@ -1352,8 +1376,10 @@ static int generic_ocp_read(struct r8152 *tp, u16 index, u16 size,
 	u16 limit = 64;
 	int ret = 0;
 
-	if (test_bit(RTL8152_INACCESSIBLE, &tp->flags))
+	if (test_bit(RTL8152_INACCESSIBLE, &tp->flags)) {
+		printk(KERN_ERR "%s: now inaccessible\n", __func__);
 		return -ENODEV;
+	}
 
 	/* both size and indix must be 4 bytes align */
 	if ((size & 3) || !size || (index & 3) || !data)
@@ -1396,8 +1422,10 @@ static int generic_ocp_write(struct r8152 *tp, u16 index, u16 byteen,
 	u16 byteen_start, byteen_end, byen;
 	u16 limit = 512;
 
-	if (test_bit(RTL8152_INACCESSIBLE, &tp->flags))
+	if (test_bit(RTL8152_INACCESSIBLE, &tp->flags)) {
+		printk(KERN_ERR "%s: now inaccessible\n", __func__);
 		return -ENODEV;
+	}
 
 	/* both size and indix must be 4 bytes align */
 	if ((size & 3) || !size || (index & 3) || !data)
@@ -1633,8 +1661,10 @@ static int read_mii_word(struct net_device *netdev, int phy_id, int reg)
 	struct r8152 *tp = netdev_priv(netdev);
 	int ret;
 
-	if (test_bit(RTL8152_INACCESSIBLE, &tp->flags))
+	if (test_bit(RTL8152_INACCESSIBLE, &tp->flags)) {
+		printk(KERN_ERR "%s: now inaccessible\n", __func__);
 		return -ENODEV;
+	}
 
 	if (phy_id != R8152_PHY_ID)
 		return -EINVAL;
@@ -1649,8 +1679,10 @@ void write_mii_word(struct net_device *netdev, int phy_id, int reg, int val)
 {
 	struct r8152 *tp = netdev_priv(netdev);
 
-	if (test_bit(RTL8152_INACCESSIBLE, &tp->flags))
+	if (test_bit(RTL8152_INACCESSIBLE, &tp->flags)) {
+		printk(KERN_ERR "%s: now inaccessible\n", __func__);
 		return;
+	}
 
 	if (phy_id != R8152_PHY_ID)
 		return;
@@ -1855,8 +1887,10 @@ static void read_bulk_callback(struct urb *urb)
 	if (!tp)
 		return;
 
-	if (test_bit(RTL8152_INACCESSIBLE, &tp->flags))
+	if (test_bit(RTL8152_INACCESSIBLE, &tp->flags)) {
+		printk(KERN_ERR "%s: now inaccessible\n", __func__);
 		return;
+	}
 
 	if (!test_bit(WORK_ENABLE, &tp->flags))
 		return;
@@ -1947,8 +1981,10 @@ static void write_bulk_callback(struct urb *urb)
 	if (!test_bit(WORK_ENABLE, &tp->flags))
 		return;
 
-	if (test_bit(RTL8152_INACCESSIBLE, &tp->flags))
+	if (test_bit(RTL8152_INACCESSIBLE, &tp->flags)) {
+		printk(KERN_ERR "%s: now inaccessible\n", __func__);
 		return;
+	}
 
 	if (!skb_queue_empty(&tp->tx_queue))
 		tasklet_schedule(&tp->tx_tl);
@@ -7047,6 +7083,188 @@ static void rtl_tally_reset(struct r8152 *tp)
 	ocp_write_word(tp, MCU_TYPE_PLA, PLA_RSTTALLY, ocp_data);
 }
 
+static int r8152_led_mod_ctrl(struct r8152 *tp, u16 mask, u16 val)
+{
+	uint16_t ocp_data;
+
+	mutex_lock(&tp->led_lock);
+	ocp_data = ocp_read_word(tp, MCU_TYPE_PLA, PLA_LEDSEL);
+	ocp_data = (ocp_data & ~mask) | val;
+	ocp_write_word(tp, MCU_TYPE_PLA, PLA_LEDSEL, ocp_data);
+	mutex_unlock(&tp->led_lock);
+
+	return 0;
+}
+
+static int rtl8152_get_led_mode(struct r8152 *tp)
+{
+	int ret;
+
+	ret = ocp_read_word(tp, MCU_TYPE_PLA, PLA_LEDSEL);
+	printk(KERN_ERR "%s: clear=%d\n", __func__, ret);
+
+	return ret;
+}
+
+static void r8152_get_led_name(struct r8152 *tp, int idx,
+			char *buf, int buf_len)
+{
+	snprintf(buf, buf_len, "%s-led%d::lan", tp->netdev->name, idx);
+}
+
+#define lcdev_to_r8152_ldev(lcdev) container_of(lcdev, struct r8152_led_classdev, led)
+
+static bool r8152_trigger_mode_is_valid(unsigned long flags)
+{
+	bool rx, tx;
+
+	if (flags & BIT(TRIGGER_NETDEV_HALF_DUPLEX))
+		return false;
+	if (flags & BIT(TRIGGER_NETDEV_FULL_DUPLEX))
+		return false;
+
+	rx = flags & BIT(TRIGGER_NETDEV_RX);
+	tx = flags & BIT(TRIGGER_NETDEV_TX);
+
+	return rx == tx;
+}
+
+static int rtl8152_led_hw_control_is_supported(struct led_classdev *led_cdev,
+					       unsigned long flags)
+{
+	struct r8152_led_classdev *ldev = lcdev_to_r8152_ldev(led_cdev);
+	struct r8152 *tp = netdev_priv(ldev->ndev);
+	int shift = ldev->index * 4;
+
+	if (!r8152_trigger_mode_is_valid(flags)) {
+		/* Switch LED off to indicate that mode isn't supported */
+		printk(KERN_ERR "%s: clear=%04x\n", __func__, 0x000f << shift);
+		r8152_led_mod_ctrl(tp, 0x000f << shift, 0);
+		return -EOPNOTSUPP;
+	}
+
+	return 0;
+}
+
+static int rtl8152_led_hw_control_set(struct led_classdev *led_cdev,
+				      unsigned long flags)
+{
+	struct r8152_led_classdev *ldev = lcdev_to_r8152_ldev(led_cdev);
+	struct r8152 *tp = netdev_priv(ldev->ndev);
+	int shift = ldev->index * 4;
+	u16 mode = 0;
+
+	if (flags & BIT(TRIGGER_NETDEV_LINK) ||
+	    flags & BIT(TRIGGER_NETDEV_LINK_10))
+		mode |= RTL8152_LED_CTRL_LINK_10;
+	if (flags & BIT(TRIGGER_NETDEV_LINK) ||
+	    flags & BIT(TRIGGER_NETDEV_LINK_100))
+		mode |= RTL8152_LED_CTRL_LINK_100;
+	if (flags & BIT(TRIGGER_NETDEV_LINK) ||
+	    flags & BIT(TRIGGER_NETDEV_LINK_1000))
+		mode |= RTL8152_LED_CTRL_LINK_1000;
+	if (flags & BIT(TRIGGER_NETDEV_TX))
+		mode |= RTL8152_LED_CTRL_ACT;
+
+	printk(KERN_ERR "%s: set=%04x, mask=%04x\n", __func__, mode << shift, 0x000f << shift);
+	return r8152_led_mod_ctrl(tp, 0x000f << shift, mode << shift);
+}
+
+static int rtl8152_led_hw_control_get(struct led_classdev *led_cdev,
+				      unsigned long *flags)
+{
+	struct r8152_led_classdev *ldev = lcdev_to_r8152_ldev(led_cdev);
+	struct r8152 *tp = netdev_priv(ldev->ndev);
+	int shift = ldev->index * 4;
+	int mode;
+
+	mode = rtl8152_get_led_mode(tp);
+	printk(KERN_ERR "%s: read=%04x\n", __func__, mode);
+	if (mode < 0)
+		return mode;
+
+	if (mode & RTL8152_LED_CTRL_OPTION2) {
+		printk(KERN_ERR "%s: clear=%08lx\n", __func__, RTL8152_LED_CTRL_OPTION2);
+		r8152_led_mod_ctrl(tp, RTL8152_LED_CTRL_OPTION2, 0);
+		netdev_notice(ldev->ndev, "Deactivating unsupported Option2 LED mode\n");
+	}
+
+	mode = (mode >> shift) & 0x000f;
+
+	if (mode & RTL8152_LED_CTRL_ACT)
+		*flags |= BIT(TRIGGER_NETDEV_TX) | BIT(TRIGGER_NETDEV_RX);
+
+	/* TODO: Support TRIGGER_NETDEV_LINK */
+	if (mode & RTL8152_LED_CTRL_LINK_10)
+		*flags |= BIT(TRIGGER_NETDEV_LINK_10);
+	if (mode & RTL8152_LED_CTRL_LINK_100)
+		*flags |= BIT(TRIGGER_NETDEV_LINK_100);
+	if (mode & RTL8152_LED_CTRL_LINK_1000)
+		*flags |= BIT(TRIGGER_NETDEV_LINK_1000);
+
+	return 0;
+}
+
+static struct device *
+	r8152_led_hw_control_get_device(struct led_classdev *led_cdev)
+{
+	struct r8152_led_classdev *ldev = lcdev_to_r8152_ldev(led_cdev);
+
+	return &ldev->ndev->dev;
+}
+
+static void rtl8152_setup_ldev(struct r8152_led_classdev *ldev,
+			       struct net_device *ndev, int index)
+{
+	struct r8152 *tp = netdev_priv(ndev);
+	struct led_classdev *led_cdev = &ldev->led;
+	char led_name[LED_MAX_NAME_SIZE];
+
+	ldev->ndev = ndev;
+	ldev->index = index;
+
+	r8152_get_led_name(tp, index, led_name, LED_MAX_NAME_SIZE);
+	led_cdev->name = led_name;
+	led_cdev->hw_control_trigger = "netdev";
+	led_cdev->flags |= LED_RETAIN_AT_SHUTDOWN;
+	led_cdev->max_brightness = 1;
+	led_cdev->hw_control_is_supported = rtl8152_led_hw_control_is_supported;
+	led_cdev->hw_control_set = rtl8152_led_hw_control_set;
+	led_cdev->hw_control_get = rtl8152_led_hw_control_get;
+	led_cdev->hw_control_get_device = r8152_led_hw_control_get_device;
+
+	/* ignore errors */
+	led_classdev_register(&ndev->dev, led_cdev);
+}
+
+static struct r8152_led_classdev *rtl8152_init_leds(struct net_device *ndev)
+{
+	struct r8152_led_classdev *leds;
+	int i;
+
+	/* TODO: Drop +1 */
+	leds = kcalloc(RTL8152_NUM_LEDS + 1, sizeof(*leds), GFP_KERNEL);
+	if (!leds)
+		return NULL;
+
+	for (i = 0; i < RTL8152_NUM_LEDS; i++)
+		rtl8152_setup_ldev(leds + i, ndev, i);
+
+	return leds;
+}
+
+static void r8152_remove_leds(struct r8152_led_classdev *leds)
+{
+	if (!leds)
+		return;
+
+	/* TODO: This doesnt work, leds remains after disconnect */
+	for (struct r8152_led_classdev *l = leds; l->ndev; l++)
+		led_classdev_unregister(&l->led);
+
+	kfree(leds);
+}
+
 static void r8152b_init(struct r8152 *tp)
 {
 	u32 ocp_data;
@@ -9965,6 +10183,9 @@ static int rtl8152_probe_once(struct usb_interface *intf,
 		goto out1;
 	}
 
+	if (tp->version <= RTL_VER_09)
+		rtl8152_init_leds(tp->netdev);
+
 	if (tp->saved_wolopts)
 		device_set_wakeup_enable(&udev->dev, true);
 	else
@@ -10039,6 +10260,9 @@ static void rtl8152_disconnect(struct usb_interface *intf)
 	usb_set_intfdata(intf, NULL);
 	if (tp) {
 		rtl_set_unplug(tp);
+
+		if (tp->version <= RTL_VER_09)
+			r8152_remove_leds(tp->leds);
 
 		unregister_netdev(tp->netdev);
 		tasklet_kill(&tp->tx_tl);
