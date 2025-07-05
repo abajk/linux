@@ -38,6 +38,7 @@ static int i2c_mii_read_default_c45(struct mii_bus *bus, int phy_id, int devad,
 	u8 addr[3], data[2], *p;
 	int bus_addr, ret;
 
+	printk(KERN_ERR "%s:1 read: phy_id=%d, devadd=%d, reg=%d\n", __func__, phy_id, devad, reg);
 	if (!i2c_mii_valid_phy_id(phy_id))
 		return 0xffff;
 
@@ -62,6 +63,7 @@ static int i2c_mii_read_default_c45(struct mii_bus *bus, int phy_id, int devad,
 	if (ret != ARRAY_SIZE(msgs))
 		return 0xffff;
 
+	printk(KERN_ERR "%s:2 data=%08x,%08x\n", __func__, data[0], data[1]);
 	return data[0] << 8 | data[1];
 }
 
