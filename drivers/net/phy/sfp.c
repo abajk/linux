@@ -425,6 +425,8 @@ static void sfp_fixup_rollball_cc(struct sfp *sfp)
 static void sfp_fixup_cc(struct sfp *sfp)
 {
 
+	sfp->module_t_start_up = msecs_to_jiffies(60000);
+	sfp->module_t_wait = msecs_to_jiffies(60000);
 	/* Some RollBall SFPs may have wrong (zero) extended compliance code
 	 * burned in EEPROM. For PHY probing we need the correct one.
 	 */
