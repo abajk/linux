@@ -159,6 +159,7 @@
 #define RTL_8221B_VN_CG				0x001cc84a
 #define RTL_8251B				0x001cc862
 #define RTL_8261C				0x001cc890
+#define RTL_8261N				0x001ccaf3
 
 /* RTL8211E and RTL8211F support up to three LEDs */
 #define RTL8211x_LED_COUNT			3
@@ -1380,6 +1381,7 @@ static int rtl_internal_nbaset_match_phy_device(struct phy_device *phydev,
 	case RTL_8221B:
 	case RTL_8251B:
 	case RTL_8261C:
+	case RTL_8261N:
 	case 0x001cc841:
 		break;
 	default:
@@ -1393,6 +1395,18 @@ static int rtl8251b_c45_match_phy_device(struct phy_device *phydev,
 					 const struct phy_driver *phydrv)
 {
 	return rtlgen_is_c45_match(phydev, RTL_8251B, true);
+}
+
+static int rtl8261n_c22_match_phy_device(struct phy_device *phydev,
+					 const struct phy_driver *phydrv)
+{
+	return rtlgen_is_c45_match(phydev, RTL_8261N, false);
+}
+
+static int rtl8261n_c45_match_phy_device(struct phy_device *phydev,
+					 const struct phy_driver *phydrv)
+{
+	return rtlgen_is_c45_match(phydev, RTL_8261N, true);
 }
 
 static int rtlgen_resume(struct phy_device *phydev)
@@ -1739,6 +1753,28 @@ static struct phy_driver realtek_drvs[] = {
 	}, {
 		.match_phy_device = rtl8251b_c45_match_phy_device,
 		.name           = "RTL8251B 5Gbps PHY",
+		.probe		= rtl822x_probe,
+		.get_features   = rtl822x_get_features,
+		.config_aneg    = rtl822x_config_aneg,
+		.read_status    = rtl822x_read_status,
+		.suspend        = genphy_suspend,
+		.resume         = rtlgen_resume,
+		.read_page      = rtl821x_read_page,
+		.write_page     = rtl821x_write_page,
+	}, {
+		.match_phy_device = rtl8261n_c22_match_phy_device,
+		.name           = "RTL8261N 10Gbps PHY",
+		.probe		= rtl822x_probe,
+		.get_features   = rtl822x_get_features,
+		.config_aneg    = rtl822x_config_aneg,
+		.read_status    = rtl822x_read_status,
+		.suspend        = genphy_suspend,
+		.resume         = rtlgen_resume,
+		.read_page      = rtl821x_read_page,
+		.write_page     = rtl821x_write_page,
+	}, {
+		.match_phy_device = rtl8261n_c45_match_phy_device,
+		.name           = "RTL8261N 10Gbps PHY",
 		.probe		= rtl822x_probe,
 		.get_features   = rtl822x_get_features,
 		.config_aneg    = rtl822x_config_aneg,
