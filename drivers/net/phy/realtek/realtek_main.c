@@ -127,6 +127,10 @@
  */
 #define RTL822X_VND2_C22_REG(reg)		(0xa400 + 2 * (reg))
 
+#define REALTEK_SERDES_GLOBAL_CFG       0xc1
+#define   REALTEK_HSO_INV               BIT(7)
+#define   REALTEK_HSI_INV               BIT(6)
+
 #define RTL8366RB_POWER_SAVE			0x15
 #define RTL8366RB_POWER_SAVE_ON			BIT(12)
 
@@ -157,6 +161,7 @@
 #define RTL_8221B_VN_CG				0x001cc84a
 #define RTL_8251B				0x001cc862
 #define RTL_8261C				0x001cc890
+#define RTL_8261N				0x001ccaf3
 
 /* RTL8211E and RTL8211F support up to three LEDs */
 #define RTL8211x_LED_COUNT			3
@@ -1240,6 +1245,31 @@ static int rtl822xb_config_init(struct phy_device *phydev)
 	return rtl822x_set_serdes_option_mode(phydev, false);
 }
 
+static int rtl8261n_config_init(struct phy_device *phydev)
+{
+	int ret;
+
+	ret = phy_set_bits_mmd(phydev, MDIO_MMD_VEND1,
+				     REALTEK_SERDES_GLOBAL_CFG,
+				     REALTEK_HSO_INV);
+	if (ret < 0)
+		return ret;
+
+	ret = phy_write_mmd(phydev, MDIO_MMD_VEND1, 0x19, 0x154);
+	if (ret < 0)
+		return ret;
+
+	ret = phy_write_mmd(phydev, MDIO_MMD_VEND1, 0x1A, 0x20C);
+	if (ret < 0)
+		return ret;
+
+	ret = phy_write_mmd(phydev, MDIO_MMD_VEND1, 0x1D, 0x1);
+	if (ret < 0)
+		return ret;
+
+	return (phy_write_mmd(phydev, MDIO_MMD_VEND1, 0x1E, 0x20C));
+}
+
 static int rtl822xb_get_rate_matching(struct phy_device *phydev,
 				      phy_interface_t iface)
 {
@@ -1559,6 +1589,12 @@ static int rtl8251b_c45_match_phy_device(struct phy_device *phydev,
 					 const struct phy_driver *phydrv)
 {
 	return rtlgen_is_c45_match(phydev, RTL_8251B, true);
+}
+
+static int rtl8261n_c45_match_phy_device(struct phy_device *phydev,
+					 const struct phy_driver *phydrv)
+{
+	return rtlgen_is_c45_match(phydev, RTL_8261N, true);
 }
 
 static int rtlgen_resume(struct phy_device *phydev)
@@ -1906,6 +1942,18 @@ static struct phy_driver realtek_drvs[] = {
 		.match_phy_device = rtl8251b_c45_match_phy_device,
 		.name           = "RTL8251B 5Gbps PHY",
 		.probe		= rtl822x_probe,
+		.get_features   = rtl822x_get_features,
+		.config_aneg    = rtl822x_config_aneg,
+		.read_status    = rtl822x_read_status,
+		.suspend        = genphy_suspend,
+		.resume         = rtlgen_resume,
+		.read_page      = rtl821x_read_page,
+		.write_page     = rtl821x_write_page,
+	}, {
+		.match_phy_device = rtl8261n_c45_match_phy_device,
+		.name           = "RTL8261N 10Gbps PHY",
+		.probe		= rtl822x_probe,
+		.config_init    = rtl8261n_config_init,
 		.get_features   = rtl822x_get_features,
 		.config_aneg    = rtl822x_config_aneg,
 		.read_status    = rtl822x_read_status,
