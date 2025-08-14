@@ -14,6 +14,9 @@ allOf:
   - $ref: /schemas/serial/serial.yaml#
 
 properties:
+  $nodename:
+    pattern: "^serial@[0-9a-f]+$"
+
   compatible:
     const: lantiq,asc
 

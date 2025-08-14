@@ -14,6 +14,9 @@ allOf:
   - $ref: usb-hcd.yaml#
 
 properties:
+  $nodename:
+    pattern: "^usb@[0-9a-f]+$"
+ 
   compatible:
     oneOf:
       - const: brcm,bcm2835-usb

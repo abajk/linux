@@ -17,7 +17,7 @@ maintainers:
 
 properties:
   $nodename:
-    pattern: "^gpio@[0-9a-f]+$"
+    pattern: "^stp@1e100bb0$"
 
   compatible:
     const: lantiq,gpio-stp-xway

@@ -10,6 +10,9 @@ maintainers:
   - John Crispin <john@phrozen.org>
 
 properties:
+  $nodename:
+    pattern: "^cgu@1f103000$"
+
   compatible:
     items:
       - enum:

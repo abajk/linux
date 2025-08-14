@@ -13,6 +13,9 @@ maintainers:
   - Hauke Mehrtens <hauke@hauke-m.de>
 
 properties:
+  $nodename:
+    pattern: "^switch@1e108000$"
+
   compatible:
     enum:
       - lantiq,xrx200-gswip

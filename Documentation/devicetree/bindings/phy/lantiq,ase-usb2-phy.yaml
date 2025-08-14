@@ -13,6 +13,9 @@ description:
   This node has to be a sub node of the Lantiq RCU block.
 
 properties:
+  $nodename:
+    pattern: "^usb2-phy@[0-9a-f]+$"
+
   compatible:
     items:
       - enum:

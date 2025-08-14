@@ -11,7 +11,7 @@ maintainers:
 
 properties:
   $nodename:
-    pattern: "^ethernet@[0-9a-f]+$"
+    pattern: "^eth@1e10b308+$"
 
   compatible:
     const: lantiq,xrx200-net
