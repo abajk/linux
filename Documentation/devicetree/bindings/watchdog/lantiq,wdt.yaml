@@ -31,12 +31,29 @@ properties:
   lantiq,rcu:
     $ref: /schemas/types.yaml#/definitions/phandle
     description:
-      Phandle to the RCU syscon node (required for
-      "lantiq,falcon-wdt" and "lantiq,xrx100-wdt")
+      Phandle to the RCU syscon node
 
 required:
   - compatible
   - reg
+
+allOf:
+  - if:
+      properties:
+        compatible:
+          contains:
+            const: "lantiq,xrx100-wdt"
+    then:
+      required:
+        - lantiq,rcu
+  - if:
+      properties:
+        compatible:
+          contains:
+            const: "lantiq,falcon-wdt"
+    then:
+      required:
+        - lantiq,rcu
 
 unevaluatedProperties: false
 
