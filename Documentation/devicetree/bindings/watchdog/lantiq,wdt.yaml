@@ -37,7 +37,7 @@ required:
   - compatible
   - reg
 
-allOf:
+oneOf:
   - if:
       properties:
         compatible:
