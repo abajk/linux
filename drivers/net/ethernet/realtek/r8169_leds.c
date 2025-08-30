@@ -74,11 +74,14 @@ static int rtl8168_led_hw_control_set(struct led_classdev *led_cdev,
 	int shift = ldev->index * 4;
 	u16 mode = 0;
 
-	if (flags & BIT(TRIGGER_NETDEV_LINK_10))
+	if ((flags & BIT(TRIGGER_NETDEV_LINK)) ||
+	    (flags & BIT(TRIGGER_NETDEV_LINK_10)))
 		mode |= RTL8168_LED_CTRL_LINK_10;
-	if (flags & BIT(TRIGGER_NETDEV_LINK_100))
+	if ((flags & BIT(TRIGGER_NETDEV_LINK)) ||
+	    (flags & BIT(TRIGGER_NETDEV_LINK_100)))
 		mode |= RTL8168_LED_CTRL_LINK_100;
-	if (flags & BIT(TRIGGER_NETDEV_LINK_1000))
+	if ((flags & BIT(TRIGGER_NETDEV_LINK)) ||
+	    (flags & BIT(TRIGGER_NETDEV_LINK_1000)))
 		mode |= RTL8168_LED_CTRL_LINK_1000;
 	if (flags & BIT(TRIGGER_NETDEV_TX))
 		mode |= RTL8168_LED_CTRL_ACT;
@@ -114,6 +117,10 @@ static int rtl8168_led_hw_control_get(struct led_classdev *led_cdev,
 		*flags |= BIT(TRIGGER_NETDEV_LINK_100);
 	if (mode & RTL8168_LED_CTRL_LINK_1000)
 		*flags |= BIT(TRIGGER_NETDEV_LINK_1000);
+	if ((mode & RTL8168_LED_CTRL_LINK_10) &&
+	    (mode & RTL8168_LED_CTRL_LINK_100) &&
+	    (mode & RTL8168_LED_CTRL_LINK_1000))
+		*flags |= BIT(TRIGGER_NETDEV_LINK);
 
 	return 0;
 }
@@ -186,13 +193,17 @@ static int rtl8125_led_hw_control_set(struct led_classdev *led_cdev,
 	struct rtl8169_private *tp = netdev_priv(ldev->ndev);
 	u16 mode = 0;
 
-	if (flags & BIT(TRIGGER_NETDEV_LINK_10))
+	if ((flags & BIT(TRIGGER_NETDEV_LINK)) ||
+	    (flags & BIT(TRIGGER_NETDEV_LINK_10)))
 		mode |= RTL8125_LED_CTRL_LINK_10;
-	if (flags & BIT(TRIGGER_NETDEV_LINK_100))
+	if ((flags & BIT(TRIGGER_NETDEV_LINK)) ||
+	    (flags & BIT(TRIGGER_NETDEV_LINK_100)))
 		mode |= RTL8125_LED_CTRL_LINK_100;
-	if (flags & BIT(TRIGGER_NETDEV_LINK_1000))
+	if ((flags & BIT(TRIGGER_NETDEV_LINK)) ||
+	    (flags & BIT(TRIGGER_NETDEV_LINK_1000)))
 		mode |= RTL8125_LED_CTRL_LINK_1000;
-	if (flags & BIT(TRIGGER_NETDEV_LINK_2500))
+	if ((flags & BIT(TRIGGER_NETDEV_LINK)) ||
+	    (flags & BIT(TRIGGER_NETDEV_LINK_2500)))
 		mode |= RTL8125_LED_CTRL_LINK_2500;
 	if (flags & (BIT(TRIGGER_NETDEV_TX) | BIT(TRIGGER_NETDEV_RX)))
 		mode |= RTL8125_LED_CTRL_ACT;
@@ -219,6 +230,11 @@ static int rtl8125_led_hw_control_get(struct led_classdev *led_cdev,
 		*flags |= BIT(TRIGGER_NETDEV_LINK_1000);
 	if (mode & RTL8125_LED_CTRL_LINK_2500)
 		*flags |= BIT(TRIGGER_NETDEV_LINK_2500);
+	if ((mode & RTL8125_LED_CTRL_LINK_10) &&
+	    (mode & RTL8125_LED_CTRL_LINK_100) &&
+	    (mode & RTL8125_LED_CTRL_LINK_1000) &&
+	    (mode & RTL8125_LED_CTRL_LINK_2500))
+		*flags |= BIT(TRIGGER_NETDEV_LINK);
 	if (mode & RTL8125_LED_CTRL_ACT)
 		*flags |= BIT(TRIGGER_NETDEV_TX) | BIT(TRIGGER_NETDEV_RX);
 
