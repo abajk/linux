@@ -307,18 +307,21 @@ static int i2c_rollball_mii_poll(struct mii_bus *bus, int bus_addr, u8 *buf,
 	/* By experiment it takes up to 70 ms to access a register for these
 	 * SFPs. Sleep 20ms between iterations and try 10 times.
 	 */
-	i = 10;
+	i = 200;
 	do {
-		msleep(20);
+		msleep(1);
 
 		ret = i2c_transfer_rollball(i2c, msgs, ARRAY_SIZE(msgs));
 		if (ret)
 			return ret;
 
-		if (*res == ROLLBALL_CMD_DONE)
+		if (*res == ROLLBALL_CMD_DONE) {
+			printk(KERN_ERR "%s:1 time=%d\n", __func__, 200 - i);
 			return 0;
+		}
 	} while (i-- > 0);
 
+	printk(KERN_ERR "%s:2 timeout\n", __func__);
 	dev_dbg(&bus->dev, "poll timed out\n");
 
 	return -ETIMEDOUT;
@@ -354,6 +357,10 @@ static int i2c_mii_read_rollball(struct mii_bus *bus, int phy_id, int devad,
 	int bus_addr, ret;
 	u16 val;
 
+	msleep(25);
+
+	printk(KERN_ERR "%s:1 read: phy_id=%d, devadd=%d, reg=%d\n", __func__, phy_id, devad, reg);
+
 	bus_addr = i2c_mii_phy_addr(phy_id);
 	if (bus_addr != ROLLBALL_PHY_I2C_ADDR)
 		return 0xffff;
@@ -384,6 +391,8 @@ static int i2c_mii_write_rollball(struct mii_bus *bus, int phy_id, int devad,
 {
 	int bus_addr, ret;
 	u8 buf[6];
+
+	msleep(25);
 
 	bus_addr = i2c_mii_phy_addr(phy_id);
 	if (bus_addr != ROLLBALL_PHY_I2C_ADDR)
