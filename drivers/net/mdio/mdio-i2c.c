@@ -309,7 +309,7 @@ static int i2c_rollball_mii_poll(struct mii_bus *bus, int bus_addr, u8 *buf,
 	 */
 	i = 10;
 	do {
-		msleep(20);
+		msleep(50);
 
 		ret = i2c_transfer_rollball(i2c, msgs, ARRAY_SIZE(msgs));
 		if (ret)
@@ -354,6 +354,8 @@ static int i2c_mii_read_rollball(struct mii_bus *bus, int phy_id, int devad,
 	int bus_addr, ret;
 	u16 val;
 
+	msleep(25);
+
 	printk(KERN_ERR "%s:1 read: phy_id=%d, devadd=%d, reg=%d\n", __func__, phy_id, devad, reg);
 
 	bus_addr = i2c_mii_phy_addr(phy_id);
@@ -388,6 +390,8 @@ static int i2c_mii_write_rollball(struct mii_bus *bus, int phy_id, int devad,
 {
 	int bus_addr, ret;
 	u8 buf[6];
+
+	msleep(25);
 
 	printk(KERN_ERR "%s:1 read: phy_id=%d, devadd=%d, reg=%d val=%04x\n", __func__, phy_id, devad, reg, val);
 
