@@ -399,7 +399,8 @@ static void sfp_fixup_rollball_wait4s(struct sfp *sfp)
 	 * them does not return 0xffff for PHY ID registers in all MMDs for the
 	 * while initializing. They need a 4 second wait before accessing PHY.
 	 */
-	sfp->module_t_wait = msecs_to_jiffies(4000);
+	sfp->module_t_start_up = msecs_to_jiffies(60000);
+	sfp->module_t_wait = msecs_to_jiffies(60000);
 }
 
 static void sfp_fixup_fs_10gt(struct sfp *sfp)
