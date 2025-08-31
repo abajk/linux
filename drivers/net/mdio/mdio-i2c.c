@@ -354,6 +354,8 @@ static int i2c_mii_read_rollball(struct mii_bus *bus, int phy_id, int devad,
 	int bus_addr, ret;
 	u16 val;
 
+	printk(KERN_ERR "%s:1 read: phy_id=%d, devadd=%d, reg=%d\n", __func__, phy_id, devad, reg);
+
 	bus_addr = i2c_mii_phy_addr(phy_id);
 	if (bus_addr != ROLLBALL_PHY_I2C_ADDR)
 		return 0xffff;
@@ -376,6 +378,8 @@ static int i2c_mii_read_rollball(struct mii_bus *bus, int phy_id, int devad,
 
 	val = res[4] << 8 | res[5];
 
+	printk(KERN_ERR "%s:2 data=%04x\n", __func__, val);
+
 	return val;
 }
 
@@ -384,6 +388,8 @@ static int i2c_mii_write_rollball(struct mii_bus *bus, int phy_id, int devad,
 {
 	int bus_addr, ret;
 	u8 buf[6];
+
+	printk(KERN_ERR "%s:1 read: phy_id=%d, devadd=%d, reg=%d val=%04x\n", __func__, phy_id, devad, reg, val);
 
 	bus_addr = i2c_mii_phy_addr(phy_id);
 	if (bus_addr != ROLLBALL_PHY_I2C_ADDR)
