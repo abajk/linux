@@ -58,6 +58,12 @@ static int airoha_scu_ssr_apply_modes(struct airoha_scu_ssr_priv *priv)
 {
 	int ret;
 
+	printk(KERN_ERR "%s: 1 wifi1=%d, wifi2=%d, usb1=%d, usb2=%d\n", __func__,
+			priv->serdes_port[AIROHA_SCU_SERDES_WIFI1],
+			priv->serdes_port[AIROHA_SCU_SERDES_WIFI2],
+			priv->serdes_port[AIROHA_SCU_SERDES_USB1],
+			priv->serdes_port[AIROHA_SCU_SERDES_USB2]);
+
 	/*
 	 * This is a very bad scenario and needs to be correctly warned
 	 * as it cause PCIe malfunction.
@@ -70,6 +76,8 @@ static int airoha_scu_ssr_apply_modes(struct airoha_scu_ssr_priv *priv)
 		return -EINVAL;
 	}
 
+	printk(KERN_ERR "%s: 2\n", __func__);
+
 	/* PCS driver takes care of setting the SCU bit for HSGMII or USXGMII */
 	if (priv->serdes_port[AIROHA_SCU_SERDES_WIFI1] == AIROHA_SCU_SERDES_MODE_PCIE0_X1 ||
 	    priv->serdes_port[AIROHA_SCU_SERDES_WIFI1] == AIROHA_SCU_SERDES_MODE_PCIE0_X2) {
@@ -79,6 +87,8 @@ static int airoha_scu_ssr_apply_modes(struct airoha_scu_ssr_priv *priv)
 		if (ret)
 			return ret;
 	}
+
+	printk(KERN_ERR "%s: 3\n", __func__);
 
 	/* PCS driver takes care of setting the SCU bit for HSGMII or USXGMII */
 	if (priv->serdes_port[AIROHA_SCU_SERDES_WIFI2] == AIROHA_SCU_SERDES_MODE_PCIE1_X1 ||
@@ -90,6 +100,8 @@ static int airoha_scu_ssr_apply_modes(struct airoha_scu_ssr_priv *priv)
 			return ret;
 	}
 
+	printk(KERN_ERR "%s: 4\n", __func__);
+
 	/* Toggle PCIe0 2 Line mode if enabled or not */
 	if (priv->serdes_port[AIROHA_SCU_SERDES_WIFI1] == AIROHA_SCU_SERDES_MODE_PCIE0_X2)
 		ret = regmap_set_bits(priv->regmap, AIROHA_SCU_PCIC,
@@ -100,6 +112,8 @@ static int airoha_scu_ssr_apply_modes(struct airoha_scu_ssr_priv *priv)
 	if (ret)
 		return ret;
 
+	printk(KERN_ERR "%s: 5\n", __func__);
+
 	if (priv->serdes_port[AIROHA_SCU_SERDES_USB1] == AIROHA_SCU_SERDES_MODE_ETHERNET)
 		ret = regmap_clear_bits(priv->regmap, AIROHA_SCU_SSR3,
 					AIROHA_SCU_SSUSB_HSGMII_SEL);
@@ -109,6 +123,8 @@ static int airoha_scu_ssr_apply_modes(struct airoha_scu_ssr_priv *priv)
 	if (ret)
 		return ret;
 
+	printk(KERN_ERR "%s: 6\n", __func__);
+
 	if (priv->serdes_port[AIROHA_SCU_SERDES_USB2] == AIROHA_SCU_SERDES_MODE_PCIE2_X1)
 		ret = regmap_clear_bits(priv->regmap, AIROHA_SCU_SSTR,
 					AIROHA_SCU_USB_PCIE_SEL);
@@ -117,6 +133,8 @@ static int airoha_scu_ssr_apply_modes(struct airoha_scu_ssr_priv *priv)
 				      AIROHA_SCU_USB_PCIE_SEL);
 	if (ret)
 		return ret;
+
+	printk(KERN_ERR "%s: 7\n", __func__);
 
 	return 0;
 }
@@ -133,17 +151,23 @@ static int airoha_scu_ssr_parse_mode(struct device *dev,
 
 	pdata = dev->platform_data;
 
+	printk(KERN_ERR "%s: 1\n", __func__);
+
 	if (of_property_read_string(dev->of_node, property_name,
 				    &serdes_mode)) {
 		priv->serdes_port[port] = default_mode;
 		return 0;
 	}
 
+	printk(KERN_ERR "%s: 2\n", __func__);
+
 	mode = airoha_scu_serdes_str_to_mode(serdes_mode);
 	if (mode) {
 		dev_err(dev, "invalid mode %s for %s\n", serdes_mode, property_name);
 		return mode;
 	}
+
+	printk(KERN_ERR "%s: 3\n", __func__);
 
 	port_info = &pdata->ports_info[port];
 	for (i = 0; i < port_info->num_modes; i++) {
@@ -163,9 +187,13 @@ static int airoha_scu_ssr_probe(struct platform_device *pdev)
 	struct device *dev = &pdev->dev;
 	int ret;
 
+	printk(KERN_ERR "%s: 1\n", __func__);
+
 	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
 	if (!priv)
 		return -ENOMEM;
+
+	printk(KERN_ERR "%s: 2\n", __func__);
 
 	priv->dev = dev;
 
@@ -174,34 +202,41 @@ static int airoha_scu_ssr_probe(struct platform_device *pdev)
 	if (!priv->regmap)
 		return -EINVAL;
 
+	printk(KERN_ERR "%s: 3\n", __func__);
+
 	ret = airoha_scu_ssr_parse_mode(dev, priv, "airoha,serdes-wifi1",
 					AIROHA_SCU_SERDES_WIFI1,
-					AIROHA_SCU_SERDES_MODE_PCIE0_X1);
+					AIROHA_SCU_SERDES_MODE_PCIE0_X2);
 	if (ret)
 		return ret;
 
+	printk(KERN_ERR "%s: 4\n", __func__);
 	ret = airoha_scu_ssr_parse_mode(dev, priv, "airoha,serdes-wifi2",
 					AIROHA_SCU_SERDES_WIFI2,
-					AIROHA_SCU_SERDES_MODE_PCIE1_X1);
+					AIROHA_SCU_SERDES_MODE_PCIE0_X2);
 	if (ret)
 		return ret;
 
+	printk(KERN_ERR "%s: 5\n", __func__);
 	ret = airoha_scu_ssr_parse_mode(dev, priv, "airoha,serdes-usb1",
 					AIROHA_SCU_SERDES_USB1,
 					AIROHA_SCU_SERDES_MODE_USB3);
 	if (ret)
 		return ret;
 
+	printk(KERN_ERR "%s: 6\n", __func__);
 	ret = airoha_scu_ssr_parse_mode(dev, priv, "airoha,serdes-usb2",
 					AIROHA_SCU_SERDES_USB2,
-					AIROHA_SCU_SERDES_MODE_USB3);
+					AIROHA_SCU_SERDES_MODE_PCIE2_X1);
 	if (ret)
 		return ret;
 
+	printk(KERN_ERR "%s: 7\n", __func__);
 	ret = airoha_scu_ssr_apply_modes(priv);
 	if (ret)
 		return ret;
 
+	printk(KERN_ERR "%s: 8\n", __func__);
 	platform_set_drvdata(pdev, priv);
 
 	return 0;
@@ -214,7 +249,14 @@ static struct platform_driver airoha_scu_ssr_driver = {
 	},
 };
 
-module_platform_driver(airoha_scu_ssr_driver);
+
+static int __init
+scu_init(void)
+{
+	return platform_driver_register(&airoha_scu_ssr_driver);
+}
+
+arch_initcall(scu_init);
 
 MODULE_AUTHOR("Christian Marangi <ansuelsmth@gmail.com>");
 MODULE_LICENSE("GPL");
