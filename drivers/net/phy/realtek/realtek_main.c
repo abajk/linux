@@ -1137,17 +1137,26 @@ static int rtlgen_write_mmd(struct phy_device *phydev, int devnum, u16 regnum,
 
 static int rtl822x_read_mmd(struct phy_device *phydev, int devnum, u16 regnum)
 {
-	int ret = rtlgen_read_mmd(phydev, devnum, regnum);
+	int ret;
 
-	if (ret != -EOPNOTSUPP)
-		return ret;
+	if (devnum == MDIO_MMD_VEND2) {
+		rtl821x_write_page(phydev, regnum >> 4);
+		ret = __phy_read(phydev, 0x10 + ((regnum & 0xf) >> 1));
+		rtl821x_write_page(phydev, 0);
+	} else {
+		/* Write the desired MMD Devad */
+		__mdiobus_write(phydev->mdio.bus, phydev->mdio.addr, MII_MMD_CTRL, devnum);
 
-	if (devnum == MDIO_MMD_PCS && regnum == MDIO_PCS_EEE_ABLE2)
-		ret = rtlgen_read_vend2(phydev, RTL_MDIO_PCS_EEE_ABLE2);
-	else if (devnum == MDIO_MMD_AN && regnum == MDIO_AN_EEE_ADV2)
-		ret = rtlgen_read_vend2(phydev, RTL_MDIO_AN_EEE_ADV2);
-	else if (devnum == MDIO_MMD_AN && regnum == MDIO_AN_EEE_LPABLE2)
-		ret = rtlgen_read_vend2(phydev, RTL_MDIO_AN_EEE_LPABLE2);
+		/* Write the desired MMD register address */
+		__mdiobus_write(phydev->mdio.bus, phydev->mdio.addr, MII_MMD_DATA, regnum);
+
+		/* Select the Function : DATA with no post increment */
+		__mdiobus_write(phydev->mdio.bus, phydev->mdio.addr, MII_MMD_CTRL,
+				devnum | MII_MMD_CTRL_NOINCR);
+
+		/* Read the content of the MMD's selected register */
+		ret = __mdiobus_read(phydev->mdio.bus, phydev->mdio.addr, MII_MMD_DATA);
+	}
 
 	return ret;
 }
@@ -1155,13 +1164,26 @@ static int rtl822x_read_mmd(struct phy_device *phydev, int devnum, u16 regnum)
 static int rtl822x_write_mmd(struct phy_device *phydev, int devnum, u16 regnum,
 			     u16 val)
 {
-	int ret = rtlgen_write_mmd(phydev, devnum, regnum, val);
+	int ret;
 
-	if (ret != -EOPNOTSUPP)
-		return ret;
+	if (devnum == MDIO_MMD_VEND2) {
+		rtl821x_write_page(phydev, regnum >> 4);
+		ret = __phy_write(phydev, 0x10 + ((regnum & 0xf) >> 1), val);
+		rtl821x_write_page(phydev, 0);
+	} else {
+		/* Write the desired MMD Devad */
+		__mdiobus_write(phydev->mdio.bus, phydev->mdio.addr, MII_MMD_CTRL, devnum);
 
-	if (devnum == MDIO_MMD_AN && regnum == MDIO_AN_EEE_ADV2)
-		ret = rtlgen_write_vend2(phydev, RTL_MDIO_AN_EEE_ADV2, val);
+		/* Write the desired MMD register address */
+		__mdiobus_write(phydev->mdio.bus, phydev->mdio.addr, MII_MMD_DATA, regnum);
+
+		/* Select the Function : DATA with no post increment */
+		__mdiobus_write(phydev->mdio.bus, phydev->mdio.addr, MII_MMD_CTRL,
+				devnum | MII_MMD_CTRL_NOINCR);
+
+		/* Write the data into MMD's selected register */
+		ret = __mdiobus_write(phydev->mdio.bus, phydev->mdio.addr, MII_MMD_DATA, val);
+	}
 
 	return ret;
 }
@@ -1921,6 +1943,8 @@ static struct phy_driver realtek_drvs[] = {
 		.resume         = rtlgen_resume,
 		.read_page      = rtl821x_read_page,
 		.write_page     = rtl821x_write_page,
+		.read_mmd	= rtl822x_read_mmd,
+		.write_mmd	= rtl822x_write_mmd,
 	}, {
 		.match_phy_device = rtl8221b_vb_cg_c45_match_phy_device,
 		.name           = "RTL8221B-VB-CG 2.5Gbps PHY (C45)",
@@ -1949,6 +1973,8 @@ static struct phy_driver realtek_drvs[] = {
 		.resume         = rtlgen_resume,
 		.read_page      = rtl821x_read_page,
 		.write_page     = rtl821x_write_page,
+		.read_mmd	= rtl822x_read_mmd,
+		.write_mmd	= rtl822x_write_mmd,
 	}, {
 		.match_phy_device = rtl8221b_vm_cg_c45_match_phy_device,
 		.name           = "RTL8221B-VM-CG 2.5Gbps PHY (C45)",
