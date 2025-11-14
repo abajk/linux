@@ -963,6 +963,28 @@ static void mt7530_get_eth_ctrl_stats(struct dsa_switch *ds, int port,
 			       &ctrl_stats->MACControlFramesReceived);
 }
 
+#define MT7530_REGS_COUNT	0x8000
+
+static int mt7530_get_regs_len(struct dsa_switch *ds, int port)
+{
+	return MT7530_REGS_COUNT;
+}
+
+static void mt7530_get_regs(struct dsa_switch *ds, int port,
+			   struct ethtool_regs *regs, void *_p)
+{
+	struct mt7530_priv *priv = ds->priv;
+	u32 *p = _p;
+	int i;
+
+	regs->version = 1;
+
+	memset(p, 0xff, MT7530_REGS_COUNT);
+
+	for (i = 0; i < MT7530_REGS_COUNT / sizeof(u32); i++)
+		p[i] = mt7530_read(priv, i * sizeof(u32));
+}
+
 static int
 mt7530_set_ageing_time(struct dsa_switch *ds, unsigned int msecs)
 {
@@ -3275,6 +3297,8 @@ const struct dsa_switch_ops mt7530_switch_ops = {
 	.port_bridge_flags	= mt7530_port_bridge_flags,
 	.port_bridge_join	= mt7530_port_bridge_join,
 	.port_bridge_leave	= mt7530_port_bridge_leave,
+	.get_regs_len		= mt7530_get_regs_len,
+	.get_regs		= mt7530_get_regs,
 	.port_fdb_add		= mt7530_port_fdb_add,
 	.port_fdb_del		= mt7530_port_fdb_del,
 	.port_fdb_dump		= mt7530_port_fdb_dump,
