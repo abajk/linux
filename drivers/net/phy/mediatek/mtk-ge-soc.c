@@ -1421,13 +1421,9 @@ static int mt7981_phy_probe(struct phy_device *phydev)
 static int an7581_phy_probe(struct phy_device *phydev)
 {
 	struct mtk_socphy_priv *priv;
-	struct pinctrl *pinctrl;
 
 	/* Toggle pinctrl to enable PHY LED */
-	pinctrl = devm_pinctrl_get_select(&phydev->mdio.dev, "gbe-led");
-	if (IS_ERR(pinctrl))
-		dev_err(&phydev->mdio.bus->dev,
-			"Failed to setup PHY LED pinctrl\n");
+	devm_pinctrl_get_select(&phydev->mdio.dev, "gbe-led");
 
 	priv = devm_kzalloc(&phydev->mdio.dev, sizeof(*priv), GFP_KERNEL);
 	if (!priv)
