@@ -36,6 +36,7 @@ static struct eip93_alg_template *eip93_algs[] = {
 	&eip93_alg_cbc_aes,
 	&eip93_alg_ctr_aes,
 	&eip93_alg_rfc3686_aes,
+#if 0
 	&eip93_alg_authenc_hmac_md5_cbc_des,
 	&eip93_alg_authenc_hmac_sha1_cbc_des,
 	&eip93_alg_authenc_hmac_sha224_cbc_des,
@@ -60,6 +61,7 @@ static struct eip93_alg_template *eip93_algs[] = {
 	&eip93_alg_hmac_sha1,
 	&eip93_alg_hmac_sha224,
 	&eip93_alg_hmac_sha256,
+#endif
 };
 
 inline void eip93_irq_disable(struct eip93_device *eip93, u32 mask)
@@ -193,37 +195,47 @@ static void eip93_handle_result_descriptor(struct eip93_device *eip93)
 	u32 pe_ctrl_stat;
 	u32 pe_length;
 
+	printk(KERN_INFO "%s:1\n", __func__);
 get_more:
 	handled = 0;
 
 	left = readl(eip93->base + EIP93_REG_PE_RD_COUNT) & EIP93_PE_RD_COUNT;
+	printk(KERN_INFO "%s:2 left=%d\n", __func__, left);
 
 	if (!left) {
 		eip93_irq_clear(eip93, EIP93_INT_RDR_THRESH);
 		eip93_irq_enable(eip93, EIP93_INT_RDR_THRESH);
+		printk(KERN_INFO "%s:3\n", __func__);
 		return;
 	}
 
 	last_entry = false;
 
+	printk(KERN_INFO "%s:4\n", __func__);
 	while (left) {
-		scoped_guard(spinlock_irqsave, &eip93->ring->read_lock)
-			rdesc = eip93_get_descriptor(eip93);
+		printk(KERN_INFO "%s:5\n", __func__);
+		rdesc = eip93_get_descriptor(eip93);
+		printk(KERN_INFO "%s:5a\n", __func__);
 		if (IS_ERR(rdesc)) {
 			dev_err(eip93->dev, "Ndesc: %d nreq: %d\n",
 				handled, left);
 			err = -EIO;
+			printk(KERN_INFO "%s:6\n", __func__);
 			break;
 		}
 		/* make sure DMA is finished writing */
+		printk(KERN_INFO "%s:5b\n", __func__);
 		do {
 			pe_ctrl_stat = READ_ONCE(rdesc->pe_ctrl_stat_word);
+			printk(KERN_INFO "%s:5c pe_ctrl_stat=%08x\n", __func__, pe_ctrl_stat);
 			pe_length = READ_ONCE(rdesc->pe_length_word);
+			printk(KERN_INFO "%s:5d pe_length=%08x\n", __func__, pe_length);
 		} while (FIELD_GET(EIP93_PE_CTRL_PE_READY_DES_TRING_OWN, pe_ctrl_stat) !=
 			 EIP93_PE_CTRL_PE_READY ||
 			 FIELD_GET(EIP93_PE_LENGTH_HOST_PE_READY, pe_length) !=
 			 EIP93_PE_LENGTH_PE_READY);
 
+		printk(KERN_INFO "%s:5e\n", __func__);
 		err = rdesc->pe_ctrl_stat_word & (EIP93_PE_CTRL_PE_EXT_ERR_CODE |
 						  EIP93_PE_CTRL_PE_EXT_ERR |
 						  EIP93_PE_CTRL_PE_SEQNUM_ERR |
@@ -239,14 +251,19 @@ get_more:
 		handled++;
 		left--;
 
+		printk(KERN_INFO "%s:5f\n", __func__);
 		if (desc_flags & EIP93_DESC_LAST) {
 			last_entry = true;
+			printk(KERN_INFO "%s:7\n", __func__);
 			break;
 		}
+		printk(KERN_INFO "%s:5g\n", __func__);
 	}
 
-	if (!last_entry)
+	if (!last_entry) {
+		printk(KERN_INFO "%s:8\n", __func__);
 		goto get_more;
+	}
 
 	/* Get crypto async ref only for last descriptor */
 	scoped_guard(spinlock_bh, &eip93->ring->idr_lock) {
@@ -273,7 +290,9 @@ static void eip93_done_task(unsigned long data)
 {
 	struct eip93_device *eip93 = (struct eip93_device *)data;
 
+	printk(KERN_INFO "%s:1\n", __func__);
 	eip93_handle_result_descriptor(eip93);
+	printk(KERN_INFO "%s:2\n", __func__);
 }
 
 static irqreturn_t eip93_irq_handler(int irq, void *data)
@@ -281,10 +300,12 @@ static irqreturn_t eip93_irq_handler(int irq, void *data)
 	struct eip93_device *eip93 = data;
 	u32 irq_status;
 
+	printk(KERN_INFO "%s:1\n", __func__);
 	irq_status = readl(eip93->base + EIP93_REG_INT_MASK_STAT);
 	if (FIELD_GET(EIP93_INT_RDR_THRESH, irq_status)) {
 		eip93_irq_disable(eip93, EIP93_INT_RDR_THRESH);
 		tasklet_schedule(&eip93->ring->done_task);
+		printk(KERN_INFO "%s:2\n", __func__);
 		return IRQ_HANDLED;
 	}
 
@@ -292,6 +313,8 @@ static irqreturn_t eip93_irq_handler(int irq, void *data)
 	eip93_irq_clear(eip93, irq_status);
 	if (irq_status)
 		eip93_irq_disable(eip93, irq_status);
+
+	printk(KERN_INFO "%s:3\n", __func__);
 
 	return IRQ_NONE;
 }
@@ -415,6 +438,8 @@ static int eip93_crypto_probe(struct platform_device *pdev)
 	u32 ver, algo_flags;
 	int ret;
 
+	printk(KERN_INFO "%s:1\n", __func__);
+
 	eip93 = devm_kzalloc(dev, sizeof(*eip93), GFP_KERNEL);
 	if (!eip93)
 		return -ENOMEM;
@@ -474,6 +499,8 @@ static int eip93_crypto_probe(struct platform_device *pdev)
 		 algo_flags,
 		 readl(eip93->base + EIP93_REG_PE_OPTION_0));
 
+	printk(KERN_INFO "%s:2\n", __func__);
+
 	return 0;
 }
 
@@ -482,10 +509,13 @@ static void eip93_crypto_remove(struct platform_device *pdev)
 	struct eip93_device *eip93 = platform_get_drvdata(pdev);
 	u32 algo_flags;
 
+	printk(KERN_INFO "%s:1\n", __func__);
 	algo_flags = readl(eip93->base + EIP93_REG_PE_OPTION_1);
 
 	eip93_unregister_algs(algo_flags, ARRAY_SIZE(eip93_algs));
 	eip93_cleanup(eip93);
+
+	printk(KERN_INFO "%s:2\n", __func__);
 }
 
 static const struct of_device_id eip93_crypto_of_match[] = {

@@ -36,6 +36,7 @@ static int eip93_skcipher_send_req(struct crypto_async_request *async)
 	struct eip93_cipher_reqctx *rctx = skcipher_request_ctx(req);
 	int err;
 
+	printk(KERN_INFO "%s:1\n", __func__);
 	err = check_valid_request(rctx);
 
 	if (err) {
@@ -43,7 +44,9 @@ static int eip93_skcipher_send_req(struct crypto_async_request *async)
 		return err;
 	}
 
-	return eip93_send_req(async, req->iv, rctx);
+	err = eip93_send_req(async, req->iv, rctx);
+	printk(KERN_INFO "%s:2\n", __func__);
+	return err;
 }
 
 /* Crypto skcipher API functions */
@@ -91,6 +94,8 @@ static int eip93_skcipher_setkey(struct crypto_skcipher *ctfm, const u8 *key,
 	u32 nonce = 0;
 	int ret;
 
+	printk(KERN_INFO "%s:1\n", __func__);
+
 	if (!key || !keylen)
 		return -EINVAL;
 
@@ -130,6 +135,8 @@ static int eip93_skcipher_setkey(struct crypto_skcipher *ctfm, const u8 *key,
 	ctx->sa_nonce = nonce;
 	sa_record->sa_nonce = nonce;
 
+	printk(KERN_INFO "%s:2\n", __func__);
+
 	return 0;
 }
 
@@ -140,6 +147,8 @@ static int eip93_skcipher_crypt(struct skcipher_request *req)
 	struct eip93_crypto_ctx *ctx = crypto_tfm_ctx(req->base.tfm);
 	struct crypto_skcipher *skcipher = crypto_skcipher_reqtfm(req);
 	int ret;
+
+	printk(KERN_INFO "%s:1\n", __func__);
 
 	if (!req->cryptlen)
 		return 0;
@@ -169,7 +178,12 @@ static int eip93_skcipher_crypt(struct skcipher_request *req)
 	rctx->desc_flags = EIP93_DESC_SKCIPHER;
 	rctx->sa_record_base = ctx->sa_record_base;
 
-	return eip93_skcipher_send_req(async);
+
+	ret = eip93_skcipher_send_req(async);
+
+	printk(KERN_INFO "%s:2\n", __func__);
+
+	return ret;
 }
 
 static int eip93_skcipher_encrypt(struct skcipher_request *req)
