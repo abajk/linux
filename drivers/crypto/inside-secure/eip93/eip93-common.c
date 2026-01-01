@@ -103,18 +103,27 @@ int eip93_put_descriptor(struct eip93_device *eip93,
 {
 	struct eip93_descriptor *cdesc;
 	struct eip93_descriptor *rdesc;
+	unsigned long irqflags;
+
+	spin_lock_irqsave(&eip93->ring->write_lock, irqflags);
 
 	rdesc = eip93_ring_next_wptr(eip93, &eip93->ring->rdr);
-	if (IS_ERR(rdesc))
+	if (IS_ERR(rdesc)) {
+		spin_unlock_irqrestore(&eip93->ring->write_lock, irqflags);
 		return -ENOENT;
+	}
 
 	cdesc = eip93_ring_next_wptr(eip93, &eip93->ring->cdr);
-	if (IS_ERR(cdesc))
+	if (IS_ERR(cdesc)) {
+		spin_unlock_irqrestore(&eip93->ring->write_lock, irqflags);
 		return -ENOENT;
+	}
 
 	memset(rdesc, 0, sizeof(struct eip93_descriptor));
 
 	memcpy(cdesc, desc, sizeof(struct eip93_descriptor));
+
+	spin_unlock_irqrestore(&eip93->ring->write_lock, irqflags);
 
 	return 0;
 }
@@ -122,18 +131,30 @@ int eip93_put_descriptor(struct eip93_device *eip93,
 void *eip93_get_descriptor(struct eip93_device *eip93)
 {
 	struct eip93_descriptor *cdesc;
+	unsigned long irqflags;
 	void *ptr;
 
+	printk(KERN_INFO "%s:1\n", __func__);
+
+	spin_lock_irqsave(&eip93->ring->read_lock, irqflags);
+
 	cdesc = eip93_ring_next_rptr(eip93, &eip93->ring->cdr);
-	if (IS_ERR(cdesc))
+	if (IS_ERR(cdesc)) {
+		spin_unlock_irqrestore(&eip93->ring->read_lock, irqflags);
 		return ERR_PTR(-ENOENT);
+	}
 
 	memset(cdesc, 0, sizeof(struct eip93_descriptor));
 
 	ptr = eip93_ring_next_rptr(eip93, &eip93->ring->rdr);
-	if (IS_ERR(ptr))
+	if (IS_ERR(ptr)) {
+		spin_unlock_irqrestore(&eip93->ring->read_lock, irqflags);
 		return ERR_PTR(-ENOENT);
+	}
 
+	spin_unlock_irqrestore(&eip93->ring->read_lock, irqflags);
+
+	printk(KERN_INFO "%s:2\n", __func__);
 	return ptr;
 }
 
@@ -395,6 +416,7 @@ static int eip93_scatter_combine(struct eip93_device *eip93,
 	int offsetout = 0;
 	int err;
 
+	printk(KERN_INFO "%s:1\n", __func__);
 	if (IS_ECB(rctx->flags))
 		rctx->sa_state_base = 0;
 
@@ -494,8 +516,7 @@ static int eip93_scatter_combine(struct eip93_device *eip93,
 		 * Maybe refine by slowing down at EIP93_RING_BUSY
 		 */
 again:
-		scoped_guard(spinlock_irqsave, &eip93->ring->write_lock)
-			err = eip93_put_descriptor(eip93, cdesc);
+		err = eip93_put_descriptor(eip93, cdesc);
 		if (err) {
 			usleep_range(EIP93_RING_BUSY_DELAY,
 				     EIP93_RING_BUSY_DELAY * 2);
@@ -505,6 +526,7 @@ again:
 		writel(1, eip93->base + EIP93_REG_PE_CD_COUNT);
 	} while (n);
 
+	printk(KERN_INFO "%s:2\n", __func__);
 	return -EINPROGRESS;
 }
 
@@ -527,6 +549,8 @@ int eip93_send_req(struct crypto_async_request *async,
 
 	rctx->sa_state_ctr = NULL;
 	rctx->sa_state = NULL;
+
+	printk(KERN_INFO "%s:1\n", __func__);
 
 	if (IS_ECB(flags))
 		goto skip_iv;
@@ -590,6 +614,7 @@ skip_iv:
 
 	cdesc.pe_ctrl_stat_word = FIELD_PREP(EIP93_PE_CTRL_PE_READY_DES_TRING_OWN,
 					     EIP93_PE_CTRL_HOST_READY);
+	printk(KERN_INFO "%s:2 pe_ctrl_stat_word=%08x\n", __func__, cdesc.pe_ctrl_stat_word);
 	cdesc.sa_addr = rctx->sa_record_base;
 	cdesc.arc4_addr = 0;
 
@@ -732,11 +757,14 @@ int eip93_hmac_setkey(u32 ctx_flags, const u8 *key, unsigned int keylen,
 	}
 
 	ahash_tfm = crypto_alloc_ahash(alg_name, 0, CRYPTO_ALG_ASYNC);
-	if (IS_ERR(ahash_tfm))
+	if (IS_ERR(ahash_tfm)) {
+		printk(KERN_INFO "%s:1\n", __func__);
 		return PTR_ERR(ahash_tfm);
+	}
 
 	req = ahash_request_alloc(ahash_tfm, GFP_ATOMIC);
 	if (!req) {
+		printk(KERN_INFO "%s:2\n", __func__);
 		ret = -ENOMEM;
 		goto err_ahash;
 	}
@@ -752,8 +780,10 @@ int eip93_hmac_setkey(u32 ctx_flags, const u8 *key, unsigned int keylen,
 
 		ahash_request_set_crypt(req, sg, ipad, keylen);
 		ret = crypto_wait_req(crypto_ahash_digest(req), &wait);
-		if (ret)
+		if (ret) {
+			printk(KERN_INFO "%s:3\n", __func__);
 			goto err_req;
+		}
 
 		keylen = hashlen;
 	} else {
@@ -777,30 +807,38 @@ int eip93_hmac_setkey(u32 ctx_flags, const u8 *key, unsigned int keylen,
 		sg_init_one(&sg[0], ipad, SHA256_BLOCK_SIZE);
 		ahash_request_set_crypt(req, sg, dest_ipad, SHA256_BLOCK_SIZE);
 		ret = crypto_ahash_init(req);
-		if (ret)
+		if (ret) {
+			printk(KERN_INFO "%s:4\n", __func__);
 			goto err_req;
+		}
 
 		/* Disable HASH_FINALIZE for ipad hash */
 		rctx->partial_hash = true;
 
 		ret = crypto_wait_req(crypto_ahash_finup(req), &wait);
-		if (ret)
+		if (ret) {
+			printk(KERN_INFO "%s:5\n", __func__);
 			goto err_req;
+		}
 	}
 
 	/* Hash opad */
 	sg_init_one(&sg[0], opad, SHA256_BLOCK_SIZE);
 	ahash_request_set_crypt(req, sg, dest_opad, SHA256_BLOCK_SIZE);
 	ret = crypto_ahash_init(req);
-	if (ret)
+	if (ret) {
+		printk(KERN_INFO "%s:6\n", __func__);
 		goto err_req;
+	}
 
 	/* Disable HASH_FINALIZE for opad hash */
 	rctx->partial_hash = true;
 
 	ret = crypto_wait_req(crypto_ahash_finup(req), &wait);
-	if (ret)
+	if (ret) {
+		printk(KERN_INFO "%s:7\n", __func__);
 		goto err_req;
+	}
 
 	if (!IS_HASH_MD5(ctx_flags)) {
 		for (i = 0; i < SHA256_DIGEST_SIZE / sizeof(u32); i++) {
