@@ -207,8 +207,7 @@ get_more:
 	last_entry = false;
 
 	while (left) {
-		scoped_guard(spinlock_irqsave, &eip93->ring->read_lock)
-			rdesc = eip93_get_descriptor(eip93);
+		rdesc = eip93_get_descriptor(eip93);
 		if (IS_ERR(rdesc)) {
 			dev_err(eip93->dev, "Ndesc: %d nreq: %d\n",
 				handled, left);

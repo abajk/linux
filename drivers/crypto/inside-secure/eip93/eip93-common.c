@@ -103,18 +103,27 @@ int eip93_put_descriptor(struct eip93_device *eip93,
 {
 	struct eip93_descriptor *cdesc;
 	struct eip93_descriptor *rdesc;
+	unsigned long irqflags;
+
+	spin_lock_irqsave(&eip93->ring->write_lock, irqflags);
 
 	rdesc = eip93_ring_next_wptr(eip93, &eip93->ring->rdr);
-	if (IS_ERR(rdesc))
+	if (IS_ERR(rdesc)) {
+		spin_unlock_irqrestore(&eip93->ring->write_lock, irqflags);
 		return -ENOENT;
+	}
 
 	cdesc = eip93_ring_next_wptr(eip93, &eip93->ring->cdr);
-	if (IS_ERR(cdesc))
+	if (IS_ERR(cdesc)) {
+		spin_unlock_irqrestore(&eip93->ring->write_lock, irqflags);
 		return -ENOENT;
+	}
 
 	memset(rdesc, 0, sizeof(struct eip93_descriptor));
 
 	memcpy(cdesc, desc, sizeof(struct eip93_descriptor));
+
+	spin_unlock_irqrestore(&eip93->ring->write_lock, irqflags);
 
 	return 0;
 }
@@ -122,17 +131,26 @@ int eip93_put_descriptor(struct eip93_device *eip93,
 void *eip93_get_descriptor(struct eip93_device *eip93)
 {
 	struct eip93_descriptor *cdesc;
+	unsigned long irqflags;
 	void *ptr;
 
+	spin_lock_irqsave(&eip93->ring->read_lock, irqflags);
+
 	cdesc = eip93_ring_next_rptr(eip93, &eip93->ring->cdr);
-	if (IS_ERR(cdesc))
+	if (IS_ERR(cdesc)) {
+		spin_unlock_irqrestore(&eip93->ring->read_lock, irqflags);
 		return ERR_PTR(-ENOENT);
+	}
 
 	memset(cdesc, 0, sizeof(struct eip93_descriptor));
 
 	ptr = eip93_ring_next_rptr(eip93, &eip93->ring->rdr);
-	if (IS_ERR(ptr))
+	if (IS_ERR(ptr)) {
+		spin_unlock_irqrestore(&eip93->ring->read_lock, irqflags);
 		return ERR_PTR(-ENOENT);
+	}
+
+	spin_unlock_irqrestore(&eip93->ring->read_lock, irqflags);
 
 	return ptr;
 }
@@ -494,8 +512,7 @@ static int eip93_scatter_combine(struct eip93_device *eip93,
 		 * Maybe refine by slowing down at EIP93_RING_BUSY
 		 */
 again:
-		scoped_guard(spinlock_irqsave, &eip93->ring->write_lock)
-			err = eip93_put_descriptor(eip93, cdesc);
+		err = eip93_put_descriptor(eip93, cdesc);
 		if (err) {
 			usleep_range(EIP93_RING_BUSY_DELAY,
 				     EIP93_RING_BUSY_DELAY * 2);
