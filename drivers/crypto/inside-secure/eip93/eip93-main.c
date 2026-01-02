@@ -26,6 +26,7 @@
 #include "eip93-des.h"
 #include "eip93-aead.h"
 #include "eip93-hash.h"
+#include "eip93-prng.h"
 
 static struct eip93_alg_template *eip93_algs[] = {
 	&eip93_alg_ecb_des,
@@ -52,6 +53,7 @@ static struct eip93_alg_template *eip93_algs[] = {
 	&eip93_alg_authenc_hmac_sha1_rfc3686_aes,
 	&eip93_alg_authenc_hmac_sha224_rfc3686_aes,
 	&eip93_alg_authenc_hmac_sha256_rfc3686_aes,
+	&eip93_alg_prng,
 	&eip93_alg_md5,
 	&eip93_alg_sha1,
 	&eip93_alg_sha224,
@@ -125,6 +127,9 @@ static void eip93_unregister_algs(u32 supported_algo_flags, unsigned int i)
 		case EIP93_ALG_TYPE_HASH:
 			crypto_unregister_ahash(&eip93_algs[j]->alg.ahash);
 			break;
+		case EIP93_ALG_TYPE_PRNG:
+			crypto_unregister_rng(&eip93_algs[i]->alg.rng);
+			break;
 		}
 	}
 }
@@ -169,6 +174,9 @@ static int eip93_register_algs(struct eip93_device *eip93, u32 supported_algo_fl
 			break;
 		case EIP93_ALG_TYPE_HASH:
 			ret = crypto_register_ahash(&eip93_algs[i]->alg.ahash);
+			break;
+		case EIP93_ALG_TYPE_PRNG:
+			ret = crypto_register_rng(&eip93_algs[i]->alg.rng);
 			break;
 		}
 		if (ret)
@@ -265,6 +273,9 @@ get_more:
 
 	if (desc_flags & EIP93_DESC_HASH)
 		eip93_hash_handle_result(async, err);
+
+	if (desc_flags & EIP93_DESC_PRNG)
+		eip93_prng_done(eip93, err);
 
 	goto get_more;
 }
@@ -457,6 +468,14 @@ static int eip93_crypto_probe(struct platform_device *pdev)
 
 	/* Init finished, enable RDR interrupt */
 	eip93_irq_enable(eip93, EIP93_INT_RDR_THRESH);
+
+	eip93->prng = devm_kcalloc(eip93->dev, 1, sizeof(*eip93->prng), GFP_KERNEL);
+	if (!eip93->prng)
+		return -ENOMEM;
+
+	ret = eip93_prng_init(eip93, true);
+	if (ret)
+		return ret;
 
 	ret = eip93_register_algs(eip93, algo_flags);
 	if (ret) {
