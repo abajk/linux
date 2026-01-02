@@ -10,13 +10,14 @@
 
 #include <crypto/internal/aead.h>
 #include <crypto/internal/hash.h>
+#include <crypto/internal/rng.h>
 #include <crypto/internal/skcipher.h>
 #include <linux/bitfield.h>
 #include <linux/interrupt.h>
 
 #define EIP93_RING_BUSY_DELAY		500
 
-#define EIP93_RING_NUM			512
+#define EIP93_RING_NUM			1024
 #define EIP93_RING_BUSY			32
 #define EIP93_CRA_PRIORITY		1500
 
@@ -101,6 +102,18 @@ struct eip93_device {
 	struct clk		*clk;
 	int			irq;
 	struct eip93_ring		*ring;
+	struct eip93_prng_device	*prng;
+};
+
+struct eip93_prng_device {
+	struct sa_record	*prng_sa_record;
+	dma_addr_t		PRNGSaRecord_dma;
+	void			*PRNGBuffer[2];
+	dma_addr_t		PRNGBuffer_dma[2];
+	u32			cur_buf;
+	struct completion	Filled;
+	atomic_t		State;
+
 };
 
 struct eip93_desc_ring {
@@ -135,6 +148,7 @@ enum eip93_alg_type {
 	EIP93_ALG_TYPE_AEAD,
 	EIP93_ALG_TYPE_SKCIPHER,
 	EIP93_ALG_TYPE_HASH,
+	EIP93_ALG_TYPE_PRNG,
 };
 
 struct eip93_alg_template {
@@ -145,6 +159,7 @@ struct eip93_alg_template {
 		struct aead_alg		aead;
 		struct skcipher_alg	skcipher;
 		struct ahash_alg	ahash;
+		struct rng_alg		rng;
 	} alg;
 };
 
