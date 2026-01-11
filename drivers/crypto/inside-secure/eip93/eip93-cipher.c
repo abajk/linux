@@ -323,6 +323,7 @@ struct eip93_alg_template eip93_alg_ecb_des = {
 			.cra_driver_name = "ebc(des-eip93)",
 			.cra_priority = EIP93_CRA_PRIORITY,
 			.cra_flags = CRYPTO_ALG_ASYNC |
+				     CRYPTO_ALG_NEED_FALLBACK |
 					CRYPTO_ALG_KERN_DRIVER_ONLY,
 			.cra_blocksize = DES_BLOCK_SIZE,
 			.cra_ctxsize = sizeof(struct eip93_crypto_ctx),
@@ -349,6 +350,7 @@ struct eip93_alg_template eip93_alg_cbc_des = {
 			.cra_driver_name = "cbc(des-eip93)",
 			.cra_priority = EIP93_CRA_PRIORITY,
 			.cra_flags = CRYPTO_ALG_ASYNC |
+				     CRYPTO_ALG_NEED_FALLBACK |
 					CRYPTO_ALG_KERN_DRIVER_ONLY,
 			.cra_blocksize = DES_BLOCK_SIZE,
 			.cra_ctxsize = sizeof(struct eip93_crypto_ctx),
@@ -375,6 +377,7 @@ struct eip93_alg_template eip93_alg_ecb_des3_ede = {
 			.cra_driver_name = "ecb(des3_ede-eip93)",
 			.cra_priority = EIP93_CRA_PRIORITY,
 			.cra_flags = CRYPTO_ALG_ASYNC |
+				     CRYPTO_ALG_NEED_FALLBACK |
 					CRYPTO_ALG_KERN_DRIVER_ONLY,
 			.cra_blocksize = DES3_EDE_BLOCK_SIZE,
 			.cra_ctxsize = sizeof(struct eip93_crypto_ctx),
@@ -401,6 +404,7 @@ struct eip93_alg_template eip93_alg_cbc_des3_ede = {
 			.cra_driver_name = "cbc(des3_ede-eip93)",
 			.cra_priority = EIP93_CRA_PRIORITY,
 			.cra_flags = CRYPTO_ALG_ASYNC |
+				     CRYPTO_ALG_NEED_FALLBACK |
 					CRYPTO_ALG_KERN_DRIVER_ONLY,
 			.cra_blocksize = DES3_EDE_BLOCK_SIZE,
 			.cra_ctxsize = sizeof(struct eip93_crypto_ctx),
