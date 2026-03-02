@@ -18,6 +18,7 @@ properties:
       - items:
           - enum:
               - marvell,armada-3700-crypto
+              - mediatek,mt7623-crypto
               - mediatek,mt7981-crypto
               - mediatek,mt7986-crypto
           - const: inside-secure,safexcel-eip97ies
@@ -82,6 +83,7 @@ allOf:
           not:
             contains:
               enum:
+                - mediatek,mt7623-crypto
                 - mediatek,mt7981-crypto
                 - mediatek,mt7986-crypto
     then:
