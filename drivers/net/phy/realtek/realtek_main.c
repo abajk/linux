@@ -47,6 +47,8 @@
 
 #define RTL821x_INSR				0x13
 
+#define RTL8211E_RXERC				0x18
+
 #define RTL821x_EXT_PAGE_SELECT			0x1e
 
 #define RTL821x_PAGE_SELECT			0x1f
@@ -234,6 +236,8 @@ struct rtl821x_priv {
 	bool enable_rxc_ssc;
 	bool enable_sysclk_ssc;
 	struct clk *clk;
+	/* rtl8211e */
+	u64 rx_errors;
 	/* rtl8211f */
 	u16 iner;
 };
@@ -2315,6 +2319,32 @@ static int rtl8221b_config_intr(struct phy_device *phydev)
 	return err;
 }
 
+static int rtl8211e_update_stats(struct phy_device *phydev)
+{
+	struct rtl821x_priv *priv = phydev->priv;
+	int ret;
+
+	/* XWAY_MDIO_ERRCNT: 8-bit read-clear counter, SEL set to RXERR */
+	ret = phy_read(phydev, XWAY_MDIO_ERRCNT);
+	if (ret < 0)
+		return ret;
+
+	priv->rx_errors += ret;
+
+	return 0;
+}
+
+static void rtl8211e_get_phy_stats(struct phy_device *phydev,
+				   struct ethtool_eth_phy_stats *eth_stats,
+				   struct ethtool_phy_stats *stats)
+{
+	struct rtl821x_priv *priv = phydev->priv;
+
+	eth_stats->SymbolErrorDuringCarrier = priv->rx_errors;
+	stats->rx_errors = priv->rx_errors;
+}
+
+
 static irqreturn_t rtl8221b_handle_interrupt(struct phy_device *phydev)
 {
 	int err;
@@ -2442,6 +2472,8 @@ static struct phy_driver realtek_drvs[] = {
 		.led_hw_is_supported = rtl8211x_led_hw_is_supported,
 		.led_hw_control_get = rtl8211e_led_hw_control_get,
 		.led_hw_control_set = rtl8211e_led_hw_control_set,
+		.update_stats	= rtl8211e_update_stats,
+		.get_phy_stats	= rtl8211e_get_phy_stats,
 	}, {
 		PHY_ID_MATCH_EXACT(0x001cc916),
 		.name		= "RTL8211F Gigabit Ethernet",
