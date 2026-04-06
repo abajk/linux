@@ -196,6 +196,7 @@
 #define RTL9000A_GINMR_LINK_STATUS		BIT(4)
 
 #define RTL_PHYSR				MII_RESV2
+#define RTL_PHYSR_MDI_CROSSOVER			BIT(1)
 #define RTL_PHYSR_DUPLEX			BIT(3)
 #define RTL_PHYSR_SPEEDL			GENMASK(5, 4)
 #define RTL_PHYSR_SPEEDH			GENMASK(10, 9)
@@ -1235,6 +1236,16 @@ static int rtl8366rb_config_init(struct phy_device *phydev)
 /* get actual speed to cover the downshift case */
 static void rtlgen_decode_physr(struct phy_device *phydev, int val)
 {
+	/* bit 1
+	 * 0: MDI-X
+	 * 1: MDI
+	 */
+	if (val & RTL_PHYSR_MDI_CROSSOVER)
+		phydev->mdix = ETH_TP_MDI;
+	else
+		phydev->mdix = ETH_TP_MDI_X;
+	phydev->mdix_ctrl = ETH_TP_MDI_AUTO;
+
 	/* bit 3
 	 * 0: Half Duplex
 	 * 1: Full Duplex
