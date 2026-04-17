@@ -123,7 +123,7 @@
  * Split GENMASK(7, 0) in 4 part, one for each byte.
  * Example LITTLE ENDIAN: Example BIG ENDIAN
  * GENMASK(7, 6) 0x3	  GENMASK(7, 6) 0x0
- * GENMASK(5, 4) 0x2	  GENMASK(7, 6) 0x1
+ * GENMASK(5, 4) 0x2	  GENMASK(5, 4) 0x1
  * GENMASK(3, 2) 0x1	  GENMASK(3, 2) 0x2
  * GENMASK(1, 0) 0x0	  GENMASK(1, 0) 0x3
  */

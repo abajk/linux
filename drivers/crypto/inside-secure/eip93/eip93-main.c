@@ -315,6 +315,23 @@ static void eip93_initialize(struct eip93_device *eip93, u32 supported_algo_flag
 	val &= ~(EIP93_PE_CONFIG_RST_PE | EIP93_PE_CONFIG_RST_RING);
 	writel(val, eip93->base + EIP93_REG_PE_CONFIG);
 
+	/* Configure Byte order */
+	val = readl(eip93->base + EIP93_REG_PE_ENDIAN_CONFIG);
+	printk(KERN_ERR "%s endian1=%08x\n", __func__, val);
+	val = readl(eip93->base + EIP93_AIROHA_REG_PE_ENDIAN_CONFIG);
+	printk(KERN_ERR "%s endian2=%08x\n", __func__, val);
+	val = FIELD_PREP(EIP93_PE_ENDIAN_TARGET_BYTE_SWAP,
+			 EIP93_PE_ENDIAN_BYTE0 << 6 |
+			 EIP93_PE_ENDIAN_BYTE1 << 4 |
+			 EIP93_PE_ENDIAN_BYTE2 << 2 |
+			 EIP93_PE_ENDIAN_BYTE3);
+	val |= FIELD_PREP(EIP93_PE_ENDIAN_MASTER_BYTE_SWAP,
+			  EIP93_PE_ENDIAN_BYTE0 << 6 |
+			  EIP93_PE_ENDIAN_BYTE1 << 4 |
+			  EIP93_PE_ENDIAN_BYTE2 << 2 |
+			  EIP93_PE_ENDIAN_BYTE3);
+	writel(val, eip93->base + EIP93_AIROHA_REG_PE_ENDIAN_CONFIG);
+
 	/* Config Clocks */
 	val = EIP93_PE_CLOCK_EN_PE_CLK;
 	if (supported_algo_flags & EIP93_PE_OPTION_TDES)
