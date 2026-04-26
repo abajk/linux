@@ -162,7 +162,6 @@ static const unsigned ase_pins_ephy_led2[] = {GPIO4};
 static const unsigned ase_pins_dfe_led0[] = {GPIO1};
 static const unsigned ase_pins_dfe_led1[] = {GPIO2};
 
-static const unsigned ase_pins_spi[] = {GPIO8, GPIO9, GPIO10}; /* DEPRECATED */
 static const unsigned ase_pins_spi_di[] = {GPIO8};
 static const unsigned ase_pins_spi_do[] = {GPIO9};
 static const unsigned ase_pins_spi_clk[] = {GPIO10};
@@ -183,7 +182,6 @@ static const struct ltq_pin_group ase_grps[] = {
 	GRP_MUX("exin1", EXIN, ase_pins_exin1),
 	GRP_MUX("exin2", EXIN, ase_pins_exin2),
 	GRP_MUX("jtag", JTAG, ase_pins_jtag),
-	GRP_MUX("spi", SPI, ase_pins_spi), /* DEPRECATED */
 	GRP_MUX("spi_di", SPI, ase_pins_spi_di),
 	GRP_MUX("spi_do", SPI, ase_pins_spi_do),
 	GRP_MUX("spi_clk", SPI, ase_pins_spi_clk),
@@ -217,8 +215,7 @@ static const char * const ase_ephy_grps[] = {"ephy led0", "ephy led1",
 static const char * const ase_asc_grps[] = {"asc"};
 static const char * const ase_jtag_grps[] = {"jtag"};
 static const char * const ase_stp_grps[] = {"stp"};
-static const char * const ase_spi_grps[] = {"spi",  /* DEPRECATED */
-						"spi_di", "spi_do",
+static const char * const ase_spi_grps[] = {	"spi_di", "spi_do",
 						"spi_clk", "spi_cs1",
 						"spi_cs2", "spi_cs3"};
 
@@ -300,7 +297,6 @@ static const unsigned danube_pins_nand_ale[] = {GPIO13};
 static const unsigned danube_pins_nand_cs1[] = {GPIO23};
 static const unsigned danube_pins_nand_cle[] = {GPIO24};
 
-static const unsigned danube_pins_spi[] = {GPIO16, GPIO17, GPIO18}; /* DEPRECATED */
 static const unsigned danube_pins_spi_di[] = {GPIO16};
 static const unsigned danube_pins_spi_do[] = {GPIO17};
 static const unsigned danube_pins_spi_clk[] = {GPIO18};
@@ -341,7 +337,6 @@ static const struct ltq_pin_group danube_grps[] = {
 	GRP_MUX("nand ale", EBU, danube_pins_nand_ale),
 	GRP_MUX("nand cs1", EBU, danube_pins_nand_cs1),
 	GRP_MUX("nand cle", EBU, danube_pins_nand_cle),
-	GRP_MUX("spi", SPI, danube_pins_spi), /* DEPRECATED */
 	GRP_MUX("spi_di", SPI, danube_pins_spi_di),
 	GRP_MUX("spi_do", SPI, danube_pins_spi_do),
 	GRP_MUX("spi_clk", SPI, danube_pins_spi_clk),
@@ -375,12 +370,11 @@ static const struct ltq_pin_group danube_grps[] = {
 static const char * const danube_pci_grps[] = {"gnt1", "gnt2",
 						"gnt3", "req1",
 						"req2", "req3"};
-static const char * const danube_spi_grps[] = {"spi", /* DEPRECATED */
-						"spi_di", "spi_do",
-						"spi_clk", "spi_cs1",
-						"spi_cs2", "spi_cs3",
-						"spi_cs4", "spi_cs5",
-						"spi_cs6"};
+static const char * const danube_spi_grps[] = {"spi_di", "spi_do",
+					       "spi_clk", "spi_cs1",
+					       "spi_cs2", "spi_cs3",
+					       "spi_cs4", "spi_cs5",
+					       "spi_cs6"};
 static const char * const danube_cgu_grps[] = {"clkout0", "clkout1",
 						"clkout2", "clkout3"};
 static const char * const danube_ebu_grps[] = {"ebu a23", "ebu a24",
