@@ -28,6 +28,37 @@ static u32 max_rings = EIP197_MAX_RINGS;
 module_param(max_rings, uint, 0644);
 MODULE_PARM_DESC(max_rings, "Maximum number of rings to use.");
 
+struct safexcel_ahash_req {
+	bool last_req;
+	bool finish;
+	bool hmac;
+	bool needs_inv;
+	bool hmac_zlen;
+	bool len_is_le;
+	bool not_first;
+	bool xcbcmac;
+
+	int nents;
+	dma_addr_t result_dma;
+
+	u32 digest;
+
+	u8 state_sz;    /* expected state size, only set once */
+	u8 block_sz;    /* block size, only set once */
+	u8 digest_sz;   /* output digest size, only set once */
+	__le32 state[SHA3_512_BLOCK_SIZE /
+		     sizeof(__le32)] __aligned(CRYPTO_DMA_ALIGN);
+
+	u64 len __aligned(CRYPTO_DMA_ALIGN);
+	u64 processed;
+
+	u8 cache[HASH_CACHE_SIZE] __aligned(sizeof(u32));
+	dma_addr_t cache_dma;
+	unsigned int cache_sz;
+
+	u8 cache_next[HASH_CACHE_SIZE] __aligned(sizeof(u32));
+};
+
 static void eip197_trc_cache_setupvirt(struct safexcel_crypto_priv *priv)
 {
 	int i;
@@ -1747,6 +1778,31 @@ static int safexcel_probe(struct platform_device *pdev)
 	priv->data = (struct safexcel_priv_data *)of_device_get_match_data(dev);
 
 	platform_set_drvdata(pdev, priv);
+
+	printk(KERN_INFO "%s:1 CRYPTO_DMA_ALIGN=%d, ARCH_DMA_MINALIGN=%d\n", __func__, CRYPTO_DMA_ALIGN, ARCH_DMA_MINALIGN);
+	printk(KERN_INFO "%s:2 sizeof(struct)=%lu\n", __func__, sizeof(struct safexcel_ahash_req));
+	printk(KERN_INFO "%s:3 sizeof(bool)=%lu\n", __func__, sizeof(bool));
+	printk(KERN_INFO "%s:4 sizeof(dma_addr_t)=%lu\n", __func__, sizeof(dma_addr_t));
+
+	printk(KERN_INFO "%s:5 offsetof(last_req)=%lu\n", __func__, offsetof(struct safexcel_ahash_req, last_req));
+	printk(KERN_INFO "%s:6 offsetof(finish)=%lu\n", __func__, offsetof(struct safexcel_ahash_req, finish));
+	printk(KERN_INFO "%s:7 offsetof(hmac)=%lu\n", __func__, offsetof(struct safexcel_ahash_req, hmac));
+	printk(KERN_INFO "%s:8 offsetof(len_is_le)=%lu\n", __func__, offsetof(struct safexcel_ahash_req, len_is_le));
+
+	printk(KERN_INFO "%s:9 offsetof(xcbcmac)=%lu\n", __func__, offsetof(struct safexcel_ahash_req, xcbcmac));
+	printk(KERN_INFO "%s:10 offsetof(nents)=%lu\n", __func__, offsetof(struct safexcel_ahash_req, nents));
+	printk(KERN_INFO "%s:11 offsetof(result_dma)=%lu\n", __func__, offsetof(struct safexcel_ahash_req, result_dma));
+	printk(KERN_INFO "%s:12 offsetof(digest)=%lu\n", __func__, offsetof(struct safexcel_ahash_req, digest));
+	printk(KERN_INFO "%s:13 offsetof(state_sz)=%lu\n", __func__, offsetof(struct safexcel_ahash_req, state_sz));
+	printk(KERN_INFO "%s:14 offsetof(block_sz)=%lu\n", __func__, offsetof(struct safexcel_ahash_req, block_sz));
+	printk(KERN_INFO "%s:15 offsetof(digest_sz)=%lu\n", __func__, offsetof(struct safexcel_ahash_req, digest_sz));
+	printk(KERN_INFO "%s:16 offsetof(state)=%lu\n", __func__, offsetof(struct safexcel_ahash_req, state));
+	printk(KERN_INFO "%s:17 offsetof(len)=%lu\n", __func__, offsetof(struct safexcel_ahash_req, len));
+	printk(KERN_INFO "%s:18 offsetof(processed)=%lu\n", __func__, offsetof(struct safexcel_ahash_req, processed));
+	printk(KERN_INFO "%s:19 offsetof(cache)=%lu\n", __func__, offsetof(struct safexcel_ahash_req, cache));
+	printk(KERN_INFO "%s:20 offsetof(cache_dma)=%lu\n", __func__, offsetof(struct safexcel_ahash_req, cache_dma));
+	printk(KERN_INFO "%s:21 offsetof(cache_sz)=%lu\n", __func__, offsetof(struct safexcel_ahash_req, cache_sz));
+	printk(KERN_INFO "%s:22 offsetof(cache_next)=%lu\n", __func__, offsetof(struct safexcel_ahash_req, cache_next));
 
 	priv->base = devm_platform_ioremap_resource(pdev, 0);
 	if (IS_ERR(priv->base)) {
