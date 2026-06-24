@@ -429,7 +429,7 @@ static void sfp_fixup_rollball_wait4s(struct sfp *sfp)
 	 * them does not return 0xffff for PHY ID registers in all MMDs for the
 	 * while initializing. They need a 4 second wait before accessing PHY.
 	 */
-	sfp->module_t_wait = msecs_to_jiffies(4000);
+	sfp->module_t_wait = msecs_to_jiffies(30000);
 }
 
 static void sfp_fixup_fs_10gt(struct sfp *sfp)
@@ -531,7 +531,7 @@ static const struct sfp_quirk sfp_quirks[] = {
 	SFP_QUIRK_F("BIDB", "X-ONU-SFPP", sfp_fixup_potron),
 
 	// FLYPRO SFP-10GT-CS-30M uses Rollball protocol to talk to the PHY.
-	SFP_QUIRK_F("FLYPRO", "SFP-10GT-CS-30M", sfp_fixup_rollball),
+	SFP_QUIRK_F("FLYPRO", "SFP-10GT-CS-30M", sfp_fixup_rollball_wait4s),
 
 	// Fiberstore SFP-10G-T doesn't identify as copper, uses the Rollball
 	// protocol to talk to the PHY and needs 4 sec wait before probing the
