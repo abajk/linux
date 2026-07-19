@@ -348,6 +348,7 @@
 				   interrupts = <GIC_SPI 42 IRQ_TYPE_LEVEL_HIGH>;
 				   clocks = <&sb_periph_clk 8>;
 				   status = "disabled";
+				   dma-coherent;
 			};
 
 			mdio: mdio@32004 {
@@ -363,6 +364,7 @@
 				interrupts = <GIC_SPI 45 IRQ_TYPE_LEVEL_HIGH>;
 				clocks = <&sb_periph_clk 7>;
 				status = "disabled";
+				dma-coherent;
 			};
 
 			usb3: usb@58000 {
