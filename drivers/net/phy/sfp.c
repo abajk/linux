@@ -2422,6 +2422,12 @@ static void sfp_module_parse_rate_select(struct sfp *sfp)
 		sfp->rs_threshold_kbd = 9000;
 		sfp->rs_state_mask = SFP_F_RS0 | SFP_F_RS1;
 		break;
+
+	case SFF_RID_FC_PI_7:
+		sfp->rs_threshold_kbd = 24000;
+		sfp->rs_state_mask = SFP_F_RS0 | SFP_F_RS1;
+		break;
+
 	}
 }
 
