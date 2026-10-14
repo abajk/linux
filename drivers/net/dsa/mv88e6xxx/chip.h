@@ -135,6 +135,7 @@ struct mv88e6xxx_info {
 	unsigned int num_ports;
 	unsigned int num_internal_phys;
 	unsigned int num_gpio;
+	unsigned int num_leds;
 	unsigned int max_vid;
 	unsigned int max_sid;
 	unsigned int port_base_addr;
@@ -146,6 +147,9 @@ struct mv88e6xxx_info {
 	unsigned int g2_irqs;
 	int stats_type;
 	bool pvt;
+
+	/* Support hardware LED triggers */
+	bool led_hw_triggers;
 
 	/* Mark certain ports as invalid. This is required for example for the
 	 * MV88E6220 (which is in general a MV88E6250 with 7 ports) but the
@@ -296,8 +300,7 @@ struct mv88e6xxx_port {
 
 	/* LED related information */
 	bool fiber;
-	struct led_classdev led0;
-	struct led_classdev led1;
+	struct led_classdev led[4];
 
 	/* MacAuth Bypass control flag */
 	bool mab;
@@ -768,6 +771,11 @@ static inline bool mv88e6xxx_has_pvt(struct mv88e6xxx_chip *chip)
 	return chip->info->pvt;
 }
 
+static inline bool mv88e6xxx_has_led_hw_triggers(struct mv88e6xxx_chip *chip)
+{
+	return chip->info->led_hw_triggers;
+}
+
 static inline bool mv88e6xxx_has_lag(struct mv88e6xxx_chip *chip)
 {
 	return !!chip->info->global2_addr;
@@ -806,6 +814,11 @@ static inline u16 mv88e6xxx_port_mask(struct mv88e6xxx_chip *chip)
 static inline unsigned int mv88e6xxx_num_gpio(struct mv88e6xxx_chip *chip)
 {
 	return chip->info->num_gpio;
+}
+
+static inline unsigned int mv88e6xxx_num_leds(struct mv88e6xxx_chip *chip)
+{
+	return chip->info->num_leds;
 }
 
 static inline bool mv88e6xxx_is_invalid_port(struct mv88e6xxx_chip *chip, int port)

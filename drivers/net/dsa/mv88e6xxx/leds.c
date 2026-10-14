@@ -37,32 +37,53 @@ static int mv88e6xxx_led_brightness_set(struct mv88e6xxx_port *p, int led,
 	u16 reg;
 	int err;
 
-	err = mv88e6xxx_port_led_read(p->chip, p->port,
-				      MV88E6XXX_PORT_LED_CONTROL_POINTER_LED01_CTRL,
-				      &reg);
+	if (led == 2 || led == 3)
+		err = mv88e6xxx_port_led_read(p->chip, p->port,
+					      MV88E6XXX_PORT_LED_CONTROL_POINTER_LED23_CTRL,
+					      &reg);
+	else
+		err = mv88e6xxx_port_led_read(p->chip, p->port,
+					      MV88E6XXX_PORT_LED_CONTROL_POINTER_LED01_CTRL,
+					      &reg);
+
 	if (err)
 		return err;
 
-	if (led == 1)
+	if (led == 3)
+		reg &= ~MV88E6XXX_PORT_LED_CONTROL_LED3_SEL_MASK;
+	else if (led == 2)
+		reg &= ~MV88E6XXX_PORT_LED_CONTROL_LED2_SEL_MASK;
+	else if (led == 1)
 		reg &= ~MV88E6XXX_PORT_LED_CONTROL_LED1_SEL_MASK;
 	else
 		reg &= ~MV88E6XXX_PORT_LED_CONTROL_LED0_SEL_MASK;
 
 	if (brightness) {
 		/* Selector 0x0f == Force LED ON */
-		if (led == 1)
+		if (led == 3)
+			reg |= MV88E6XXX_PORT_LED_CONTROL_LED3_SELF;
+		else if (led == 2)
+			reg |= MV88E6XXX_PORT_LED_CONTROL_LED2_SELF;
+		else if (led == 1)
 			reg |= MV88E6XXX_PORT_LED_CONTROL_LED1_SELF;
 		else
 			reg |= MV88E6XXX_PORT_LED_CONTROL_LED0_SELF;
 	} else {
 		/* Selector 0x0e == Force LED OFF */
-		if (led == 1)
+		if (led == 3)
+			reg |= MV88E6XXX_PORT_LED_CONTROL_LED3_SELE;
+		else if (led == 2)
+			reg |= MV88E6XXX_PORT_LED_CONTROL_LED2_SELE;
+		else if (led == 1)
 			reg |= MV88E6XXX_PORT_LED_CONTROL_LED1_SELE;
 		else
 			reg |= MV88E6XXX_PORT_LED_CONTROL_LED0_SELE;
 	}
 
-	reg |= MV88E6XXX_PORT_LED_CONTROL_POINTER_LED01_CTRL;
+	if (led == 2 || led == 3)
+		reg |= MV88E6XXX_PORT_LED_CONTROL_POINTER_LED23_CTRL;
+	else
+		reg |= MV88E6XXX_PORT_LED_CONTROL_POINTER_LED01_CTRL;
 
 	return mv88e6xxx_port_led_write(p->chip, p->port, reg);
 }
@@ -70,7 +91,7 @@ static int mv88e6xxx_led_brightness_set(struct mv88e6xxx_port *p, int led,
 static int mv88e6xxx_led0_brightness_set_blocking(struct led_classdev *ldev,
 						  enum led_brightness brightness)
 {
-	struct mv88e6xxx_port *p = container_of(ldev, struct mv88e6xxx_port, led0);
+	struct mv88e6xxx_port *p = container_of(ldev, struct mv88e6xxx_port, led[0]);
 	int err;
 
 	mv88e6xxx_reg_lock(p->chip);
@@ -83,11 +104,37 @@ static int mv88e6xxx_led0_brightness_set_blocking(struct led_classdev *ldev,
 static int mv88e6xxx_led1_brightness_set_blocking(struct led_classdev *ldev,
 						  enum led_brightness brightness)
 {
-	struct mv88e6xxx_port *p = container_of(ldev, struct mv88e6xxx_port, led1);
+	struct mv88e6xxx_port *p = container_of(ldev, struct mv88e6xxx_port, led[1]);
 	int err;
 
 	mv88e6xxx_reg_lock(p->chip);
 	err = mv88e6xxx_led_brightness_set(p, 1, brightness);
+	mv88e6xxx_reg_unlock(p->chip);
+
+	return err;
+}
+
+static int mv88e6xxx_led2_brightness_set_blocking(struct led_classdev *ldev,
+						  enum led_brightness brightness)
+{
+	struct mv88e6xxx_port *p = container_of(ldev, struct mv88e6xxx_port, led[2]);
+	int err;
+
+	mv88e6xxx_reg_lock(p->chip);
+	err = mv88e6xxx_led_brightness_set(p, 2, brightness);
+	mv88e6xxx_reg_unlock(p->chip);
+
+	return err;
+}
+
+static int mv88e6xxx_led3_brightness_set_blocking(struct led_classdev *ldev,
+						  enum led_brightness brightness)
+{
+	struct mv88e6xxx_port *p = container_of(ldev, struct mv88e6xxx_port, led[3]);
+	int err;
+
+	mv88e6xxx_reg_lock(p->chip);
+	err = mv88e6xxx_led_brightness_set(p, 3, brightness);
 	mv88e6xxx_reg_unlock(p->chip);
 
 	return err;
@@ -526,24 +573,40 @@ static int mv88e6xxx_led_blink_set(struct mv88e6xxx_port *p, int led,
 	if (err)
 		return err;
 
-	err = mv88e6xxx_port_led_read(p->chip, p->port,
-				      MV88E6XXX_PORT_LED_CONTROL_POINTER_LED01_CTRL,
-				      &reg);
+	if (led == 2 || led == 3)
+		err = mv88e6xxx_port_led_read(p->chip, p->port,
+					      MV88E6XXX_PORT_LED_CONTROL_POINTER_LED23_CTRL,
+					      &reg);
+	else
+		err = mv88e6xxx_port_led_read(p->chip, p->port,
+					      MV88E6XXX_PORT_LED_CONTROL_POINTER_LED01_CTRL,
+					      &reg);
 	if (err)
 		return err;
 
-	if (led == 1)
+	if (led == 3)
+		reg &= ~MV88E6XXX_PORT_LED_CONTROL_LED3_SEL_MASK;
+	else if (led == 2)
+		reg &= ~MV88E6XXX_PORT_LED_CONTROL_LED2_SEL_MASK;
+	else if (led == 1)
 		reg &= ~MV88E6XXX_PORT_LED_CONTROL_LED1_SEL_MASK;
 	else
 		reg &= ~MV88E6XXX_PORT_LED_CONTROL_LED0_SEL_MASK;
 
 	/* This will select the forced blinking status */
-	if (led == 1)
+	if (led == 3)
+		reg |= MV88E6XXX_PORT_LED_CONTROL_LED3_SELD;
+	else if (led == 2)
+		reg |= MV88E6XXX_PORT_LED_CONTROL_LED2_SELD;
+	else if (led == 1)
 		reg |= MV88E6XXX_PORT_LED_CONTROL_LED1_SELD;
 	else
 		reg |= MV88E6XXX_PORT_LED_CONTROL_LED0_SELD;
 
-	reg |= MV88E6XXX_PORT_LED_CONTROL_POINTER_LED01_CTRL;
+	if (led == 2 || led == 3)
+		reg |= MV88E6XXX_PORT_LED_CONTROL_POINTER_LED23_CTRL;
+	else
+		reg |= MV88E6XXX_PORT_LED_CONTROL_POINTER_LED01_CTRL;
 
 	return mv88e6xxx_port_led_write(p->chip, p->port, reg);
 }
@@ -552,7 +615,7 @@ static int mv88e6xxx_led0_blink_set(struct led_classdev *ldev,
 				    unsigned long *delay_on,
 				    unsigned long *delay_off)
 {
-	struct mv88e6xxx_port *p = container_of(ldev, struct mv88e6xxx_port, led0);
+	struct mv88e6xxx_port *p = container_of(ldev, struct mv88e6xxx_port, led[0]);
 	int err;
 
 	mv88e6xxx_reg_lock(p->chip);
@@ -566,7 +629,7 @@ static int mv88e6xxx_led1_blink_set(struct led_classdev *ldev,
 				    unsigned long *delay_on,
 				    unsigned long *delay_off)
 {
-	struct mv88e6xxx_port *p = container_of(ldev, struct mv88e6xxx_port, led1);
+	struct mv88e6xxx_port *p = container_of(ldev, struct mv88e6xxx_port, led[1]);
 	int err;
 
 	mv88e6xxx_reg_lock(p->chip);
@@ -576,10 +639,38 @@ static int mv88e6xxx_led1_blink_set(struct led_classdev *ldev,
 	return err;
 }
 
+static int mv88e6xxx_led2_blink_set(struct led_classdev *ldev,
+				    unsigned long *delay_on,
+				    unsigned long *delay_off)
+{
+	struct mv88e6xxx_port *p = container_of(ldev, struct mv88e6xxx_port, led[2]);
+	int err;
+
+	mv88e6xxx_reg_lock(p->chip);
+	err = mv88e6xxx_led_blink_set(p, 2, delay_on, delay_off);
+	mv88e6xxx_reg_unlock(p->chip);
+
+	return err;
+}
+
+static int mv88e6xxx_led3_blink_set(struct led_classdev *ldev,
+				    unsigned long *delay_on,
+				    unsigned long *delay_off)
+{
+	struct mv88e6xxx_port *p = container_of(ldev, struct mv88e6xxx_port, led[3]);
+	int err;
+
+	mv88e6xxx_reg_lock(p->chip);
+	err = mv88e6xxx_led_blink_set(p, 3, delay_on, delay_off);
+	mv88e6xxx_reg_unlock(p->chip);
+
+	return err;
+}
+
 static int
 mv88e6xxx_led0_hw_control_is_supported(struct led_classdev *ldev, unsigned long rules)
 {
-	struct mv88e6xxx_port *p = container_of(ldev, struct mv88e6xxx_port, led0);
+	struct mv88e6xxx_port *p = container_of(ldev, struct mv88e6xxx_port, led[0]);
 	u16 selector = 0;
 
 	return mv88e6xxx_led_get_selector(p, 0, p->fiber, rules, &selector);
@@ -588,7 +679,7 @@ mv88e6xxx_led0_hw_control_is_supported(struct led_classdev *ldev, unsigned long 
 static int
 mv88e6xxx_led1_hw_control_is_supported(struct led_classdev *ldev, unsigned long rules)
 {
-	struct mv88e6xxx_port *p = container_of(ldev, struct mv88e6xxx_port, led1);
+	struct mv88e6xxx_port *p = container_of(ldev, struct mv88e6xxx_port, led[1]);
 	u16 selector = 0;
 
 	return mv88e6xxx_led_get_selector(p, 1, p->fiber, rules, &selector);
@@ -675,7 +766,7 @@ mv88e6xxx_led_hw_control_get(struct mv88e6xxx_port *p, int led, unsigned long *r
 static int
 mv88e6xxx_led0_hw_control_set(struct led_classdev *ldev, unsigned long rules)
 {
-	struct mv88e6xxx_port *p = container_of(ldev, struct mv88e6xxx_port, led0);
+	struct mv88e6xxx_port *p = container_of(ldev, struct mv88e6xxx_port, led[0]);
 	int err;
 
 	mv88e6xxx_reg_lock(p->chip);
@@ -688,7 +779,7 @@ mv88e6xxx_led0_hw_control_set(struct led_classdev *ldev, unsigned long rules)
 static int
 mv88e6xxx_led1_hw_control_set(struct led_classdev *ldev, unsigned long rules)
 {
-	struct mv88e6xxx_port *p = container_of(ldev, struct mv88e6xxx_port, led1);
+	struct mv88e6xxx_port *p = container_of(ldev, struct mv88e6xxx_port, led[1]);
 	int err;
 
 	mv88e6xxx_reg_lock(p->chip);
@@ -701,7 +792,7 @@ mv88e6xxx_led1_hw_control_set(struct led_classdev *ldev, unsigned long rules)
 static int
 mv88e6xxx_led0_hw_control_get(struct led_classdev *ldev, unsigned long *rules)
 {
-	struct mv88e6xxx_port *p = container_of(ldev, struct mv88e6xxx_port, led0);
+	struct mv88e6xxx_port *p = container_of(ldev, struct mv88e6xxx_port, led[0]);
 
 	return mv88e6xxx_led_hw_control_get(p, 0, rules);
 }
@@ -709,7 +800,7 @@ mv88e6xxx_led0_hw_control_get(struct led_classdev *ldev, unsigned long *rules)
 static int
 mv88e6xxx_led1_hw_control_get(struct led_classdev *ldev, unsigned long *rules)
 {
-	struct mv88e6xxx_port *p = container_of(ldev, struct mv88e6xxx_port, led1);
+	struct mv88e6xxx_port *p = container_of(ldev, struct mv88e6xxx_port, led[1]);
 
 	return mv88e6xxx_led_hw_control_get(p, 1, rules);
 }
@@ -729,7 +820,7 @@ static struct device *mv88e6xxx_led_hw_control_get_device(struct mv88e6xxx_port 
 static struct device *
 mv88e6xxx_led0_hw_control_get_device(struct led_classdev *ldev)
 {
-	struct mv88e6xxx_port *p = container_of(ldev, struct mv88e6xxx_port, led0);
+	struct mv88e6xxx_port *p = container_of(ldev, struct mv88e6xxx_port, led[0]);
 
 	return mv88e6xxx_led_hw_control_get_device(p);
 }
@@ -737,7 +828,7 @@ mv88e6xxx_led0_hw_control_get_device(struct led_classdev *ldev)
 static struct device *
 mv88e6xxx_led1_hw_control_get_device(struct led_classdev *ldev)
 {
-	struct mv88e6xxx_port *p = container_of(ldev, struct mv88e6xxx_port, led1);
+	struct mv88e6xxx_port *p = container_of(ldev, struct mv88e6xxx_port, led[1]);
 
 	return mv88e6xxx_led_hw_control_get_device(p);
 }
@@ -771,22 +862,19 @@ int mv88e6xxx_port_setup_leds(struct mv88e6xxx_chip *chip, int port)
 	}
 
 	fwnode_for_each_child_node(leds, led) {
-		/* Reg represent the led number of the port, max 2
+		/* Reg represent the led number of the port, max 4
 		 * LEDs can be connected to each port, in some designs
 		 * only one LED is connected.
 		 */
 		if (fwnode_property_read_u32(led, "reg", &led_num))
 			continue;
-		if (led_num > 1) {
+		if (led_num >= mv88e6xxx_num_leds(chip)) {
 			dev_err(dev, "invalid LED specified port %d\n", port);
 			ret = -EINVAL;
 			goto err_put_led;
 		}
 
-		if (led_num == 0)
-			l = &p->led0;
-		else
-			l = &p->led1;
+		l = &p->led[led_num];
 
 		state = led_init_default_state_get(led);
 		switch (state) {
@@ -805,17 +893,27 @@ int mv88e6xxx_port_setup_leds(struct mv88e6xxx_chip *chip, int port)
 		if (led_num == 0) {
 			l->brightness_set_blocking = mv88e6xxx_led0_brightness_set_blocking;
 			l->blink_set = mv88e6xxx_led0_blink_set;
-			l->hw_control_is_supported = mv88e6xxx_led0_hw_control_is_supported;
-			l->hw_control_set = mv88e6xxx_led0_hw_control_set;
-			l->hw_control_get = mv88e6xxx_led0_hw_control_get;
-			l->hw_control_get_device = mv88e6xxx_led0_hw_control_get_device;
-		} else {
+			if (mv88e6xxx_has_led_hw_triggers(chip)) {
+				l->hw_control_is_supported = mv88e6xxx_led0_hw_control_is_supported;
+				l->hw_control_set = mv88e6xxx_led0_hw_control_set;
+				l->hw_control_get = mv88e6xxx_led0_hw_control_get;
+				l->hw_control_get_device = mv88e6xxx_led0_hw_control_get_device;
+			}
+		} else if (led_num == 1) {
 			l->brightness_set_blocking = mv88e6xxx_led1_brightness_set_blocking;
 			l->blink_set = mv88e6xxx_led1_blink_set;
-			l->hw_control_is_supported = mv88e6xxx_led1_hw_control_is_supported;
-			l->hw_control_set = mv88e6xxx_led1_hw_control_set;
-			l->hw_control_get = mv88e6xxx_led1_hw_control_get;
-			l->hw_control_get_device = mv88e6xxx_led1_hw_control_get_device;
+			if (mv88e6xxx_has_led_hw_triggers(chip)) {
+				l->hw_control_is_supported = mv88e6xxx_led1_hw_control_is_supported;
+				l->hw_control_set = mv88e6xxx_led1_hw_control_set;
+				l->hw_control_get = mv88e6xxx_led1_hw_control_get;
+				l->hw_control_get_device = mv88e6xxx_led1_hw_control_get_device;
+			}
+		} else if (led_num == 2) {
+			l->brightness_set_blocking = mv88e6xxx_led2_brightness_set_blocking;
+			l->blink_set = mv88e6xxx_led2_blink_set;
+		} else {
+			l->brightness_set_blocking = mv88e6xxx_led3_brightness_set_blocking;
+			l->blink_set = mv88e6xxx_led3_blink_set;
 		}
 		l->hw_control_trigger = "netdev";
 
