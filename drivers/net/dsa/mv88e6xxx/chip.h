@@ -301,6 +301,8 @@ struct mv88e6xxx_port {
 	bool fiber;
 	struct led_classdev led0;
 	struct led_classdev led1;
+	struct led_classdev led2;
+	struct led_classdev led3;
 
 	/* MacAuth Bypass control flag */
 	bool mab;
