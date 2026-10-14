@@ -135,6 +135,7 @@ struct mv88e6xxx_info {
 	unsigned int num_ports;
 	unsigned int num_internal_phys;
 	unsigned int num_gpio;
+	unsigned int num_leds;
 	unsigned int num_tcam_entries;
 	unsigned int max_vid;
 	unsigned int max_sid;
@@ -301,6 +302,8 @@ struct mv88e6xxx_port {
 	bool fiber;
 	struct led_classdev led0;
 	struct led_classdev led1;
+	struct led_classdev led2;
+	struct led_classdev led3;
 
 	/* MacAuth Bypass control flag */
 	bool mab;
@@ -853,6 +856,11 @@ static inline u16 mv88e6xxx_port_mask(struct mv88e6xxx_chip *chip)
 static inline unsigned int mv88e6xxx_num_gpio(struct mv88e6xxx_chip *chip)
 {
 	return chip->info->num_gpio;
+}
+
+static inline unsigned int mv88e6xxx_num_leds(struct mv88e6xxx_chip *chip)
+{
+	return chip->info->num_leds;
 }
 
 static inline bool mv88e6xxx_is_invalid_port(struct mv88e6xxx_chip *chip, int port)
