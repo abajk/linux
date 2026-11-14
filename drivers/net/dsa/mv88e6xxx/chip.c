@@ -3409,6 +3409,8 @@ static int mv88e6xxx_setup_port(struct mv88e6xxx_chip *chip, int port)
 			return err;
 	}
 
+	pr_err("%s: %d\n", __func__, mv88e6xxx_num_leds(chip));
+
 	err = mv88e6xxx_port_setup_mac(chip, port, LINK_UNFORCED,
 				       SPEED_UNFORCED, DUPLEX_UNFORCED,
 				       PAUSE_ON, PHY_INTERFACE_MODE_NA);
@@ -6667,6 +6669,8 @@ static int mv88e6xxx_detect(struct mv88e6xxx_chip *chip)
 	/* Update the compatible info with the probed one */
 	chip->info = info;
 
+	pr_err("%s: %d\n", __func__, mv88e6xxx_num_leds(chip));
+
 	dev_info(chip->dev, "switch 0x%x detected: %s, revision %u\n",
 		 chip->info->prod_num, chip->info->name, rev);
 
@@ -7449,6 +7453,8 @@ static int mv88e6xxx_probe(struct mdio_device *mdiodev)
 		if (err)
 			goto out;
 	}
+
+	pr_err("%s: %d\n", __func__, mv88e6xxx_num_leds(chip));
 
 	if (chip->info->edsa_support == MV88E6XXX_EDSA_SUPPORTED)
 		chip->tag_protocol = DSA_TAG_PROTO_EDSA;
